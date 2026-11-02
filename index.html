@@ -255,12 +255,14 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
         <div><div class="who" id="bLbl">Badr 30% + livraison</div><div class="amt num" id="bAmt">0,00 DH</div></div>
       </div>
     </section>
-    <section class="promo-board" id="promoBoard" aria-label="Active brand promotions" hidden></section>
     <div id="bannerBox" aria-live="polite"></div>
     <div class="tiles">
       <button class="tile" type="button" data-go="clients"><span class="k">Clients still owe</span><span class="v num" id="tileOwe">0,00 DH</span></button>
       <button class="tile" type="button" data-go="virements"><span class="k">Virements pending</span><span class="v num" id="tilePend">0,00 DH</span></button>
     </div>
+    <div class="sec-h"><h2>Baskets</h2></div>
+    <p class="note">Group items with the same basket name, then apply one coupon to the whole basket.</p>
+    <section class="promo-board" id="basketBoard" aria-label="Baskets" hidden></section>
     <div class="sec-h"><h2>Products</h2><button class="btn" id="addBtn" type="button">+ Add</button></div>
     <ul class="plain" id="plist"></ul>
   </main>
@@ -336,12 +338,8 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
     <div class="sheet-h"><h2 id="sheetTitle">Product</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
     <form id="pForm" autocomplete="off">
       <div class="field"><label for="fName">Product</label><input id="fName" type="text" placeholder="Air Jordan 1 Low SE"></div>
-      <div class="field"><label for="fOrder">Order / customer</label><input id="fOrder" type="text" placeholder="Marwa"><span class="note">Use the same name for every item in one checkout; the promo is summarized once for the whole order.</span></div>
+      <div class="field"><label for="fOrder">Basket / customer</label><input id="fOrder" type="text" maxlength="100" placeholder="Marwa order 1"><span class="note">Use the same unique basket name for each item in one checkout. Original prices stay unchanged.</span></div>
       <div class="field"><label for="fBrand">Brand</label><input id="fBrand" type="text" placeholder="Sephora, Nike…"></div>
-      <div class="two">
-        <div class="field"><label for="fPromoCode">Code for this order (optional)</label><input id="fPromoCode" type="text" placeholder="Enter code if known"></div>
-        <div class="field"><label for="fPromoPct">Order discount (%)</label><input id="fPromoPct" type="text" inputmode="decimal" placeholder="0"></div>
-      </div>
       <div class="two">
         <div class="field"><label for="fEur">Price EUR</label><input id="fEur" type="text" inputmode="decimal"></div>
         <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
@@ -354,6 +352,28 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
       <div class="sheet-actions">
         <button class="btn block" id="fSave" type="submit">Save</button>
         <button class="btn soft block" id="fDel" type="button" hidden>Delete product</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- basket coupon sheet -->
+<div class="layer" id="bsheet" hidden>
+  <div class="scrim" data-close="1"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
+    <div class="sheet-h"><h2 id="bsTitle">Basket coupon</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
+    <form id="bForm" autocomplete="off">
+      <div class="field"><label for="bName">Basket / customer</label><input id="bName" type="text" readonly></div>
+      <div class="field"><label for="bCode">Coupon code (optional)</label><input id="bCode" type="text" placeholder="Enter code"></div>
+      <div class="two">
+        <div class="field"><label for="bType">Discount type</label><select id="bType"><option value="amount">Fixed amount (€)</option><option value="percent">Percent (%)</option></select></div>
+        <div class="field"><label for="bValue">Coupon discount</label><input id="bValue" type="text" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <p class="note">This coupon applies once to the whole basket subtotal. Product prices you entered remain unchanged; savings are allocated by item price.</p>
+      <div class="prev num" id="bPrev"></div>
+      <div class="sheet-actions">
+        <button class="btn block" id="bSave" type="submit">Save basket coupon</button>
+        <button class="btn soft block" id="bRemove" type="button" hidden>Remove coupon</button>
       </div>
     </form>
   </section>
@@ -448,20 +468,48 @@ var firebaseConfig = {
   var f2=function(n){return n==null?'':String(n).replace('.',',')};
   var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
 
-  var S={me:'',tab:'home',products:[],pickups:[],clients:[],virements:[],
+  var S={me:'',tab:'home',products:[],baskets:[],pickups:[],clients:[],virements:[],
     settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
-    loaded:{p:false,k:false,c:false,v:false},fresh:false,timedOut:false,rateDirty:false,
-    editing:{p:null,c:null,v:null},unsubs:[],seeded:false,timer:null};
+    loaded:{p:false,bs:false,k:false,c:false,v:false},fresh:false,timedOut:false,rateDirty:false,
+    editing:{p:null,c:null,v:null,b:null},unsubs:[],seeded:false,timer:null};
   var TABS=['home','clients','virements','livraison','rate'];
   var configured=firebaseConfig.apiKey&&firebaseConfig.apiKey.indexOf('PASTE')!==0;
   var auth=null,db=null;
 
   /* ---------- maths ---------- */
   function rateOf(s){return (s.paidEur>0&&s.gotDh>0)?s.gotDh/s.paidEur:0}
-  function calc(p,s){
+  function basketKey(name){return String(name||'').trim().toLowerCase()}
+  function basketId(name){return 'basket_'+encodeURIComponent(basketKey(name))}
+  function basketByName(name,baskets){
+    var key=basketKey(name);
+    return (baskets||S.baskets).filter(function(b){return basketKey(b.name)===key})[0]||null;
+  }
+  function promoDetails(p,products){
+    var list=products||S.products,basket=basketByName(p.orderName),legacyType=p.promoType||(p.promoEur!=null?'amount':'percent');
+    var legacyValue=Number(p.promoValue!=null?p.promoValue:(legacyType==='amount'?p.promoEur:p.promoPct))||0;
+    var type=basket?(basket.promoType==='amount'?'amount':'percent'):legacyType;
+    if(type!=='amount')type='percent';
+    var rawValue=basket?basket.promoValue:legacyValue;
+    var value=Math.max(0,type==='percent'?Math.min(100,Number(rawValue)||0):Number(rawValue)||0);
+    var groupKey=basket?basketKey(p.orderName):[basketKey(p.orderName),basketKey(p.brand),type,value,basketKey(p.promoCode)].join('|');
+    var baseEur=0;
+    list.forEach(function(item){
+      if(item===p||(p.id&&item.id===p.id))return;
+      var itemBasket=basketByName(item.orderName),itemType=item.promoType||(item.promoEur!=null?'amount':'percent');
+      var itemValue=Number(item.promoValue!=null?item.promoValue:(itemType==='amount'?item.promoEur:item.promoPct))||0;
+      if(itemType!=='amount')itemType='percent';
+      var itemGroupKey=itemBasket?basketKey(item.orderName):[basketKey(item.orderName),basketKey(item.brand),itemType,Math.max(0,itemType==='percent'?Math.min(100,itemValue):itemValue),basketKey(item.promoCode)].join('|');
+      if(itemGroupKey===groupKey)baseEur+=Number(item.priceEur)||0;
+    });
+    baseEur+=Number(p.priceEur)||0;
+    var savedEur=type==='amount'?Math.min(value,baseEur):baseEur*value/100;
+    var priceEur=Number(p.priceEur)||0;
+    return {type:type,value:value,key:basket?'basket:'+basketKey(p.orderName):'legacy:'+groupKey,baseEur:baseEur,savedEur:savedEur,allocatedEur:baseEur>0?savedEur*priceEur/baseEur:0,code:basket?basket.promoCode:(p.promoCode||''),basket:!!basket};
+  }
+  function calc(p,s,products){
     var r=rateOf(s),liv=p.livEur||0,pe=p.priceEur||0,pd=p.priceDh||0;
-    var promoPct=Math.max(0,Math.min(100,p.promoPct||0)),promoDh=pe*r*promoPct/100;
-    var livDh=liv*r,totalEur=pe*(1-promoPct/100)+liv,totalDh=pd*(1-promoPct/100)+livDh,costDh=totalEur*r;
+    var promo=promoDetails(p,products),promoPct=promo.baseEur>0?promo.savedEur/promo.baseEur*100:0,promoDh=promo.allocatedEur*r;
+    var livDh=liv*r,totalEur=pe-promo.allocatedEur+liv,totalDh=pd-promoDh+livDh,costDh=totalEur*r;
     var sold=typeof p.sellDh==='number';
     var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
     var productRev=sold?r2(p.sellDh-costDh):null;
@@ -471,7 +519,7 @@ var firebaseConfig = {
       var baseProductRev=r2(p.sellDh-(pe+liv)*r),baseRev=r2(baseProductRev+livDh),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseRev-baseG);
       promoUplift=rev-baseRev;promoG=g-baseG;promoB=b-baseB;
     }
-    return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:p.promoCode||'',brand:p.brand||'',orderName:p.orderName||'',sold:sold,rev:rev,g:g,b:b};
+    return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
   }
   function toDh(v){return v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}
 
@@ -537,7 +585,8 @@ var firebaseConfig = {
     S.fresh=false;S.timedOut=false;
     S.timer=setTimeout(function(){if(!S.fresh){S.timedOut=true;renderStatus()}},10000);
     renderStatus();
-    listen('products','products','p',function(){renderHero();renderProducts();renderPkProducts()});
+    listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts()});
+    listen('baskets','baskets','bs',function(){renderHero();renderBaskets();renderProducts()});
     listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
     listen('clients','clients','c',function(){renderClients();renderTiles()});
     listen('virements','virements','v',function(){renderVirements();renderTiles()});
@@ -552,12 +601,13 @@ var firebaseConfig = {
       }else if(!snap.metadata.fromCache&&!S.seeded){S.seeded=true;seed()}
       mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();
       if(!$('#sheet').hidden&&$('#fEur').value.trim()){syncPriceDh();renderPrev()}
+      if(!$('#bsheet').hidden)renderBasketPreview();
     },onErr));
   }
   function stopListening(){
     S.unsubs.forEach(function(u){try{u()}catch(e){}});S.unsubs=[];
     clearTimeout(S.timer);
-    S.products=[];S.pickups=[];S.clients=[];S.virements=[];S.loaded={p:false,k:false,c:false,v:false};S.seeded=false;
+    S.products=[];S.baskets=[];S.pickups=[];S.clients=[];S.virements=[];S.loaded={p:false,bs:false,k:false,c:false,v:false};S.seeded=false;
   }
   function seed(){
     var now=Date.now();
@@ -586,15 +636,15 @@ var firebaseConfig = {
       var c=calc(p,s);
       if(c.sold){
         tot+=c.rev;g+=c.g;b+=c.b;liv+=c.livDh;n++;
-        if(c.promoPct>0){
-          var key=[c.orderName.toLowerCase(),c.brand.toLowerCase(),c.promoPct,c.promoCode.toLowerCase()].join('|');
-          if(!promoOrders[key])promoOrders[key]={baseEur:0,gainG:0,gainB:0};
-          promoOrders[key].baseEur+=(p.priceEur||0);promoOrders[key].gainG+=c.promoG;promoOrders[key].gainB+=c.promoB;
+        if(c.promoAmountEur>0){
+          var key=c.promoKey;
+          if(!promoOrders[key])promoOrders[key]={baseEur:c.promoBaseEur,savedEur:c.promoAmountEur,soldBaseEur:0,gainG:0,gainB:0};
+          promoOrders[key].soldBaseEur+=(p.priceEur||0);promoOrders[key].gainG+=c.promoG;promoOrders[key].gainB+=c.promoB;
         }
       }else open++;
     });
     Object.keys(promoOrders).forEach(function(key){
-      var order=promoOrders[key],pct=key.split('|')[2],saved=Math.round((order.baseEur*rateOf(s)*Number(pct)/100+Number.EPSILON)*100)/100;
+      var order=promoOrders[key],saved=Math.round((order.savedEur*order.soldBaseEur/order.baseEur*rateOf(s)+Number.EPSILON)*100)/100;
       var orderG=Math.round((saved*s.ghitaPct/100+Number.EPSILON)*100)/100,orderB=saved-orderG;
       g+=orderG-order.gainG;b+=orderB-order.gainB;
     });
@@ -611,26 +661,53 @@ var firebaseConfig = {
       segment.el.hidden=!(barTotal>0&&segment.amount>0);
       segment.el.style.flexGrow=barTotal>0?segment.amount/barTotal:0;
     });
-    renderPromoBoard();
+    renderBaskets();
   }
-  function renderPromoBoard(){
+  function renderBaskets(){
     var groups={};
     S.products.forEach(function(p){
-      var c=calc(p,S.settings);
-      if(!(c.promoPct>0))return;
-      var brand=c.brand.trim()||'Brand not set',code=c.promoCode.trim(),orderName=c.orderName.trim()||'Unassigned order';
-      var key=[orderName.toLowerCase(),brand.toLowerCase(),c.promoPct,code.toLowerCase()].join('|');
-      if(!groups[key])groups[key]={brand:brand,code:code,orderName:orderName,pct:c.promoPct,count:0,soldCount:0,baseEur:0,soldBaseEur:0};
-      groups[key].count++;groups[key].baseEur+=(p.priceEur||0);
-      if(c.sold){groups[key].soldCount++;groups[key].soldBaseEur+=(p.priceEur||0)}
+      var name=(p.orderName||'').trim();
+      if(!name)return;
+      var key=basketKey(name);
+      if(!groups[key])groups[key]={name:name,items:[],basket:basketByName(name)};
+      groups[key].items.push(p);
     });
-    var board=$('#promoBoard'),entries=Object.keys(groups).map(function(k){return groups[k]});
+    S.baskets.forEach(function(b){
+      var name=(b.name||'').trim();
+      if(!name)return;
+      var key=basketKey(name);
+      if(!groups[key])groups[key]={name:name,items:[],basket:b};
+      else groups[key].basket=b;
+    });
+    var board=$('#basketBoard'),entries=Object.keys(groups).map(function(k){return groups[k]});
+    if(!S.loaded.p){board.hidden=false;board.innerHTML='<article class="empty"><p>Loading baskets…</p></article>';return}
+    if(!entries.length){board.hidden=false;board.innerHTML='<article class="empty"><h3>No baskets yet</h3><p>Add products with the same basket name, then configure a coupon once for the total.</p></article>';return}
+    entries.sort(function(a,b){return a.name.localeCompare(b.name)});
     board.hidden=!entries.length;
     board.innerHTML=entries.map(function(g){
-      var orderSaved=Math.round((g.baseEur*rateOf(S.settings)*g.pct/100+Number.EPSILON)*100)/100;
-      var soldSaved=Math.round((g.soldBaseEur*rateOf(S.settings)*g.pct/100+Number.EPSILON)*100)/100;
-      var ghita=Math.round((soldSaved*S.settings.ghitaPct/100+Number.EPSILON)*100)/100,badr=soldSaved-ghita;
-      return '<article class="promo-card"><div class="promo-top"><div class="promo-mark">−'+esc(String(g.pct))+'%</div><div class="promo-title"><strong>'+esc(g.orderName)+' · '+esc(g.brand)+'</strong><span>'+g.count+' product'+(g.count===1?'':'s')+' · '+esc(String(g.pct))+'% order promo'+(g.code?' · Code '+esc(g.code):'')+'</span></div></div><div class="promo-saved"><span>Total order savings</span><strong class="num">'+dh(orderSaved)+'</strong></div><div class="promo-meta">Revenue uplift: '+dh(soldSaved)+' ('+g.soldCount+' of '+g.count+' sold)</div><div class="promo-split"><span>Ghita '+S.settings.ghitaPct+'% <b>'+dh(ghita)+'</b></span><span>Badr '+(100-S.settings.ghitaPct)+'% <b>'+dh(badr)+'</b></span></div></article>';
+      var subtotal=g.items.reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
+      var coupon=g.basket,legacy=null;
+      if(!coupon){
+        g.items.some(function(p){
+          var c=calc(p,S.settings);
+          if(c.promoAmountEur>0){legacy=c;return true}
+          return false;
+        });
+      }
+      var type=coupon?(coupon.promoType==='amount'?'amount':'percent'):(legacy?legacy.promoType:'amount');
+      var value=coupon?(Number(coupon.promoValue)||0):(legacy?legacy.promoValue:0);
+      var discount=coupon?(type==='amount'?Math.min(value,subtotal):subtotal*value/100):(legacy?legacy.promoAmountEur:0);
+      var code=coupon?(coupon.promoCode||''):(legacy?legacy.promoCode:'');
+      var couponLabel=discount>0?(type==='amount'?eur(discount):fmt(value)+'%'):'No coupon';
+      var note=discount>0?couponLabel+' coupon'+(code?' · '+esc(code):'')+(legacy&&!coupon?' · existing item promo':''):'No coupon applied';
+      var final= Math.max(0,subtotal-discount),savedDh=discount*rateOf(S.settings);
+      var mark=discount>0?'−'+(type==='amount'?eur(discount):fmt(value)+'%'):'B';
+      var totalSummary=discount>0?'Coupon: −'+eur(discount)+' ('+dh(savedDh)+') · Basket total: ':'No coupon · Basket total: ';
+      var soldItems=g.items.filter(function(p){return typeof p.sellDh==='number'});
+      var soldBase=soldItems.reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
+      var revenueSaving=discount*(subtotal>0?soldBase/subtotal:0)*rateOf(S.settings);
+      var totalText=g.items.length+' product'+(g.items.length===1?'':'s');
+      return '<article class="promo-card"><div class="promo-top"><div class="promo-mark">'+esc(mark)+'</div><div class="promo-title"><strong>'+esc(g.name)+' basket</strong><span>'+totalText+' · '+note+'</span></div></div><div class="promo-saved"><span>Original subtotal</span><strong class="num">'+eur(subtotal)+'</strong></div><div class="promo-meta">'+totalSummary+'<b>'+eur(final)+'</b></div><div class="promo-meta">Sold-item savings counted toward revenue: '+dh(revenueSaving)+'</div><button class="btn soft block" type="button" data-basket="'+esc(g.name)+'">'+(coupon||legacy?'Edit basket coupon':'Add one coupon')+'</button></article>';
     }).join('');
   }
   function vSums(){
@@ -689,11 +766,11 @@ var firebaseConfig = {
     if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No pair yet</h3><p>Add the first product. Both phones will show it right away.</p><button class="btn" type="button" data-add="p">Add a product</button></li>';return}
     ul.innerHTML=S.products.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(p){
       var c=calc(p,S.settings);
-      var foot=c.sold?'<div class="pfoot num"><span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr (+'+dh(c.livDh)+' livraison) '+dh(c.b)+'</span></div>':'<div class="pfoot muted">Tap to add the selling price and see the split</div>';
+      var foot=c.sold?'<div class="pfoot num"><span>Cost DH <b>'+dh(c.totalDh)+'</b></span>'+(c.allocatedPromoEur>0?'<span>Coupon −'+eur(c.allocatedPromoEur)+'</span>':'')+'<span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr (+'+dh(c.livDh)+' livraison) '+dh(c.b)+'</span></div>':'<div class="pfoot muted">'+(c.allocatedPromoEur>0?'Coupon allocation −'+eur(c.allocatedPromoEur)+' · ':'')+'Tap to add the selling price and see the split</div>';
       var brand=c.brand?'<span class="chip brand">'+esc(c.brand)+'</span>':'';
       var order=c.orderName?'<span class="chip order">'+esc(c.orderName)+'</span>':'';
       return '<li><button class="pcard" type="button" data-edit-p="'+esc(p.id)+'"><div class="ph"><h3>'+esc(p.name)+'</h3><div class="ph-tags">'+brand+order+'<span class="chip '+(c.sold?'sold':'open')+'">'+(c.sold?'Sold':'Not sold yet')+'</span></div></div>'
-        +'<div class="stats num"><div><div class="k">Net cost €</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Net cost DH</div><div class="v">'+dh(c.totalDh)+'</div></div><div><div class="k">Selling</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
+        +'<div class="stats num"><div><div class="k">Original price €</div><div class="v">'+eur(p.priceEur||0)+'</div></div><div><div class="k">Net cost € incl. delivery</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Selling DH</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
     }).join('');
   }
 
@@ -758,7 +835,7 @@ var firebaseConfig = {
   window.addEventListener('hashchange',function(){showTab(location.hash.slice(1))});
 
   /* ---------- sheets ---------- */
-  function closeAll(){['#sheet','#csheet','#vsheet','#acct'].forEach(function(s){$(s).hidden=true});S.editing={p:null,c:null,v:null}}
+  function closeAll(){['#sheet','#bsheet','#csheet','#vsheet','#acct'].forEach(function(s){$(s).hidden=true});S.editing={p:null,c:null,v:null,b:null}}
   document.addEventListener('click',function(e){
     if(e.target.closest('[data-close]'))closeAll();
     var a=e.target.closest('[data-add]');
@@ -766,6 +843,7 @@ var firebaseConfig = {
     var ep=e.target.closest('[data-edit-p]');if(ep)openProduct(ep.getAttribute('data-edit-p'));
     var ec=e.target.closest('[data-edit-c]');if(ec)openClient(ec.getAttribute('data-edit-c'));
     var ev=e.target.closest('[data-edit-v]');if(ev)openVir(ev.getAttribute('data-edit-v'));
+    var eb=e.target.closest('[data-basket]');if(eb)openBasket(eb.getAttribute('data-basket'));
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll()});
   $('#addBtn').addEventListener('click',function(){openProduct(null)});
@@ -782,15 +860,17 @@ var firebaseConfig = {
   }
 
   /* product sheet */
-  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),promoCode:$('#fPromoCode').value.trim(),promoPct:parse($('#fPromoPct').value),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livEur:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
+  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livEur:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
   function syncPriceDh(){
     var eurAmount=parse($('#fEur').value),r=rateOf(S.settings);
     $('#fDh').value=eurAmount==null||!r?'':f2(Math.round((eurAmount*r+Number.EPSILON)*100)/100);
   }
   function renderPrev(){
-    var v=pVals(),c=calc({priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,promoPct:v.promoPct||0,promoCode:v.promoCode,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh},S.settings);
-    var h='';
-    if(c.promoPct>0)h+='<div><span>Allocated order discount</span><span>'+dh(c.promoDh)+'</span></div>';
+    var v=pVals(),preview={priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh};
+    if(S.editing.p)preview.id=S.editing.p;
+    var c=calc(preview,S.settings,S.products);
+    var h='<div><span>Original product price</span><span>'+eur(v.priceEur||0)+'</span></div>';
+    if(c.allocatedPromoEur>0)h+='<div><span>Allocated order discount</span><span>'+eur(c.allocatedPromoEur)+' · '+dh(c.promoDh)+'</span></div>';
     h+='<div><span>Livraison DH · Badr</span><span>'+dh(c.livDh)+'</span></div><div><span>Net cost €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Net cost DH</span><span>'+dh(c.totalDh)+'</span></div>';
     if(c.sold)h+='<div class="hr"><span>Revenu DH total</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'% + livraison ('+dh(c.livDh)+')</span><span>'+dh(c.b)+'</span></div>';
     else h+='<div class="hr"><span class="muted">Revenu, Ghita, Badr</span><span class="muted">Add a selling price</span></div>';
@@ -800,26 +880,70 @@ var firebaseConfig = {
     var p=id?byId(S.products,id):null;
     S.editing.p=p?p.id:null;
     $('#sheetTitle').textContent=p?'Edit product':'New product';
-    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fPromoCode').value=p?p.promoCode||'':'';$('#fPromoPct').value=p&&p.promoPct?f2(p.promoPct):'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'1,5';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
+    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'1,5';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
     var d=$('#fDel');d.hidden=!p;
     if(p)armDelete(d,'Delete product',function(){db.doc('products/'+p.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
     renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);
   }
-  ['#fName','#fOrder','#fBrand','#fPromoCode','#fPromoPct','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
+  ['#fName','#fOrder','#fBrand','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
   $('#fEur').addEventListener('input',function(){syncPriceDh();renderPrev()});
   $('#pForm').addEventListener('submit',function(e){
     e.preventDefault();
     var v=pVals();
     if(!v.name){toast('Give the product a name');$('#fName').focus();return}
     if(v.priceEur==null||v.priceEur<0){toast('Enter the price in EUR');$('#fEur').focus();return}
-    if(v.promoPct!=null&&(v.promoPct<0||v.promoPct>100)){toast('Enter a promo discount between 0 and 100%');$('#fPromoPct').focus();return}
-    if((v.promoPct||0)>0&&(!v.brand||!v.orderName)){toast('Add the brand and order name to group this promo');$('#fOrder').focus();return}
     var now=Date.now(),btn=$('#fSave');btn.disabled=true;
-    var body={name:v.name,orderName:v.orderName,brand:v.brand,promoCode:v.promoCode,promoPct:v.promoPct||0,priceEur:v.priceEur,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
+    var body={name:v.name,orderName:v.orderName,brand:v.brand,priceEur:v.priceEur,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
     var job;
     if(S.editing.p)job=db.doc('products/'+S.editing.p).update(body);
     else{body.createdAt=now;body.createdBy=S.me;job=db.collection('products').add(body)}
     job.then(function(){closeAll();toast('Saved for both phones')},failMsg).then(function(){btn.disabled=false});
+  });
+
+  function basketSubtotal(name){
+    return S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)}).reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
+  }
+  function renderBasketPreview(){
+    var name=$('#bName').value.trim(),subtotal=basketSubtotal(name),type=$('#bType').value,value=parse($('#bValue').value)||0;
+    var discount=type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,Math.max(0,value))/100;
+    $('#bPrev').innerHTML='<div><span>Original basket subtotal</span><span>'+eur(subtotal)+'</span></div><div><span>One coupon discount</span><span>−'+eur(discount)+' · '+dh(discount*rateOf(S.settings))+'</span></div><div class="hr"><span>Basket total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
+  }
+  function openBasket(name){
+    var basket=basketByName(name),legacy=null;
+    S.editing.b=name;
+    $('#bName').value=name;$('#bCode').value=basket?basket.promoCode||'':'';
+    $('#bType').value=basket&&basket.promoType==='percent'?'percent':'amount';
+    $('#bValue').value=basket?f2(basket.promoValue||0):'';
+    if(!basket){
+      S.products.some(function(p){
+        if(basketKey(p.orderName)!==basketKey(name))return false;
+        var c=calc(p,S.settings);
+        if(c.promoAmountEur>0){legacy=c;return true}
+        return false;
+      });
+      if(legacy){$('#bType').value=legacy.promoType;$('#bValue').value=f2(legacy.promoValue);$('#bCode').value=legacy.promoCode}
+    }
+    $('#bRemove').hidden=!basket||(!(Number(basket.promoValue)>0)&&!basket.promoCode);
+    renderBasketPreview();$('#bsheet').hidden=false;setTimeout(function(){$('#bCode').focus()},30);
+  }
+  ['#bCode','#bValue'].forEach(function(id){$(id).addEventListener('input',renderBasketPreview)});
+  $('#bType').addEventListener('change',renderBasketPreview);
+  $('#bForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=$('#bName').value.trim(),type=$('#bType').value,value=parse($('#bValue').value);
+    if(!name){toast('Give this basket a name');return}
+    if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
+    var btn=$('#bSave');btn.disabled=true;
+    db.doc('baskets/'+basketId(name)).set({name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,updatedAt:Date.now(),updatedBy:S.me})
+      .then(function(){closeAll();toast('One coupon saved for the whole basket')},failMsg)
+      .then(function(){btn.disabled=false});
+  });
+  $('#bRemove').addEventListener('click',function(){
+    var name=S.editing.b;if(!name)return;
+    var btn=$('#bRemove');btn.disabled=true;
+    db.doc('baskets/'+basketId(name)).update({promoCode:'',promoType:'amount',promoValue:0,updatedAt:Date.now(),updatedBy:S.me})
+      .then(function(){closeAll();toast('Basket coupon removed')},failMsg)
+      .then(function(){btn.disabled=false});
   });
 
   /* client sheet */
@@ -905,7 +1029,7 @@ var firebaseConfig = {
   });
 
   /* ---------- render all ---------- */
-  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate()}
+  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderBaskets();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate()}
 
   showTab(location.hash.slice(1));
 })();

@@ -5,6 +5,16 @@ service cloud.firestore {
       && request.auth.token.email in ['badr@pinkdose.app', 'ghita@pinkdose.app'];
   }
 
+  function isBadrAccount() {
+    return request.auth != null
+      && request.auth.token.email == 'badr@pinkdose.app';
+  }
+
+  function isGhitaAccount() {
+    return request.auth != null
+      && request.auth.token.email == 'ghita@pinkdose.app';
+  }
+
   match /databases/{database}/documents {
     // Accounting entries are append-only for both accounts.
     match /accounting/{entryId} {
@@ -12,10 +22,53 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // The existing application data remains writable by the two accounts.
+    // Keep legacy per-product delivery fields protected while products are edited.
+    match /products/{productId} {
+      allow read: if isPinkDoseAccount();
+      allow create: if isGhitaAccount()
+        && (!('livDh' in request.resource.data) || request.resource.data.livDh == 0)
+        && !('livEur' in request.resource.data);
+      allow update: if isPinkDoseAccount()
+        && (isBadrAccount()
+          || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['livDh', 'livEur']));
+      allow delete: if isPinkDoseAccount();
+    }
+
+    // Badr owns package details and advances delivery status; Ghita marks arrival.
+    match /packages/{packageId} {
+      allow read: if isPinkDoseAccount();
+      allow create: if isBadrAccount()
+        && request.resource.data.status == 'unconfirmed';
+      allow update: if (
+        isBadrAccount()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'confirmedAt', 'confirmedBy', 'ongoingAt', 'ongoingBy',
+          'sentAt', 'sentBy', 'updatedAt', 'updatedBy'
+        ])
+        && (
+          (resource.data.status == 'unconfirmed' && request.resource.data.status == 'confirmed')
+          || (resource.data.status == 'confirmed' && request.resource.data.status == 'ongoing')
+          || (resource.data.status == 'ongoing' && request.resource.data.status == 'sent')
+        )
+      ) || (
+        isGhitaAccount()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'arrivedAt', 'arrivedBy', 'updatedAt', 'updatedBy'
+        ])
+        && (!('status' in resource.data) || resource.data.status == 'sent')
+        && request.resource.data.status == 'arrived'
+      );
+      allow delete: if isBadrAccount();
+    }
+
+    // Other application data remains writable by the two accounts.
     match /{document=**} {
-      allow read, write: if isPinkDoseAccount()
+      allow read: if isPinkDoseAccount()
         && !document.matches('accounting/.*');
+      allow write: if isPinkDoseAccount()
+        && !document.matches('accounting/.*')
+        && !document.matches('products/.*')
+        && !document.matches('packages/.*');
     }
   }
 }

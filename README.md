@@ -1,92 +1,115 @@
 # Pink Dose Management
 
-Shared app for Badr and Ghita: products and revenue split, clients (gave / owes), virements (pending / sent), livraison notices, EUR/DH rate.
-It is a static site (GitHub Pages) that talks to Firebase (free) for the login and the live shared data.
+A lightweight, private operations app for Pink Dose, a company managed by **Ghita Sqalli** with **Badr El Ghazaoui** as associate. It brings product pricing, package tracking, customer balances, transfers, pickup notices, and a period-based internal accounting view together in one mobile-friendly interface.
 
-No password is stored in these files. The two accounts live in Firebase Authentication.
+The app is a static web application. GitHub Pages serves the interface, Firebase Authentication handles sign-in, and Cloud Firestore synchronizes shared records between Ghita’s and Badr’s devices.
 
-Files in this folder:
+## What the app does
 
-| File | What it does |
+### Products and sales
+
+- Ghita is the only account allowed to create products. This is restricted in the interface and in Firestore rules.
+- Both accounts can view products and edit existing product details.
+- Products can be grouped by basket/customer name. A basket can have one percentage or fixed-value coupon shared across its products.
+- Entering a product’s price in EUR calculates its DH value using the shared exchange rate. A selling price can be recorded when the product is sold.
+- Product delivery is not set on the product itself; Badr records package weight and package delivery fees in **Packages**.
+
+### Packages and delivery
+
+- Badr records a package description and weight. The sending fee is **€1.50 per kg**, converted to DH using the app’s shared exchange rate.
+- The package workflow is **Confirmed → On going → Sent → Arrived**. Badr advances the package through Confirmed, On going, and Sent; Ghita marks it Arrived.
+- The delivery total is displayed separately in white under Badr’s amount in the revenue bar. Package fees are included in Badr’s revenue.
+- Compta excludes an unconfirmed package and includes package accounting activity from confirmation onward.
+
+### Revenue overview
+
+The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
+
+### Clients, transfers, and pickup notices
+
+- **Clients** stores amounts received and still owed.
+- **Virements** tracks transfers to Ghita or Badr, with pending and sent states.
+- **Livraison** lets a user post a pickup notice that is shared with the other account. The notice remains available until it is marked picked up.
+
+### Compta
+
+Compta provides day, month, and year filters, an activity list, and a downloadable PDF. Its internal Active / Passif grouping follows the requested management view:
+
+- **Actif:** product purchase values and confirmed package/delivery charges.
+- **Passif:** product sale values and coupon reductions.
+
+This is an internal management report, **not** a certified statutory balance sheet or a representation of legal compliance. Have a qualified accountant validate accounting classifications and reporting requirements for the applicable jurisdiction.
+
+## Accounts and permissions
+
+| Account | Permissions |
 |---|---|
-| `index.html` | The whole app. You paste your Firebase config at the top of its script. |
-| `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | Name and icon for "Add to Home Screen". |
-| `firestore.rules` | Security rules: only the two accounts can read or write. |
+| Ghita (`ghita@pinkdose.app`) | Create products, view and edit products, manage shared records, and mark sent packages as arrived. |
+| Badr (`badr@pinkdose.app`) | View and edit existing products, manage package records and progress packages through Confirmed, On going, and Sent, and manage shared records. |
 
----
+Firestore security rules are the authoritative enforcement layer for product creation and package status changes. Hiding or disabling a control in the interface is not a substitute for publishing the rules.
 
-## Part A. Firebase (about 10 minutes, free plan, no card)
+## Technology and project files
 
-1. Go to https://console.firebase.google.com and sign in with a Google account.
-2. **Create a project** (or "Add project"). Name: `pink-dose-management`. Turn Google Analytics off. Click Create.
-3. **Authentication.** Left menu: Build, then Authentication, then **Get started**. In "Sign-in method" click **Email/Password**, switch **Enable** on, click Save.
-4. **Create the two accounts.** Authentication, tab **Users**, button **Add user**.
-   - Email `badr@pinkdose.app` and the password Badr chose.
-   - Email `ghita@pinkdose.app` and the password Ghita chose.
+- `index.html` — The complete app interface and client-side application logic.
+- `firestore.rules` — Firestore authorization rules for the two Pink Dose accounts, product creation, package workflow, and append-only accounting events.
+- `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` — App name and icons for supported home-screen installation.
+- `package.json` — Local development command. There are no npm runtime dependencies; Firebase and PDF libraries are loaded by the page.
 
-   The app shows a username field. It adds `@pinkdose.app` by itself, so they type only `badr` or `ghita`. The emails must be exactly these two.
-5. **Firestore.** Left menu: Build, then **Firestore Database**, then **Create database**.
-   - Location: pick a European one (for example `eur3` or `europe-west9`). You cannot change it later.
-   - Choose **Production mode**, then Enable.
-   - Open the **Rules** tab, delete everything, paste the content of `firestore.rules`, click **Publish**. The accounting collection must use these updated rules so report entries are append-only.
-6. **Get your config.** Click the gear icon (Project settings), tab **General**, scroll to "Your apps", click the **web icon `</>`**. App nickname `pink-dose-management`. Leave "Firebase Hosting" unticked. Click Register app. Firebase shows a block called `firebaseConfig`. Keep that page open.
-7. Optional but recommended: Google Cloud Console, APIs and Services, Credentials, open the "Browser key" of this project, under Application restrictions choose Websites and add `https://badrrelghazaoui.github.io/*`.
+## Configure Firebase
 
-## Part B. Paste the config
+The app requires a Firebase project with **Email/Password Authentication** and **Cloud Firestore** enabled.
 
-Open `index.html` in a text editor (TextEdit in plain-text mode, VS Code, or the pencil icon on GitHub later). Near the bottom, find:
+1. In Firebase Console, create or select the project that will host Pink Dose’s data.
+2. Enable Email/Password sign-in in **Authentication**.
+3. Create these two users:
+   - `badr@pinkdose.app`
+   - `ghita@pinkdose.app`
+4. Create a Firestore database. Choose its region carefully; Firebase does not allow changing the database location later.
+5. In the Firestore **Rules** tab, publish the contents of [`firestore.rules`](./firestore.rules).
+6. Register a Firebase web app, then copy its `firebaseConfig` values into the `firebaseConfig` object in `index.html`.
+7. In Firebase Authentication settings, add the deployed website domain to **Authorized domains**.
 
-```js
-var firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  ...
-};
+The Firebase web API key is intended to be included in a client app; it is not an authorization boundary. Protect data with Firestore rules and keep account passwords private. Do not place service-account credentials or other server-side secrets in this repository.
+
+## Run locally
+
+From the project directory:
+
+```sh
+npm run dev
 ```
 
-Replace each `PASTE_...` value with the values from Firebase (keep the quotes). Save. The apiKey is not a secret for web apps. The rules from step 5 are what protect your data.
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173). The app still needs a working Firebase configuration and internet access to authenticate, sync Firestore data, and load the PDF libraries. Stop the local server with **Ctrl+C**.
 
-## Part C. Put it on GitHub Pages
+## Deploy to GitHub Pages
 
-1. On https://github.com click **+**, then **New repository**. Name: `Pink-Dose-Management`. Choose **Public**. Do not tick "Add a README". Click Create repository.
-2. On the empty repo page click **uploading an existing file**.
-3. Unzip the folder on your Mac, then drag the files into the page: `index.html`, `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `firestore.rules`, `README.md`. Drag the files, not the folder. Click **Commit changes**.
-4. In the repo: **Settings**, then **Pages** (left menu). Under "Build and deployment", Source = **Deploy from a branch**. Branch = `main`, folder = `/ (root)`. Click Save.
-5. Wait one or two minutes and refresh the Pages screen. It shows your address:
-   `https://badrrelghazaoui.github.io/Pink-Dose-Management/`
-6. Open it. You should see the login screen. If sign-in complains about the domain, in Firebase go to Authentication, Settings, **Authorized domains**, Add domain `badrrelghazaoui.github.io`.
+1. Push the project files to the repository’s `main` branch.
+2. In GitHub, open **Settings → Pages**.
+3. Set the source to **Deploy from a branch**, select `main` and `/(root)`, and save.
+4. Wait for the Pages deployment to finish, then open the published URL.
+5. Add the published host to Firebase Authentication’s authorized domains.
+6. Whenever `firestore.rules` changes, publish the new rules in the Firebase Console as well. A GitHub Pages deployment does not automatically update Firebase rules.
 
-## Part D. Install on the iPhones (Badr and Ghita)
+For iPhone use, open the published site in Safari and choose **Share → Add to Home Screen**.
 
-1. Open the address in **Safari**.
-2. Sign in (`badr` or `ghita`). When iOS offers to save the password, accept.
-3. Tap the **Share** button, scroll, tap **Add to Home Screen**, keep the name "Pink Dose", tap **Add**.
-4. Open it from the new icon. It runs full screen like an app, and both phones see the same data live.
+## Data and operational notes
 
-## Updating the app later
-
-Edit a file on GitHub (open it, pencil icon, change, Commit). Pages republishes in about a minute. On the iPhone, close the app fully from the app switcher and open it again.
-
-## Local preview
-
-Run `npm run dev` from this folder, then open http://127.0.0.1:5173. Stop the server with Ctrl+C.
-
-## Good to know
-
-- Sign-in is by username. Anyone can open the web address and see the login screen, but without the right account they get no data.
-- To change a password: Firebase, Authentication, Users, menu on the user, **Reset password** (sends a reset email to the fake address, so instead delete the user and add it again with a new password).
-- Firebase free plan (Spark) is far above what two people need.
-- The app does not send push notifications. Badr sees a livraison notice when he opens the app, and live while it is open.
-- In a product form, entering Price EUR automatically calculates Price DH using the shared rate; change that rate in the Rate tab.
-- Badr sets a per-product delivery amount in DH when editing the product; it is not assumed to be a fixed charge. Ghita can see the amount but cannot change it.
-- Products with the same unique basket/customer name belong to one basket (use a different name for each separate order, such as `Marwa order 1`). Add products at their original prices, then use the basket card to enter one coupon code and either a percentage or fixed euro discount for the entire subtotal. Fixed discounts are capped at the subtotal; savings are allocated by item price for cost and revenue calculations without changing the saved product prices.
-- The **Compta** section keeps a shared append-only daily activity log for both accounts and creates a bank-style PDF on download. It records actions from the date the new feature is deployed; older edits cannot be reconstructed. Publish the updated `firestore.rules` to Firebase to prevent accounting entries from being edited or deleted. PDF download requires an internet connection to load the PDF library.
+- The two signed-in accounts share records through Firestore; changes appear on connected devices when the app is online.
+- Accounting activity is recorded as append-only events. Existing product and package records can also supply fallback activity where older records lack a corresponding ledger entry.
+- Older sold products without a recorded sale date use the last product update date as an estimate for report filtering.
+- PDF creation requires internet access to load jsPDF and its table plugin.
+- The app does not send push notifications.
+- The account password reset flow must be managed in Firebase Authentication; the configured `@pinkdose.app` addresses are application login identities.
 
 ## Troubleshooting
 
-| Symptom | Fix |
+| Symptom | What to check |
 |---|---|
-| "Firebase is not set up yet" on the login | The `PASTE_...` values are still in `index.html`. |
-| "Wrong username or password" with the right password | The user was created with a different email. It must be exactly `badr@pinkdose.app` / `ghita@pinkdose.app`. |
-| Signed in but "can't read the data" | Rules not published (step 5), or the signed-in email is not one of the two. |
-| "Can't reach shared data yet" | No internet, or the Firestore database was not created. |
-| Page is blank on GitHub Pages | Pages not enabled yet, or `index.html` is inside a sub-folder. It must be at the root of the repo. |
+| “Firebase is not set up yet” | Confirm the `firebaseConfig` values in `index.html` are from the intended Firebase web app. |
+| Sign-in fails | Check that Email/Password is enabled, the user exists with the exact account email, and the password is correct. |
+| Signed in but shared data cannot load | Confirm the Firestore database exists and the latest contents of `firestore.rules` have been published. |
+| Product creation is rejected for Ghita | Check the signed-in email and ensure the Ghita-only product rule has been published. |
+| Package status updates are rejected | Publish the current rules and ensure the action follows the allowed status sequence and account role. |
+| PDF download is unavailable | Check connectivity and reload the app so the PDF libraries can load. |
+| GitHub Pages shows an error or old version | Check the Pages deployment status and reload after deployment completes. |

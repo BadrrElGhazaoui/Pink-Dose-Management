@@ -95,10 +95,20 @@ button{cursor:pointer}
 .shares>div:not(.g) .who:before{width:9px;height:9px;border-radius:50%;background:var(--hero-badr);box-shadow:0 0 0 2px color-mix(in srgb,var(--hero-badr) 28%,transparent)}
 .shares>div:not(.g) .who:after{content:"";width:12px;height:5px;flex:none;border-radius:99px;background:var(--hero-liv);box-shadow:0 0 0 1px color-mix(in srgb,var(--hero-fg) 32%,transparent)}
 .shares .amt{font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:-.01em;overflow-wrap:anywhere}
+.shares .liv-amount{display:inline-block;margin-top:3px;padding:3px 8px;border-radius:999px;background:rgba(59,29,42,.78);color:#fff;font-size:12px;font-weight:700}
+.package-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.package-actions .btn{padding:9px 12px;font-size:14px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .tile{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:2px;min-width:0}
 .tile .k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .tile .v{font-family:var(--font-display);font-weight:700;font-size:20px;overflow-wrap:anywhere}
+.balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.balance-card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px}
+.balance-card h3{margin:0 0 10px;font-family:var(--font-display);font-size:18px}
+.balance-row{display:flex;justify-content:space-between;gap:8px;margin:7px 0;font-size:13px}
+.balance-row span:last-child{text-align:right;font-weight:700;white-space:nowrap}
+.balance-total{border-top:1px solid var(--line);padding-top:9px;margin-top:10px;font-weight:800}
+@media(max-width:380px){.balance-grid{grid-template-columns:1fr}}
 
 /* banner */
 .banner{margin-top:14px;border-radius:20px;padding:14px 16px;display:grid;gap:10px}
@@ -162,7 +172,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
 .field{display:grid;gap:5px;margin-bottom:12px}
 .field>label,.field>.lab{font-size:13px;font-weight:600;color:var(--muted)}
-.field input[type=text],.field input[type=password],.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:13px;padding:11px 13px;min-height:46px}
+.field input[type=text],.field input[type=password],.field input[type=date],.field input[type=month],.field input[type=number],.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:13px;padding:11px 13px;min-height:46px}
 .field textarea{min-height:72px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -252,7 +262,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
       <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
       <div class="shares">
         <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
-        <div><div class="who" id="bLbl">Badr 30% + livraison</div><div class="amt num" id="bAmt">0,00 DH</div></div>
+        <div><div class="who" id="bLbl">Badr 30% + packages</div><div class="amt num" id="bAmt">0,00 DH</div><div class="liv-amount num" id="livAmt">Livraison 0,00 DH</div></div>
       </div>
     </section>
     <div id="bannerBox" aria-live="polite"></div>
@@ -264,6 +274,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
     <p class="note">Group items with the same basket name, then apply one coupon to the whole basket.</p>
     <section class="promo-board" id="basketBoard" aria-label="Baskets" hidden></section>
     <div class="sec-h"><h2>Products</h2><button class="btn" id="addBtn" type="button">+ Add</button></div>
+    <p class="note" id="productAccessNote" hidden>Only Ghita can add products.</p>
     <ul class="plain" id="plist"></ul>
   </main>
 
@@ -301,40 +312,61 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
     <ul class="plain" id="pklist"></ul>
   </main>
 
-  <!-- RATE -->
-  <main id="tab-rate" hidden>
-    <h2 class="page-h">Rate and split</h2>
-    <p class="lede">Every DH amount that comes from euros uses this rate. It comes from your first transaction.</p>
-    <div class="card">
-      <div class="note">DH for 1 €</div>
-      <div class="rate-big num" id="rateBig">11,4299</div>
-      <div class="note num" id="rateInv">1 DH = 0,0875 €</div>
-    </div>
-    <form class="card" id="rateForm" style="margin-top:12px" autocomplete="off">
-      <div class="two">
-        <div class="field"><label for="rPaid">Paid (€)</label><input id="rPaid" type="text" inputmode="decimal"></div>
-        <div class="field"><label for="rGot">Received (DH)</label><input id="rGot" type="text" inputmode="decimal"></div>
-      </div>
-      <div class="field"><label for="rPct">Ghita's share of revenu (%)</label><input id="rPct" type="text" inputmode="decimal"></div>
-      <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest, plus livraison.</p>
-      <button class="btn block" id="rSave" type="submit">Save rate and split</button>
+  <!-- PACKAGES -->
+  <main id="tab-packages" hidden>
+    <h2 class="page-h">Packages for Ghita</h2>
+    <p class="lede">Badr registers each package at €1.50 per kg, converted to DH using the shared exchange rate. A new package is not included in Compta until Badr confirms it. Badr then marks it On going and Sent; Ghita marks it Arrived.</p>
+    <form class="card" id="packageForm" autocomplete="off">
+      <div class="field"><label for="packageName">Package description</label><input id="packageName" type="text" maxlength="100" placeholder="Ghita package 1"></div>
+      <div class="field"><label for="packageWeight">Weight (kg)</label><input id="packageWeight" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="1"></div>
+      <div class="prev num" id="packagePreview"></div>
+      <button class="btn block" id="packageSave" type="submit">Add package sent to Ghita</button>
+      <p class="note" id="packageAccessNote" hidden>Only Badr can add or remove packages or update their sending status. Ghita can mark a sent package as arrived.</p>
     </form>
-    <p class="note" style="margin-top:14px">Badr receives his share plus the delivery amount he enters for each product. Ghita's share is calculated from product profit before delivery.</p>
+    <div class="sec-h"><h2>Packages</h2><span class="note num" id="packageTotal"></span></div>
+    <p class="note">Only Confirmed, On going, Sent, and Arrived packages are included in Compta. Package charges appear separately in white under Badr’s revenue.</p>
+    <ul class="plain" id="packageList"></ul>
+    <details style="margin-top:20px">
+      <summary class="sec-h"><strong>Currency rate and product split</strong></summary>
+      <p class="lede" style="margin-top:10px">These shared settings are also used to convert product prices and package charges.</p>
+      <div class="card">
+        <div class="note">DH for 1 €</div>
+        <div class="rate-big num" id="rateBig">11,4299</div>
+        <div class="note num" id="rateInv">1 DH = 0,0875 €</div>
+      </div>
+      <form class="card" id="rateForm" style="margin-top:12px" autocomplete="off">
+        <div class="two">
+          <div class="field"><label for="rPaid">Paid (€)</label><input id="rPaid" type="text" inputmode="decimal"></div>
+          <div class="field"><label for="rGot">Received (DH)</label><input id="rGot" type="text" inputmode="decimal"></div>
+        </div>
+        <div class="field"><label for="rPct">Ghita's share of product profit (%)</label><input id="rPct" type="text" inputmode="decimal"></div>
+        <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest.</p>
+        <button class="btn block" id="rSave" type="submit">Save rate and split</button>
+      </form>
+    </details>
   </main>
 
   <!-- ACCOUNTING -->
   <main id="tab-comptabilite" hidden>
     <h2 class="page-h">Comptabilite</h2>
-    <p class="lede">Shared daily activity report. New actions appear for both accounts and are included in that day's downloadable PDF.</p>
+    <p class="lede">Internal Active / Passif report for Pink Dose. Only confirmed packages and their later delivery statuses appear here. This management view is not a certified statutory balance sheet; have a qualified accountant confirm the accounting treatment for your jurisdiction.</p>
+    <p class="note">Gestionnaire: Ghita Sqalli · Associé: Badr El Ghazaoui</p>
     <div class="card">
-      <div class="field"><label for="accountingDate">Report date</label><input id="accountingDate" type="date"></div>
-      <div class="tiles" style="margin-top:0">
-        <div class="tile"><span class="k">Recorded actions</span><span class="v num" id="accountingCount">0</span></div>
-        <div class="tile"><span class="k">Product sales recorded</span><span class="v num" id="accountingSales">0,00 DH</span></div>
+      <div class="two">
+        <div class="field"><label for="accountingPeriod">Report</label><select id="accountingPeriod"><option value="day">Day</option><option value="month">Month</option><option value="year">Year</option></select></div>
+        <div class="field"><label for="accountingDate" id="accountingDateLabel">Date</label><input id="accountingDate" type="date"></div>
       </div>
-      <button class="btn block" id="accountingPdf" type="button" style="margin-top:14px">Download daily PDF</button>
+      <div class="tiles" style="margin-top:0">
+        <div class="tile"><span class="k">Report entries</span><span class="v num" id="accountingCount">0</span></div>
+        <div class="tile"><span class="k">Report period</span><span class="v num" id="accountingPeriodSummary">—</span></div>
+      </div>
+      <div class="balance-grid">
+        <article class="balance-card"><h3>ACTIF</h3><div class="balance-row"><span>Product purchase price</span><span class="num" id="accountingAssetsProducts">0,00 DH</span></div><div class="balance-row"><span>Package / livraison</span><span class="num" id="accountingAssetsDelivery">0,00 DH</span></div><div class="balance-row balance-total"><span>Total actif</span><span class="num" id="accountingAssetsTotal">0,00 DH</span></div></article>
+        <article class="balance-card"><h3>PASSIF</h3><div class="balance-row"><span>Product sale price</span><span class="num" id="accountingPassifSales">0,00 DH</span></div><div class="balance-row"><span>Coupon reductions</span><span class="num" id="accountingPassifCoupons">0,00 DH</span></div><div class="balance-row balance-total"><span>Total passif</span><span class="num" id="accountingPassifTotal">0,00 DH</span></div></article>
+      </div>
+      <button class="btn block" id="accountingPdf" type="button" style="margin-top:14px">Download report PDF</button>
     </div>
-    <div class="sec-h"><h2>Daily activity</h2></div>
+    <div class="sec-h"><h2 id="accountingHeading">Activity</h2></div>
     <ul class="plain" id="accountingList"></ul>
   </main>
 
@@ -361,10 +393,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
         <div class="field"><label for="fEur">Price EUR</label><input id="fEur" type="text" inputmode="decimal"></div>
         <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
       </div>
-      <div class="two">
-        <div class="field"><label for="fLiv">Delivery amount DH · Badr</label><input id="fLiv" type="text" inputmode="decimal"></div>
-        <div class="field"><label for="fSell">Selling price DH</label><input id="fSell" type="text" inputmode="decimal" placeholder="Empty if unsold"></div>
-      </div>
+      <div class="field"><label for="fSell">Selling price DH</label><input id="fSell" type="text" inputmode="decimal" placeholder="Empty if unsold"></div>
       <div class="prev num" id="prev"></div>
       <div class="sheet-actions">
         <button class="btn block" id="fSave" type="submit">Save</button>
@@ -487,11 +516,17 @@ var firebaseConfig = {
   var f2=function(n){return n==null?'':String(n).replace('.',',')};
   var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
 
-  var S={me:'',tab:'home',products:[],baskets:[],pickups:[],clients:[],virements:[],ledger:[],
+  var S={me:'',isBadr:false,isGhita:false,tab:'home',products:[],baskets:[],packages:[],pickups:[],clients:[],virements:[],ledger:[],
     settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
-    loaded:{p:false,bs:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
+    loaded:{p:false,bs:false,pkg:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
     editing:{p:null,c:null,v:null,b:null},unsubs:[],seeded:false,timer:null};
-  var TABS=['home','clients','virements','livraison','rate','comptabilite'];
+  var TABS=['home','clients','virements','livraison','packages','comptabilite'];
+  var rateTab=$('#t-rate');
+  if(rateTab){
+    rateTab.id='t-packages';
+    rateTab.setAttribute('data-tab','packages');
+    rateTab.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg>Packages';
+  }
   var configured=firebaseConfig.apiKey&&firebaseConfig.apiKey.indexOf('PASTE')!==0;
   var auth=null,db=null;
 
@@ -526,17 +561,17 @@ var firebaseConfig = {
     return {type:type,value:value,key:basket?'basket:'+basketKey(p.orderName):'legacy:'+groupKey,baseEur:baseEur,savedEur:savedEur,allocatedEur:baseEur>0?savedEur*priceEur/baseEur:0,code:basket?basket.promoCode:(p.promoCode||''),basket:!!basket};
   }
   function calc(p,s,products){
-    var r=rateOf(s),livDh=p.livDh!=null?Number(p.livDh)||0:(Number(p.livEur)||0)*r,pe=p.priceEur||0,pd=p.priceDh||0;
+    var r=rateOf(s),livDh=0,pe=p.priceEur||0,pd=p.priceDh||0;
     var promo=promoDetails(p,products),promoPct=promo.baseEur>0?promo.savedEur/promo.baseEur*100:0,promoDh=promo.allocatedEur*r;
-    var productCostEur=pe-promo.allocatedEur,totalEur=productCostEur+(r?livDh/r:0),totalDh=pd-promoDh+livDh,costDh=totalDh;
+    var productCostEur=pe-promo.allocatedEur,totalEur=productCostEur,totalDh=pd-promoDh,costDh=totalDh;
     var sold=typeof p.sellDh==='number';
     var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
     var productRev=sold?r2(p.sellDh-costDh):null;
     var rev=sold?r2(productRev+livDh):null,g=sold?r2(productRev*s.ghitaPct/100):null,b=sold?r2(rev-g):null;
     var promoUplift=0,promoG=0,promoB=0;
     if(sold){
-      var baseProductRev=r2(p.sellDh-(pd+livDh)),baseRev=r2(baseProductRev+livDh),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseRev-baseG);
-      promoUplift=rev-baseRev;promoG=g-baseG;promoB=b-baseB;
+      var baseProductRev=r2(p.sellDh-pd),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseProductRev-baseG);
+      promoUplift=rev-baseProductRev;promoG=g-baseG;promoB=b-baseB;
     }
     return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
   }
@@ -603,9 +638,12 @@ var firebaseConfig = {
     if(user){
       var n=(user.email||'').split('@')[0];
       S.me=n?n.charAt(0).toUpperCase()+n.slice(1):'User';
+      S.isBadr=(user.email||'').toLowerCase()==='badr@pinkdose.app';
+      S.isGhita=(user.email||'').toLowerCase()==='ghita@pinkdose.app';
       $('#lPass').value='';
       showApp();renderAll();startListening();
     }else{
+      S.me='';S.isBadr=false;S.isGhita=false;
       stopListening();showLogin();
     }
   });
@@ -629,8 +667,9 @@ var firebaseConfig = {
     S.fresh=false;S.timedOut=false;
     S.timer=setTimeout(function(){if(!S.fresh){S.timedOut=true;renderStatus()}},10000);
     renderStatus();
-    listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts()});
+    listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts();renderAccounting()});
     listen('baskets','baskets','bs',function(){renderHero();renderBaskets();renderProducts()});
+    listen('packages','packages','pkg',function(){renderHero();renderPackages();renderAccounting()});
     listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
     listen('clients','clients','c',function(){renderClients();renderTiles()});
     listen('virements','virements','v',function(){renderVirements();renderTiles()});
@@ -644,7 +683,7 @@ var firebaseConfig = {
           if(starterRate)db.doc('settings/main').update({gotDh:1199.57,updatedBy:S.me,updatedAt:Date.now()}).catch(failMsg);
         }
       }else if(!snap.metadata.fromCache&&!S.seeded){S.seeded=true;seed()}
-      mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();
+      mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();renderPackages();
       if(!$('#sheet').hidden&&$('#fEur').value.trim()){syncPriceDh();renderPrev()}
       if(!$('#bsheet').hidden)renderBasketPreview();
     },onErr));
@@ -652,12 +691,11 @@ var firebaseConfig = {
   function stopListening(){
     S.unsubs.forEach(function(u){try{u()}catch(e){}});S.unsubs=[];
     clearTimeout(S.timer);
-    S.products=[];S.baskets=[];S.pickups=[];S.clients=[];S.virements=[];S.ledger=[];S.loaded={p:false,bs:false,k:false,c:false,v:false,l:false};S.seeded=false;
+    S.products=[];S.baskets=[];S.packages=[];S.pickups=[];S.clients=[];S.virements=[];S.ledger=[];S.loaded={p:false,bs:false,pkg:false,k:false,c:false,v:false,l:false};S.seeded=false;
   }
   function seed(){
     var now=Date.now();
     db.doc('settings/main').set({paidEur:104.95,gotDh:1199.57,ghitaPct:70,updatedBy:S.me,updatedAt:now}).catch(function(){});
-    db.doc('products/air-jordan-1-low-se').set({name:'Air Jordan 1 Low SE',priceEur:104.95,priceDh:1999.57,livDh:0,sellDh:null,createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me}).catch(function(){});
   }
 
   /* ---------- status / me ---------- */
@@ -670,7 +708,14 @@ var firebaseConfig = {
   function renderMe(){
     $('#meName').textContent=S.me;$('#meIni').textContent=S.me?S.me.charAt(0):'?';
     $('#gLbl').textContent='Ghita '+S.settings.ghitaPct+'%';
-    $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'% + livraison';
+    $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'% + packages';
+    $('#addBtn').hidden=!S.isGhita;
+    $('#addBtn').disabled=!S.isGhita;
+    $('#productAccessNote').hidden=S.isGhita;
+    $('#packageName').disabled=!S.isBadr;
+    $('#packageWeight').disabled=!S.isBadr;
+    $('#packageSave').hidden=!S.isBadr;
+    $('#packageAccessNote').hidden=S.isBadr;
     $('#pkSend').textContent=S.me==='Badr'?'Post a pick-up notice':'Tell Badr to pick up';
   }
 
@@ -693,13 +738,16 @@ var firebaseConfig = {
       var orderG=Math.round((saved*s.ghitaPct/100+Number.EPSILON)*100)/100,orderB=saved-orderG;
       g+=orderG-order.gainG;b+=orderB-order.gainB;
     });
+    var packageRevenue=S.packages.reduce(function(total,pkg){return total+(Number(pkg.feeDh)||0)},0);
+    tot+=packageRevenue;b+=packageRevenue;
     $('#heroTotal').innerHTML=fmt(tot)+'<small>DH</small>';
-    $('#heroSub').textContent=S.products.length?(n+' sold · '+open+' waiting for a selling price'):'Nothing sold yet';
+    $('#heroSub').textContent=(n+' sold · '+open+' waiting for a selling price · '+S.packages.length+' packages');
     $('#gAmt').textContent=dh(g);$('#bAmt').textContent=dh(b);
+    $('#livAmt').textContent='Livraison '+dh(packageRevenue);
     var segments=[
       {el:$('#heroGhitaBar'),amount:Math.max(0,g)},
-      {el:$('#heroBadrBar'),amount:Math.max(0,b-liv)},
-      {el:$('#livStripe'),amount:Math.max(0,liv)}
+      {el:$('#heroBadrBar'),amount:Math.max(0,b-liv-packageRevenue)},
+      {el:$('#livStripe'),amount:Math.max(0,packageRevenue)}
     ];
     var barTotal=segments.reduce(function(sum,segment){return sum+segment.amount},0);
     segments.forEach(function(segment){
@@ -770,78 +818,194 @@ var firebaseConfig = {
   }
 
   /* ---------- accounting ledger ---------- */
+  function accountingPeriod(){
+    var type=$('#accountingPeriod').value||'day',value=$('#accountingDate').value;
+    if(type==='month'){
+      value=value||localDay(Date.now()).slice(0,7);
+      return {type:type,value:value,label:value};
+    }
+    if(type==='year'){
+      value=value||localDay(Date.now()).slice(0,4);
+      if(!/^\d{4}$/.test(value))value=localDay(Date.now()).slice(0,4);
+      return {type:type,value:value,label:value};
+    }
+    value=value||localDay(Date.now());
+    return {type:'day',value:value,label:value};
+  }
+  function syncAccountingPeriod(){
+    var type=$('#accountingPeriod').value,input=$('#accountingDate'),label=$('#accountingDateLabel'),today=localDay(Date.now());
+    if(type==='month'){
+      label.textContent='Month';input.type='month';input.removeAttribute('min');input.removeAttribute('max');input.removeAttribute('step');input.value=today.slice(0,7);
+    }else if(type==='year'){
+      label.textContent='Year';input.type='number';input.min='2000';input.max='9999';input.step='1';input.value=today.slice(0,4);
+    }else{
+      label.textContent='Date';input.type='date';input.removeAttribute('min');input.removeAttribute('max');input.removeAttribute('step');input.value=today;
+    }
+    renderAccounting();
+  }
   function accountingRows(){
-    var day=$('#accountingDate').value||localDay(Date.now());
-    return S.ledger.filter(function(event){return event.day===day}).sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0)});
+    var period=accountingPeriod();
+    var packageComptaCutoff=new Date(2026,10,2,16,18).getTime();
+    var rows=S.ledger.filter(function(event){
+      var day=String(event.day||'');
+      var inPeriod=period.type==='day'?day===period.value:day.indexOf(period.value)===0;
+      var packageBeforeCutoff=event.entity!=='package'||Number(event.timestamp)<packageComptaCutoff;
+      return inPeriod&&packageBeforeCutoff&&(event.entity!=='package'||packageCountsInAccounting(event));
+    });
+    S.products.forEach(function(product){
+      var hasProductEntry=S.ledger.some(function(event){return event.entity==='product'&&event.reference===product.id&&event.action==='added'});
+      var createdAt=Number(product.createdAt)||0,createdDay=createdAt?localDay(createdAt):'';
+      var createdInPeriod=createdDay&&(period.type==='day'?createdDay===period.value:createdDay.indexOf(period.value)===0);
+      var hasSaleEntry=S.ledger.some(function(event){return event.entity==='product'&&event.reference===product.id&&event.salesDh!=null});
+      var saleDeltas=S.ledger.filter(function(event){return event.entity==='product'&&event.reference===product.id&&event.salePriceDeltaDh!=null}).reduce(function(total,event){return total+(Number(event.salePriceDeltaDh)||0)},0);
+      var soldAt=Number(product.soldAt||product.updatedAt||product.createdAt)||0,soldDay=soldAt?localDay(soldAt):'';
+      var soldInPeriod=soldDay&&(period.type==='day'?soldDay===period.value:soldDay.indexOf(period.value)===0);
+      if(createdInPeriod&&!hasProductEntry){
+        rows.push({timestamp:createdAt,day:createdDay,category:'product',action:'from products',entity:'product',reference:product.id,productId:product.id,productName:product.name||'',description:'Product acquired: '+(product.name||''),amountEur:Number(product.priceEur)||0,amountDh:Number(product.priceDh)||0,productCostDeltaDh:Number(product.priceDh)||0});
+      }
+      if(typeof product.sellDh==='number'&&!hasSaleEntry&&soldInPeriod){
+        rows.push({timestamp:soldAt,day:soldDay,category:'sale',action:'from products',entity:'product',reference:product.id,productId:product.id,productName:product.name||'',description:(product.soldAt?'Product sale: ':'Product sale (date from last product update): ')+(product.name||''),amountEur:Number(product.priceEur)||0,amountDh:Number(product.priceDh)||0,salesDh:Math.round((product.sellDh-saleDeltas+Number.EPSILON)*100)/100});
+      }
+    });
+    S.packages.forEach(function(pkg){
+      var hasPackageEntry=S.ledger.some(function(event){return event.entity==='package'&&event.reference===pkg.id});
+      var timestamp=Number(pkg.createdAt)||0,day=timestamp?localDay(timestamp):'';
+      var inPeriod=day&&(period.type==='day'?day===period.value:day.indexOf(period.value)===0);
+      if(!hasPackageEntry&&timestamp<packageComptaCutoff&&inPeriod&&packageIsConfirmed(pkg))rows.push({timestamp:timestamp,day:day,category:'package',action:'from packages',entity:'package',reference:pkg.id,packageId:pkg.id,packageWeightKg:Number(pkg.weightKg)||0,packageStatus:pkg.status||'sent',description:'Package delivery cost: '+(pkg.name||'Package for Ghita'),amountEur:Number(pkg.feeEur)||0,amountDh:Number(pkg.feeDh)||0,deliveryAssetDeltaDh:Number(pkg.feeDh)||0});
+    });
+    S.baskets.forEach(function(basket){
+      var hasCouponEntry=S.ledger.some(function(event){return event.category==='basket coupon'&&event.reference===basket.id});
+      var timestamp=Number(basket.updatedAt||basket.createdAt)||0,day=timestamp?localDay(timestamp):'';
+      var inPeriod=day&&(period.type==='day'?day===period.value:day.indexOf(period.value)===0);
+      if(!hasCouponEntry&&inPeriod){
+        var subtotal=basketSubtotal(basket.name||''),discount=basket.promoType==='amount'?Math.min(Number(basket.promoValue)||0,subtotal):subtotal*Math.min(100,Number(basket.promoValue)||0)/100;
+        var discountDh=typeof basket.couponDh==='number'?basket.couponDh:discount*rateOf(S.settings);
+        if(discount>0)rows.push({timestamp:timestamp,day:day,category:'basket coupon',action:'from baskets',entity:'basket',reference:basket.id,description:'Basket coupon: '+(basket.name||''),amountDh:discountDh,couponReductionDeltaDh:discountDh});
+      }
+    });
+    return rows.sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0)});
+  }
+  function packageIsConfirmed(pkg){
+    return !pkg.status||['confirmed','ongoing','sent','arrived'].indexOf(pkg.status)!==-1;
+  }
+  function packageCountsInAccounting(event){
+    if(event.packageStatus==='unconfirmed')return false;
+    if(event.packageStatus==='removed')return (Number(event.deliveryAssetDeltaDh)||0)<0;
+    if(event.packageStatus)return packageIsConfirmed({status:event.packageStatus});
+    return true;
+  }
+  function accountingAmounts(event){
+    var assetDh=0,passifDh=0;
+    if(event.entity==='product'){
+      if(event.productCostDeltaDh!=null)assetDh=Number(event.productCostDeltaDh)||0;
+      else if(event.action==='added')assetDh=Number(event.amountDh)||0;
+      else if(event.action==='deleted')assetDh=-(Number(event.amountDh)||0);
+      passifDh=event.salePriceDeltaDh!=null?Number(event.salePriceDeltaDh)||0:Number(event.salesDh)||0;
+    }
+    if(event.entity==='package'){
+      if(event.deliveryAssetDeltaDh!=null)assetDh=Number(event.deliveryAssetDeltaDh)||0;
+      else if(event.action==='added')assetDh=Number(event.amountDh)||0;
+      else if(event.action==='removed')assetDh=-(Number(event.amountDh)||0);
+    }
+    if(event.category==='basket coupon'){
+      if(event.couponReductionDeltaDh!=null)passifDh=Number(event.couponReductionDeltaDh)||0;
+      else if(event.action==='added')passifDh=Number(event.amountDh)||0;
+      else if(event.action==='removed')passifDh=-(Number(event.amountDh)||0);
+    }
+    return {assetDh:assetDh,passifDh:passifDh};
+  }
+  function accountingSummary(rows){
+    var summary={productAssets:0,deliveryAssets:0,salesPassif:0,couponsPassif:0};
+    rows.forEach(function(event){
+      var amounts=accountingAmounts(event);
+      if(event.entity==='product'){summary.productAssets+=amounts.assetDh;summary.salesPassif+=amounts.passifDh}
+      if(event.entity==='package')summary.deliveryAssets+=amounts.assetDh;
+      if(event.category==='basket coupon')summary.couponsPassif+=amounts.passifDh;
+    });
+    Object.keys(summary).forEach(function(key){summary[key]=Math.round((summary[key]+Number.EPSILON)*100)/100});
+    summary.assetsTotal=Math.round((summary.productAssets+summary.deliveryAssets+Number.EPSILON)*100)/100;
+    summary.passifTotal=Math.round((summary.salesPassif+summary.couponsPassif+Number.EPSILON)*100)/100;
+    return summary;
   }
   function renderAccounting(){
-    var rows=accountingRows(),sales=rows.reduce(function(total,event){return total+(Number(event.salesDh)||0)},0);
+    var rows=accountingRows(),period=accountingPeriod(),summary=accountingSummary(rows);
     $('#accountingCount').textContent=String(rows.length);
-    $('#accountingSales').textContent=dh(sales);
+    $('#accountingPeriodSummary').textContent=period.label;
+    $('#accountingAssetsProducts').textContent=dh(summary.productAssets);
+    $('#accountingAssetsDelivery').textContent=dh(summary.deliveryAssets);
+    $('#accountingAssetsTotal').textContent=dh(summary.assetsTotal);
+    $('#accountingPassifSales').textContent=dh(summary.salesPassif);
+    $('#accountingPassifCoupons').textContent=dh(summary.couponsPassif);
+    $('#accountingPassifTotal').textContent=dh(summary.passifTotal);
+    $('#accountingHeading').textContent='Activity · '+period.label;
     var list=$('#accountingList');
     if(!S.loaded.l){list.innerHTML='<li class="empty"><p>Loading shared activity…</p></li>';return}
-    if(!rows.length){list.innerHTML='<li class="empty"><h3>No activity recorded</h3><p>Actions made from deployment onward will appear here for both accounts.</p></li>';return}
+    if(!rows.length){list.innerHTML='<li class="empty"><h3>No activity recorded</h3><p>Nothing was recorded during this period.</p></li>';return}
     list.innerHTML=rows.slice().reverse().map(function(event){
       var time=event.timestamp?new Date(event.timestamp).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
       var amounts=[];
       if(event.amountEur!=null)amounts.push(eur(event.amountEur));
       if(event.amountDh!=null)amounts.push(dh(event.amountDh));
-      if(event.salesDh!=null)amounts.push('Sale '+dh(event.salesDh));
-      return '<li><article class="pcard"><div class="ph"><h3>'+esc(event.description||event.entity||'Activity')+'</h3><span class="chip order">'+esc(event.action||'recorded')+'</span></div><div class="note">'+esc(time)+' · '+esc(event.actor||'')+' · '+esc(event.category||'activity')+'</div>'+(amounts.length?'<div class="pfoot num">'+amounts.map(esc).join(' · ')+'</div>':'')+'</article></li>';
+      var classification=accountingAmounts(event);
+      if(classification.assetDh)amounts.push('Actif '+dh(classification.assetDh));
+      if(classification.passifDh)amounts.push('Passif '+dh(classification.passifDh));
+      var product=event.productName?'<div class="note">Product · '+esc(event.productName)+'</div>':'';
+      return '<li><article class="pcard"><div class="ph"><h3>'+esc(event.description||event.entity||'Activity')+'</h3><span class="chip order">'+esc(event.action||'recorded')+'</span></div><div class="note">'+esc(time)+' · '+esc(event.category||'activity')+'</div>'+product+(amounts.length?'<div class="pfoot num">'+amounts.map(esc).join(' · ')+'</div>':'')+'</article></li>';
     }).join('');
   }
   function downloadAccountingPdf(){
-    var rows=accountingRows(),day=$('#accountingDate').value||localDay(Date.now());
+    var rows=accountingRows(),period=accountingPeriod(),summary=accountingSummary(rows);
     var Pdf=window.jspdf&&window.jspdf.jsPDF;
     if(!Pdf){toast('PDF library is unavailable. Check your internet connection and try again.');return}
     if(typeof Pdf.API.autoTable!=='function'){toast('PDF table support did not load. Refresh and try again.');return}
-    var sales=rows.reduce(function(total,event){return total+(Number(event.salesDh)||0)},0),pdf=new Pdf({orientation:'landscape',unit:'mm',format:'a4'});
+    var pdf=new Pdf({orientation:'landscape',unit:'mm',format:'a4'});
     var margin=14;
     pdf.setFillColor(59,29,42);pdf.rect(0,0,297,35,'F');
     pdf.setTextColor(255,250,248);pdf.setFont('helvetica','bold');pdf.setFontSize(18);pdf.text('PINK DOSE MANAGEMENT',margin,14);
-    pdf.setFontSize(11);pdf.text('DAILY ACCOUNTING ACTIVITY REPORT',margin,23);
-    pdf.setFont('helvetica','normal');pdf.setFontSize(10);pdf.text('Report date: '+day,margin,30);
-    pdf.setTextColor(59,29,42);pdf.setFont('helvetica','bold');pdf.setFontSize(12);pdf.text('Daily summary',margin,46);
+    pdf.setFontSize(11);pdf.text('INTERNAL ACTIF / PASSIF REPORT',margin,23);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(10);pdf.text('Report period: '+period.label,margin,30);
+    pdf.text('Gestionnaire: Ghita Sqalli · Associe: Badr El Ghazaoui',margin,37);
+    pdf.setTextColor(59,29,42);pdf.setFont('helvetica','bold');pdf.setFontSize(12);pdf.text('Period summary',margin,46);
     pdf.setFont('helvetica','normal');pdf.setFontSize(10);
-    pdf.text('Recorded actions: '+rows.length,margin,54);
-    pdf.text('Product sales recorded: '+dh(sales),margin,61);
-    pdf.text('Generated: '+new Date().toLocaleString('fr-FR'),margin,68);
+    pdf.text('Report entries: '+rows.length,margin,54);
+    pdf.text('Actif · Products: '+dh(summary.productAssets)+' · Package/livraison: '+dh(summary.deliveryAssets)+' · Total: '+dh(summary.assetsTotal),margin,61);
+    pdf.text('Passif · Sales: '+dh(summary.salesPassif)+' · Coupons: '+dh(summary.couponsPassif)+' · Total: '+dh(summary.passifTotal),margin,68);
+    pdf.setFontSize(8);pdf.text('Internal management report, not a certified statutory balance sheet. Confirm treatment with a qualified accountant.',margin,74);
     var tableRows=rows.map(function(event){
+      var amounts=accountingAmounts(event);
       return [
-        event.timestamp?new Date(event.timestamp).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'',
+        event.timestamp?new Date(event.timestamp).toLocaleDateString('fr-FR'):'',
         event.category||'activity',
-        event.action||'recorded',
         event.description||'',
-        event.amountEur==null?'—':eur(event.amountEur),
-        event.amountDh==null?'—':dh(event.amountDh),
-        event.deliveryDh==null?'—':dh(event.deliveryDh),
-        event.salesDh==null?'—':dh(event.salesDh),
-        event.actor||''
+        amounts.assetDh?dh(amounts.assetDh):'—',
+        amounts.passifDh?dh(amounts.passifDh):'—'
       ];
     });
     pdf.autoTable({
-      startY:75,
-      head:[['Time','Category','Action','Description','EUR value','DH value','Delivery DH','Sale DH','Recorded by']],
-      body:tableRows.length?tableRows:[['—','—','—','No activity recorded for this day','—','—','—','—','—']],
+      startY:80,
+      head:[['Date','Category','Description','Actif DH','Passif DH']],
+      body:tableRows.length?tableRows:[['—','—','No activity recorded for this period','—','—']],
       margin:{left:margin,right:margin,bottom:16},
       styles:{font:'helvetica',fontSize:8,cellPadding:2.4,overflow:'linebreak',textColor:[59,29,42]},
       headStyles:{fillColor:[201,58,115],textColor:[255,255,255],fontStyle:'bold'},
       alternateRowStyles:{fillColor:[250,238,238]},
-      columnStyles:{0:{cellWidth:15},1:{cellWidth:22},2:{cellWidth:20},3:{cellWidth:'auto'},4:{cellWidth:24},5:{cellWidth:25},6:{cellWidth:25},7:{cellWidth:22},8:{cellWidth:24}},
+      columnStyles:{0:{cellWidth:22},1:{cellWidth:30},2:{cellWidth:'auto'},3:{cellWidth:32},4:{cellWidth:32}},
       didDrawPage:function(){
         var pageCount=pdf.internal.getNumberOfPages(),page=pdf.internal.getCurrentPageInfo().pageNumber;
         pdf.setFontSize(8);pdf.setTextColor(127,92,104);
-        pdf.text('Shared internal activity report · Pink Dose Management',margin,203);
+        pdf.text('Internal management report · Not a certified statutory balance sheet',margin,203);
         pdf.text('Page '+page+' / '+pageCount,297-margin,203,{align:'right'});
       }
     });
     var fileUrl=URL.createObjectURL(pdf.output('blob')),link=document.createElement('a');
-    link.href=fileUrl;link.download='pink-dose-accounting-'+day+'.pdf';link.style.display='none';
+    link.href=fileUrl;link.download='pink-dose-accounting-'+period.value+'.pdf';link.style.display='none';
     document.body.appendChild(link);link.click();link.remove();
     window.setTimeout(function(){URL.revokeObjectURL(fileUrl)},1000);
   }
+  $('#accountingPeriod').addEventListener('change',syncAccountingPeriod);
   $('#accountingDate').value=localDay(Date.now());
   $('#accountingDate').addEventListener('change',renderAccounting);
+  $('#accountingDate').addEventListener('input',renderAccounting);
   $('#accountingPdf').addEventListener('click',downloadAccountingPdf);
 
   /* ---------- pickups banner / list ---------- */
@@ -883,14 +1047,14 @@ var firebaseConfig = {
   function renderProducts(){
     var ul=$('#plist');
     if(!S.loaded.p){ul.innerHTML='<li class="empty"><p>Loading the shared list…</p></li>';return}
-    if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No pair yet</h3><p>Add the first product. Both phones will show it right away.</p><button class="btn" type="button" data-add="p">Add a product</button></li>';return}
+    if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No products yet</h3><p>'+(S.isGhita?'Add the first product. Both phones will show it right away.':'Only Ghita can add products.')+'</p>'+(S.isGhita?'<button class="btn" type="button" data-add="p">Add a product</button>':'')+'</li>';return}
     ul.innerHTML=S.products.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(p){
       var c=calc(p,S.settings);
-      var foot=c.sold?'<div class="pfoot num"><span>Cost DH <b>'+dh(c.totalDh)+'</b></span>'+(c.allocatedPromoEur>0?'<span>Coupon −'+eur(c.allocatedPromoEur)+'</span>':'')+'<span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr (+'+dh(c.livDh)+' livraison) '+dh(c.b)+'</span></div>':'<div class="pfoot muted">'+(c.allocatedPromoEur>0?'Coupon allocation −'+eur(c.allocatedPromoEur)+' · ':'')+'Tap to add the selling price and see the split</div>';
+      var foot=c.sold?'<div class="pfoot num"><span>Cost DH <b>'+dh(c.totalDh)+'</b></span>'+(c.allocatedPromoEur>0?'<span>Coupon −'+eur(c.allocatedPromoEur)+'</span>':'')+'<span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr '+dh(c.b)+'</span></div>':'<div class="pfoot muted">'+(c.allocatedPromoEur>0?'Coupon allocation −'+eur(c.allocatedPromoEur)+' · ':'')+'Tap to add the selling price and see the split</div>';
       var brand=c.brand?'<span class="chip brand">'+esc(c.brand)+'</span>':'';
       var order=c.orderName?'<span class="chip order">'+esc(c.orderName)+'</span>':'';
       return '<li><button class="pcard" type="button" data-edit-p="'+esc(p.id)+'"><div class="ph"><h3>'+esc(p.name)+'</h3><div class="ph-tags">'+brand+order+'<span class="chip '+(c.sold?'sold':'open')+'">'+(c.sold?'Sold':'Not sold yet')+'</span></div></div>'
-        +'<div class="stats num"><div><div class="k">Original price €</div><div class="v">'+eur(p.priceEur||0)+'</div></div><div><div class="k">Net cost € incl. delivery</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Selling DH</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
+        +'<div class="stats num"><div><div class="k">Original price €</div><div class="v">'+eur(p.priceEur||0)+'</div></div><div><div class="k">Net cost €</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Selling DH</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
     }).join('');
   }
 
@@ -925,15 +1089,104 @@ var firebaseConfig = {
     }).join('');
   }
 
-  /* ---------- rate ---------- */
+  /* ---------- package sending ---------- */
+  function packageFee(weightKg){
+    return Math.round((weightKg*1.5+Number.EPSILON)*100)/100;
+  }
+  function packageStatus(pkg){
+    return pkg.status||'sent';
+  }
+  function packageStatusLabel(status){
+    return ({unconfirmed:'Awaiting confirmation',confirmed:'Confirmed',ongoing:'On going',sent:'Sent',arrived:'Arrived'})[status]||'Awaiting confirmation';
+  }
+  function packageTotalDh(){
+    return S.packages.reduce(function(total,pkg){return total+(Number(pkg.feeDh)||0)},0);
+  }
+  function renderPackagePreview(){
+    var weight=parse($('#packageWeight').value),eurFee=weight>0?packageFee(weight):0,dhFee=Math.round((eurFee*rateOf(S.settings)+Number.EPSILON)*100)/100;
+    $('#packagePreview').innerHTML='<div><span>Sending rate</span><span>1,50 € / kg</span></div><div><span>Sending price</span><span>'+eur(eurFee)+' · '+dh(dhFee)+'</span></div><div class="hr"><span>Added to Badr’s revenue</span><span>'+dh(dhFee)+'</span></div>';
+  }
+  function renderPackages(){
+    var list=$('#packageList');
+    $('#packageTotal').textContent=S.packages.length+' · '+dh(packageTotalDh())+' for Badr';
+    renderPackagePreview();
+    if(!S.loaded.pkg){list.innerHTML='<li class="empty"><p>Loading packages…</p></li>';return}
+    if(!S.packages.length){list.innerHTML='<li class="empty"><h3>No packages yet</h3><p>Add the first package sent to Ghita. Its sending charge is calculated from weight.</p></li>';return}
+    list.innerHTML=S.packages.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(pkg){
+      var status=packageStatus(pkg),statusClass=status==='arrived'?'sent':status==='unconfirmed'?'pend':'sold';
+      var action='';
+      if(S.isBadr){
+        action='<button class="btn" type="button" data-package-status="confirmed" data-package-id="'+esc(pkg.id)+'"'+(status!=='unconfirmed'?' disabled':'')+'>Confirmed</button>'
+          +'<button class="btn" type="button" data-package-status="ongoing" data-package-id="'+esc(pkg.id)+'"'+(status!=='confirmed'?' disabled':'')+'>On going</button>'
+          +'<button class="btn" type="button" data-package-status="sent" data-package-id="'+esc(pkg.id)+'"'+(status!=='ongoing'?' disabled':'')+'>Sent</button>';
+      }else if(S.isGhita&&status==='sent'){
+        action='<button class="btn" type="button" data-package-status="arrived" data-package-id="'+esc(pkg.id)+'">Arrived</button>';
+      }
+      return '<li><article class="pcard"><div class="ph"><h3>'+esc(pkg.name||'Package for Ghita')+'</h3><span class="chip '+statusClass+'">'+esc(packageStatusLabel(status))+'</span></div><div class="note">'+esc(when(pkg.createdAt))+'</div><div class="stats two2 num"><div><div class="k">Weight</div><div class="v">'+fmt(pkg.weightKg||0)+' kg</div></div><div><div class="k">Sending price · Badr</div><div class="v">'+eur(pkg.feeEur||0)+' · '+dh(pkg.feeDh||0)+'</div></div></div>'+(action||S.isBadr?'<div class="package-actions">'+action+(S.isBadr?'<button class="btn soft" type="button" data-package-delete="'+esc(pkg.id)+'">'+(packageDeleteArmed[pkg.id]?'Tap again to remove':'Remove package')+'</button>':'')+'</div>':'')+'</article></li>';
+    }).join('');
+  }
+  $('#packageWeight').addEventListener('input',renderPackagePreview);
+  $('#packageForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!S.isBadr){toast('Only Badr can add packages');return}
+    var name=$('#packageName').value.trim(),weight=parse($('#packageWeight').value),rate=rateOf(S.settings);
+    if(!name){toast('Give this package a description');$('#packageName').focus();return}
+    if(weight==null||weight<=0){toast('Enter a package weight greater than zero');$('#packageWeight').focus();return}
+    if(!rate){toast('Set a valid currency rate before adding a package');return}
+    var feeEur=packageFee(weight),feeDh=Math.round((feeEur*rate+Number.EPSILON)*100)/100,now=Date.now();
+    var ref=db.collection('packages').doc(),btn=$('#packageSave');
+    var pkg={name:name,weightKg:weight,feeEur:feeEur,feeDh:feeDh,rateDh:rate,status:'unconfirmed',createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me};
+    btn.disabled=true;
+    commitActivity(function(batch){batch.set(ref,pkg)},activityEvent('package','added','package',ref.id,'Package added: '+name,{packageId:ref.id,packageWeightKg:weight,packageStatus:'unconfirmed',amountEur:feeEur,amountDh:feeDh}))
+      .then(function(){$('#packageName').value='';$('#packageWeight').value='';renderPackagePreview();toast('Package added to Badr’s revenue; confirm it when ready')},failMsg)
+      .then(function(){btn.disabled=false});
+  });
+  var packageDeleteArmed={};
+  $('#packageList').addEventListener('click',function(e){
+    var statusBtn=e.target.closest('[data-package-status]');
+    if(statusBtn){
+      var nextStatus=statusBtn.getAttribute('data-package-status'),packageId=statusBtn.getAttribute('data-package-id'),statusPkg=byId(S.packages,packageId);
+      if(!statusPkg)return;
+      var currentStatus=packageStatus(statusPkg);
+      var allowed=S.isBadr&&((currentStatus==='unconfirmed'&&nextStatus==='confirmed')||(currentStatus==='confirmed'&&nextStatus==='ongoing')||(currentStatus==='ongoing'&&nextStatus==='sent'))
+        ||S.isGhita&&currentStatus==='sent'&&nextStatus==='arrived';
+      if(!allowed){toast('This account cannot change the package to that status');return}
+      var now=Date.now(),updates={status:nextStatus,updatedAt:now,updatedBy:S.me};
+      if(nextStatus==='confirmed'){updates.confirmedAt=now;updates.confirmedBy=S.me}
+      if(nextStatus==='ongoing'){updates.ongoingAt=now;updates.ongoingBy=S.me}
+      if(nextStatus==='sent'){updates.sentAt=now;updates.sentBy=S.me}
+      if(nextStatus==='arrived'){updates.arrivedAt=now;updates.arrivedBy=S.me}
+      var feeDh=Number(statusPkg.feeDh)||0,delta=nextStatus==='confirmed'?feeDh:0;
+      statusBtn.disabled=true;
+      commitActivity(function(batch){batch.update(db.doc('packages/'+packageId),updates)},activityEvent('package',nextStatus,'package',packageId,'Package '+packageStatusLabel(nextStatus).toLowerCase()+': '+(statusPkg.name||'Package for Ghita'),{packageId:packageId,packageWeightKg:Number(statusPkg.weightKg)||0,packageStatus:nextStatus,amountDh:delta||null,deliveryAssetDeltaDh:delta}))
+        .then(function(){toast('Package marked '+packageStatusLabel(nextStatus).toLowerCase())},failMsg)
+        .then(renderPackages);
+      return;
+    }
+    var btn=e.target.closest('[data-package-delete]');
+    if(!btn||!S.isBadr)return;
+    var id=btn.getAttribute('data-package-delete'),pkg=byId(S.packages,id);
+    if(!pkg)return;
+    if(!packageDeleteArmed[id]){
+      packageDeleteArmed[id]=true;renderPackages();return;
+    }
+    btn.disabled=true;
+    var confirmed=packageIsConfirmed(pkg),removalDelta=confirmed?-(Number(pkg.feeDh)||0):0;
+    commitActivity(function(batch){batch.delete(db.doc('packages/'+id))},activityEvent('package','removed','package',id,'Package removed: '+(pkg.name||'Package for Ghita'),{packageId:id,packageWeightKg:pkg.weightKg||0,packageStatus:confirmed?'removed':'unconfirmed',amountEur:pkg.feeEur||0,amountDh:pkg.feeDh||0,deliveryAssetDeltaDh:removalDelta}))
+      .then(function(){delete packageDeleteArmed[id];toast('Package removed from Badr’s revenue')},function(error){delete packageDeleteArmed[id];failMsg(error)})
+      .then(renderPackages);
+  });
+
+  /* ---------- currency rate and product split ---------- */
   function renderRate(){
     var s=S.settings,r=rateOf(s);
     $('#rateBig').textContent=r?r.toFixed(4).replace('.',','):'—';
     $('#rateInv').textContent=r?('1 DH = '+(1/r).toFixed(4).replace('.',',')+' €'):'';
     if(!S.rateDirty){$('#rPaid').value=f2(s.paidEur);$('#rGot').value=f2(s.gotDh);$('#rPct').value=f2(s.ghitaPct)}
-    $('#rPctNote').textContent='Badr gets '+(100-s.ghitaPct)+'% plus livraison.';
+    $('#rPctNote').textContent='Badr gets '+(100-s.ghitaPct)+'% of product profit. Package charges go entirely to Badr.';
+    renderPackages();
   }
-  ['#rPaid','#rGot','#rPct'].forEach(function(id){$(id).addEventListener('input',function(){S.rateDirty=true;var v=parse($('#rPct').value);$('#rPctNote').textContent=v!=null?('Badr gets '+(Math.round((100-v)*100)/100)+'% plus livraison.'):''})});
+  ['#rPaid','#rGot','#rPct'].forEach(function(id){$(id).addEventListener('input',function(){S.rateDirty=true;var v=parse($('#rPct').value);$('#rPctNote').textContent=v!=null?('Badr gets '+(Math.round((100-v)*100)/100)+'% of product profit. Package charges go entirely to Badr.'):''})});
   $('#rateForm').addEventListener('submit',function(e){
     e.preventDefault();
     var a=parse($('#rPaid').value),b=parse($('#rGot').value),c=parse($('#rPct').value);
@@ -946,6 +1199,7 @@ var firebaseConfig = {
 
   /* ---------- tabs ---------- */
   function showTab(t){
+    if(t==='rate')t='packages';
     if(TABS.indexOf(t)<0)t='home';
     S.tab=t;
     TABS.forEach(function(n){$('#tab-'+n).hidden=(n!==t);$('#t-'+n).setAttribute('aria-selected',n===t?'true':'false')});
@@ -961,14 +1215,14 @@ var firebaseConfig = {
   document.addEventListener('click',function(e){
     if(e.target.closest('[data-close]'))closeAll();
     var a=e.target.closest('[data-add]');
-    if(a){var k=a.getAttribute('data-add');if(k==='p')openProduct(null);else if(k==='c')openClient(null);else openVir(null)}
+    if(a){var k=a.getAttribute('data-add');if(k==='p'){if(S.isGhita)openProduct(null);else toast('Only Ghita can add products')}else if(k==='c')openClient(null);else openVir(null)}
     var ep=e.target.closest('[data-edit-p]');if(ep)openProduct(ep.getAttribute('data-edit-p'));
     var ec=e.target.closest('[data-edit-c]');if(ec)openClient(ec.getAttribute('data-edit-c'));
     var ev=e.target.closest('[data-edit-v]');if(ev)openVir(ev.getAttribute('data-edit-v'));
     var eb=e.target.closest('[data-basket]');if(eb)openBasket(eb.getAttribute('data-basket'));
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll()});
-  $('#addBtn').addEventListener('click',function(){openProduct(null)});
+  $('#addBtn').addEventListener('click',function(){if(S.isGhita)openProduct(null);else toast('Only Ghita can add products')});
   $('#addClient').addEventListener('click',function(){openClient(null)});
   $('#addVir').addEventListener('click',function(){openVir(null)});
   function byId(list,id){return list.filter(function(x){return x.id===id})[0]||null}
@@ -982,62 +1236,74 @@ var firebaseConfig = {
   }
 
   /* product sheet */
-  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livDh:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
+  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),sellDh:parse($('#fSell').value)}}
   function syncPriceDh(){
     var eurAmount=parse($('#fEur').value),r=rateOf(S.settings);
     $('#fDh').value=eurAmount==null||!r?'':f2(Math.round((eurAmount*r+Number.EPSILON)*100)/100);
   }
   function renderPrev(){
-    var v=pVals(),preview={priceEur:v.priceEur||0,priceDh:v.priceDh||0,livDh:v.livDh||0,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh};
+    var v=pVals(),preview={priceEur:v.priceEur||0,priceDh:v.priceDh||0,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh};
     if(S.editing.p)preview.id=S.editing.p;
     var c=calc(preview,S.settings,S.products);
     var h='<div><span>Original product price</span><span>'+eur(v.priceEur||0)+'</span></div>';
     if(c.allocatedPromoEur>0)h+='<div><span>Allocated order discount</span><span>'+eur(c.allocatedPromoEur)+' · '+dh(c.promoDh)+'</span></div>';
-    h+='<div><span>Livraison DH · Badr</span><span>'+dh(c.livDh)+'</span></div><div><span>Net cost €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Net cost DH</span><span>'+dh(c.totalDh)+'</span></div>';
-    if(c.sold)h+='<div class="hr"><span>Revenu DH total</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'% + livraison ('+dh(c.livDh)+')</span><span>'+dh(c.b)+'</span></div>';
+    h+='<div><span>Net cost €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Net cost DH</span><span>'+dh(c.totalDh)+'</span></div>';
+    if(c.sold)h+='<div class="hr"><span>Product profit DH</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'%</span><span>'+dh(c.b)+'</span></div>';
     else h+='<div class="hr"><span class="muted">Revenu, Ghita, Badr</span><span class="muted">Add a selling price</span></div>';
     $('#prev').innerHTML=h;
   }
   function openProduct(id){
+    if(!id&&!S.isGhita){toast('Only Ghita can add products');return}
     var p=id?byId(S.products,id):null;
+    if(id&&!p)return;
     S.editing.p=p?p.id:null;
     $('#sheetTitle').textContent=p?'Edit product':'New product';
-    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livDh!=null?p.livDh:(Number(p.livEur)||0)*rateOf(S.settings)):'';$('#fLiv').disabled=S.me!=='Badr';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
+    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
     var d=$('#fDel');d.hidden=!p;
     if(p)armDelete(d,'Delete product',function(){
-      commitActivity(function(batch){batch.delete(db.doc('products/'+p.id))},activityEvent('product','deleted','product',p.id,'Product deleted: '+p.name,{amountEur:p.priceEur||0,amountDh:p.priceDh||0,deliveryDh:calc(p,S.settings).livDh,basket:p.orderName||''}))
+      commitActivity(function(batch){batch.delete(db.doc('products/'+p.id))},activityEvent('product','deleted','product',p.id,'Product deleted: '+p.name,{amountEur:p.priceEur||0,amountDh:p.priceDh||0,productCostDeltaDh:-(Number(p.priceDh)||0),salePriceDeltaDh:-(typeof p.sellDh==='number'?p.sellDh:0),basket:p.orderName||''}))
         .then(function(){closeAll();toast('Product deleted')},failMsg);
     });
     renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);
   }
-  ['#fName','#fOrder','#fBrand','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
+  ['#fName','#fOrder','#fBrand','#fDh','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
   $('#fEur').addEventListener('input',function(){syncPriceDh();renderPrev()});
   $('#pForm').addEventListener('submit',function(e){
     e.preventDefault();
+    if(!S.editing.p&&!S.isGhita){toast('Only Ghita can add products');return}
     var v=pVals();
     if(!v.name){toast('Give the product a name');$('#fName').focus();return}
     if(v.priceEur==null||v.priceEur<0){toast('Enter the price in EUR');$('#fEur').focus();return}
     var now=Date.now(),btn=$('#fSave');btn.disabled=true;
     var existing=S.editing.p?byId(S.products,S.editing.p):null;
-    var deliveryDh=S.me==='Badr'?(v.livDh||0):existing?(existing.livDh!=null?existing.livDh:(Number(existing.livEur)||0)*rateOf(S.settings)):0;
-    if(S.me==='Badr'&&v.livDh!=null&&v.livDh<0){toast('Delivery amount cannot be negative');$('#fLiv').focus();btn.disabled=false;return}
-    var body={name:v.name,orderName:v.orderName,brand:v.brand,priceEur:v.priceEur,priceDh:v.priceDh||0,livDh:deliveryDh,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
+    var body={name:v.name,orderName:v.orderName,brand:v.brand,priceEur:v.priceEur,priceDh:v.priceDh||0,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
+    if(existing&&S.isBadr){
+      body.livDh=firebase.firestore.FieldValue.delete();
+      body.livEur=firebase.firestore.FieldValue.delete();
+    }
+    body.soldAt=typeof body.sellDh==='number'
+      ?existing&&typeof existing.sellDh==='number'?(existing.soldAt||existing.updatedAt||now):now
+      :null;
     var job;
-    var oldDelivery=existing?calc(existing,S.settings).livDh:0;
     var newDoc=existing?db.doc('products/'+existing.id):db.collection('products').doc();
     var action=existing?'updated':'added';
     var category=body.sellDh!=null&&(!existing||existing.sellDh==null)?'sale':'product';
     var summary=existing?'Product updated: '+body.name:'Product added: '+body.name;
+    var previousCost=existing?Number(existing.priceDh)||0:0,nextCost=Number(body.priceDh)||0;
+    var previousSale=existing&&typeof existing.sellDh==='number'?existing.sellDh:0,nextSale=typeof body.sellDh==='number'?body.sellDh:0;
     var event=activityEvent(category,action,'product',newDoc.id,summary,{
       amountEur:body.priceEur,
       amountDh:body.priceDh||0,
-      deliveryDh:deliveryDh,
-      oldDeliveryDh:oldDelivery,
+      productCostDeltaDh:Math.round((nextCost-previousCost+Number.EPSILON)*100)/100,
+      salePriceDeltaDh:Math.round((nextSale-previousSale+Number.EPSILON)*100)/100,
+      productId:newDoc.id,
+      productName:body.name,
+      soldAt:body.soldAt,
       sellingPriceDh:typeof body.sellDh==='number'?body.sellDh:null,
       salesDh:typeof body.sellDh==='number'&&(!existing||typeof existing.sellDh!=='number')?body.sellDh:null,
       basket:body.orderName||'',
-      before:existing?{name:existing.name,priceEur:existing.priceEur,priceDh:existing.priceDh,livDh:oldDelivery,sellDh:existing.sellDh,orderName:existing.orderName||''}:null,
-      after:{name:body.name,priceEur:body.priceEur,priceDh:body.priceDh||0,livDh:deliveryDh,sellDh:body.sellDh,orderName:body.orderName}
+      before:existing?{name:existing.name,priceEur:existing.priceEur,priceDh:existing.priceDh,sellDh:existing.sellDh,orderName:existing.orderName||''}:null,
+      after:{name:body.name,priceEur:body.priceEur,priceDh:body.priceDh||0,sellDh:body.sellDh,orderName:body.orderName}
     });
     job=commitActivity(function(batch){
       if(existing)batch.update(newDoc,body);
@@ -1081,9 +1347,14 @@ var firebaseConfig = {
     if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
     var btn=$('#bSave'),subtotal=basketSubtotal(name),discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,ref=db.doc('baskets/'+basketId(name)),old=basketByName(name);
     btn.disabled=true;
-    var body={name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,updatedAt:Date.now(),updatedBy:S.me};
+    var rate=rateOf(S.settings),couponDh=Math.round((discount*rate+Number.EPSILON)*100)/100;
+    var body={name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,couponDh:couponDh,couponRateDh:rate,updatedAt:Date.now(),updatedBy:S.me};
     var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
-    var events=[activityEvent('basket coupon',old?'updated':'added','basket',ref.id,(old?'Basket coupon updated: ':'Basket coupon added: ')+name,{amountEur:discount,amountDh:discount*rateOf(S.settings),couponCode:body.promoCode,before:old?{promoType:old.promoType,promoValue:old.promoValue,promoCode:old.promoCode||''}:null,after:{promoType:type,promoValue:value,promoCode:body.promoCode},legacyItemCouponsRemoved:legacyItems.length})];
+    var oldDiscount=old?(old.promoType==='amount'?Math.min(Number(old.promoValue)||0,subtotal):subtotal*(Number(old.promoValue)||0)/100):0;
+    var oldCouponDh=old?(typeof old.couponDh==='number'?old.couponDh:oldDiscount*rate):0;
+    var hasPriorCouponLedger=S.ledger.some(function(event){return event.category==='basket coupon'&&event.reference===ref.id});
+    var couponDelta=!old||hasPriorCouponLedger?couponDh-oldCouponDh:couponDh;
+    var events=[activityEvent('basket coupon',old?'updated':'added','basket',ref.id,(old?'Basket coupon updated: ':'Basket coupon added: ')+name,{amountEur:discount,amountDh:couponDh,couponReductionDeltaDh:Math.round((couponDelta+Number.EPSILON)*100)/100,couponCode:body.promoCode,before:old?{promoType:old.promoType,promoValue:old.promoValue,promoCode:old.promoCode||''}:null,after:{promoType:type,promoValue:value,promoCode:body.promoCode},legacyItemCouponsRemoved:legacyItems.length})];
     commitActivity(function(batch){
       batch.set(ref,body);
       legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:body.updatedAt,updatedBy:S.me})});
@@ -1095,11 +1366,12 @@ var firebaseConfig = {
     var name=S.editing.b;if(!name)return;
     var btn=$('#bRemove');btn.disabled=true;
     var previous=basketByName(name),ref=db.doc('baskets/'+basketId(name)),discount=previous?(previous.promoType==='amount'?Math.min(Number(previous.promoValue)||0,basketSubtotal(name)):basketSubtotal(name)*(Number(previous.promoValue)||0)/100):0;
+    var discountDh=previous&&typeof previous.couponDh==='number'?previous.couponDh:discount*rateOf(S.settings);
     var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
     commitActivity(function(batch){
-      batch.update(ref,{promoCode:'',promoType:'amount',promoValue:0,updatedAt:Date.now(),updatedBy:S.me});
+      batch.update(ref,{promoCode:'',promoType:'amount',promoValue:0,couponDh:0,updatedAt:Date.now(),updatedBy:S.me});
       legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:Date.now(),updatedBy:S.me})});
-    },activityEvent('basket coupon','removed','basket',ref.id,'Basket coupon removed: '+name,{amountEur:discount,amountDh:discount*rateOf(S.settings),legacyItemCouponsRemoved:legacyItems.length}))
+    },activityEvent('basket coupon','removed','basket',ref.id,'Basket coupon removed: '+name,{amountEur:discount,amountDh:discountDh,couponReductionDeltaDh:-discountDh,legacyItemCouponsRemoved:legacyItems.length}))
       .then(function(){closeAll();toast('Basket coupon removed')},failMsg)
       .then(function(){btn.disabled=false});
   });
@@ -1214,7 +1486,7 @@ var firebaseConfig = {
   });
 
   /* ---------- render all ---------- */
-  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderBaskets();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate();renderAccounting()}
+  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderBaskets();renderProducts();renderPackages();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate();renderAccounting()}
 
   showTab(location.hash.slice(1));
 })();

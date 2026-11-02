@@ -22,7 +22,7 @@
 :root{
   --bg:#f7e8e7; --surface:#fffaf8; --surface-2:#f2d9d7; --ink:#3b1d2a; --muted:#7f5c68; --line:#e6c8c6;
   --accent:#c93a73; --accent-ink:#ffffff; --accent-soft:#f6cfdc;
-  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e; --hero-badr:#b76a88; --hero-liv:#fff;
+  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e; --hero-badr:#b76a88; --hero-primark:#f1c75b; --hero-liv:#fff;
   --good:#1f7a55; --good-soft:#d6efe3; --bad:#b3261e; --warn:#8f4d08; --warn-soft:#fbe3c4;
   --shadow:0 1px 0 rgba(59,29,42,.05),0 10px 26px -14px rgba(59,29,42,.35);
   --font-display:'Bricolage Grotesque',ui-rounded,system-ui,sans-serif;
@@ -33,7 +33,7 @@
   :root{
     --bg:#1d1117; --surface:#2a1821; --surface-2:#38212c; --ink:#f8e6e8; --muted:#bb97a4; --line:#44293a;
     --accent:#f0679a; --accent-ink:#2a0f1a; --accent-soft:#4a2434;
-    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6; --hero-badr:#8f405e; --hero-liv:#fff;
+    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6; --hero-badr:#8f405e; --hero-primark:#b07800; --hero-liv:#fff;
     --good:#55d49b; --good-soft:#173a2c; --bad:#ff8a80; --warn:#f2b366; --warn-soft:#4a3115;
     --shadow:none; color-scheme:dark;
   }
@@ -87,6 +87,7 @@ button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:tran
 .split-segment{display:block;min-width:0;height:100%;flex:0 1 0%;border-radius:99px;transition:flex-grow .4s ease}
 .split-ghita{background:var(--hero-bar)}
 .split-badr{background:var(--hero-badr)}
+.split-primark{background:var(--hero-primark)}
 .split-liv{background:var(--hero-liv)}
 .shares{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .shares div{min-width:0}
@@ -94,9 +95,16 @@ button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:tran
 .shares .who:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--hero-bar-2)}
 .shares .g .who:before{background:var(--hero-bar)}
 .shares>div:not(.g) .who:before{width:9px;height:9px;border-radius:50%;background:var(--hero-badr);box-shadow:0 0 0 2px color-mix(in srgb,var(--hero-badr) 28%,transparent)}
-.shares>div:not(.g) .who:after{content:"";width:12px;height:5px;flex:none;border-radius:99px;background:var(--hero-liv);box-shadow:0 0 0 1px color-mix(in srgb,var(--hero-fg) 32%,transparent)}
 .shares .amt{font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:-.01em;overflow-wrap:anywhere}
 .shares .liv-amount{display:inline-block;margin-top:3px;padding:3px 8px;border-radius:999px;background:rgba(59,29,42,.78);color:#fff;font-size:12px;font-weight:700}
+.badr-breakdown{display:grid;gap:7px;margin-top:9px}
+.revenue-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 8px;color:var(--hero-muted);font-size:11.5px;font-weight:600}
+.revenue-row .value{color:var(--hero-fg);font-variant-numeric:tabular-nums}
+.revenue-track{grid-column:1/-1;height:5px;overflow:hidden;border-radius:99px;background:color-mix(in srgb,var(--hero-fg) 18%,transparent)}
+.revenue-track span{display:block;width:0;height:100%;border-radius:inherit;transition:width .35s ease}
+.revenue-row.share .revenue-track span{background:var(--hero-badr)}
+.revenue-row.primark .revenue-track span{background:var(--hero-primark)}
+.revenue-row.delivery .revenue-track span{background:var(--hero-liv)}
 .package-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .package-actions .btn{padding:9px 12px;font-size:14px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
@@ -262,10 +270,18 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
       <div class="lbl">Revenu DH total</div>
       <div class="big num" id="heroTotal">0,00<small>DH</small></div>
       <div class="sub" id="heroSub">Nothing sold yet</div>
-      <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
+      <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-primark" id="heroPrimarkBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
       <div class="shares">
         <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
-        <div><div class="who" id="bLbl">Badr 30% + packages</div><div class="amt num" id="bAmt">0,00 DH</div><div class="liv-amount num" id="livAmt">Livraison 0,00 DH</div></div>
+        <div>
+          <div class="who" id="bLbl">Badr 30% + packages</div>
+          <div class="amt num" id="bAmt">0,00 DH</div>
+          <div class="badr-breakdown" aria-label="Badr revenue breakdown">
+            <div class="revenue-row share"><span>Badr profit share</span><span class="value num" id="badrProfitAmt">0,00 DH</span><div class="revenue-track"><span id="badrProfitBar"></span></div></div>
+            <div class="revenue-row primark"><span>Primark original</span><span class="value num" id="primarkAmt">0,00 DH</span><div class="revenue-track"><span id="heroBadrPrimarkBar"></span></div></div>
+            <div class="revenue-row delivery"><span>Livraison</span><span class="value num" id="livAmt">0,00 DH</span><div class="revenue-track"><span id="livRevenueBar"></span></div></div>
+          </div>
+        </div>
       </div>
     </section>
     <div id="bannerBox" aria-live="polite"></div>
@@ -288,6 +304,13 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
       <div class="tile"><span class="k">Received</span><span class="v num" id="cGave">0,00 DH</span></div>
       <div class="tile"><span class="k">Still owed</span><span class="v num" id="cOwe">0,00 DH</span></div>
     </div>
+    <section class="card" style="margin-top:14px">
+      <h3 style="margin:0 0 8px;font-family:var(--font-display)">Add a basket to client owes</h3>
+      <p class="note" style="margin:0 0 12px">Choose a customer from Products to add the basket’s selling prices in DH to their outstanding balance. Each basket can be added once.</p>
+      <div class="field"><label for="clientBasket">Client / basket</label><select id="clientBasket"><option value="">Select a sold basket</option></select></div>
+      <p class="note num" id="clientBasketPreview" aria-live="polite">Choose a basket to see its selling total.</p>
+      <button class="btn block" id="addBasketOwe" type="button" disabled>Add selling total to owes</button>
+    </section>
     <ul class="plain" id="clist" style="margin-top:14px"></ul>
   </main>
 
@@ -536,32 +559,44 @@ var firebaseConfig = {
   function rateOf(s){return (s.paidEur>0&&s.gotDh>0)?s.gotDh/s.paidEur:0}
   function isPrimarkOrder(p){return /primark/i.test(String(p.brand||'')+' '+String(p.orderName||''))}
   function basketKey(name){return String(name||'').trim().toLowerCase()}
+  function isMarwaRajaaBasket(name){return /^(marwa|rajaa)(\s+basket)?$|^marwa\s*\+\s*rajaa$/.test(basketKey(name))}
+  function basketGroupKey(name){return isMarwaRajaaBasket(name)?'marwa-rajaa':basketKey(name)}
+  function basketGroupName(name){return isMarwaRajaaBasket(name)?'Marwa + Rajaa':String(name||'').trim()}
+  function basketHasCoupon(basket){return !!basket&&((Number(basket.promoValue)||0)>0||!!basket.promoCode)}
+  function basketForName(name,baskets){
+    var list=(baskets||S.baskets).filter(function(b){return basketGroupKey(b.name)===basketGroupKey(name)});
+    if(isMarwaRajaaBasket(name)){
+      var marwa=list.filter(function(b){return /^marwa(\s+basket)?$/.test(basketKey(b.name))})[0];
+      if(marwa&&basketHasCoupon(marwa))return marwa;
+    }
+    return list.filter(basketHasCoupon)[0]||list[0]||null;
+  }
   function basketId(name){return 'basket_'+encodeURIComponent(basketKey(name))}
   function basketByName(name,baskets){
     var key=basketKey(name);
     return (baskets||S.baskets).filter(function(b){return basketKey(b.name)===key})[0]||null;
   }
   function promoDetails(p,products){
-    var list=products||S.products,basket=basketByName(p.orderName),legacyType=p.promoType||(p.promoEur!=null?'amount':'percent');
+    var list=products||S.products,basket=basketForName(p.orderName),legacyType=p.promoType||(p.promoEur!=null?'amount':'percent');
     var legacyValue=Number(p.promoValue!=null?p.promoValue:(legacyType==='amount'?p.promoEur:p.promoPct))||0;
     var type=basket?(basket.promoType==='amount'?'amount':'percent'):legacyType;
     if(type!=='amount')type='percent';
     var rawValue=basket?basket.promoValue:legacyValue;
     var value=Math.max(0,type==='percent'?Math.min(100,Number(rawValue)||0):Number(rawValue)||0);
-    var groupKey=basket?basketKey(p.orderName):[basketKey(p.orderName),basketKey(p.brand),type,value,basketKey(p.promoCode)].join('|');
+    var groupKey=basket?basketGroupKey(p.orderName):[basketKey(p.orderName),basketKey(p.brand),type,value,basketKey(p.promoCode)].join('|');
     var baseEur=0;
     list.forEach(function(item){
       if(item===p||(p.id&&item.id===p.id))return;
       var itemBasket=basketByName(item.orderName),itemType=item.promoType||(item.promoEur!=null?'amount':'percent');
       var itemValue=Number(item.promoValue!=null?item.promoValue:(itemType==='amount'?item.promoEur:item.promoPct))||0;
       if(itemType!=='amount')itemType='percent';
-      var itemGroupKey=itemBasket?basketKey(item.orderName):[basketKey(item.orderName),basketKey(item.brand),itemType,Math.max(0,itemType==='percent'?Math.min(100,itemValue):itemValue),basketKey(item.promoCode)].join('|');
+      var itemGroupKey=basket?(isMarwaRajaaBasket(p.orderName)?basketGroupKey(item.orderName):itemBasket?basketGroupKey(item.orderName):''):(itemBasket?basketGroupKey(item.orderName):[basketKey(item.orderName),basketKey(item.brand),itemType,Math.max(0,itemType==='percent'?Math.min(100,itemValue):itemValue),basketKey(item.promoCode)].join('|'));
       if(itemGroupKey===groupKey)baseEur+=Number(item.priceEur)||0;
     });
     baseEur+=Number(p.priceEur)||0;
     var savedEur=type==='amount'?Math.min(value,baseEur):baseEur*value/100;
     var priceEur=Number(p.priceEur)||0;
-    return {type:type,value:value,key:basket?'basket:'+basketKey(p.orderName):'legacy:'+groupKey,baseEur:baseEur,savedEur:savedEur,allocatedEur:baseEur>0?savedEur*priceEur/baseEur:0,code:basket?basket.promoCode:(p.promoCode||''),basket:!!basket};
+    return {type:type,value:value,key:basket?'basket:'+basketGroupKey(p.orderName):'legacy:'+groupKey,baseEur:baseEur,savedEur:savedEur,allocatedEur:baseEur>0?savedEur*priceEur/baseEur:0,code:basket?basket.promoCode:(p.promoCode||''),basket:!!basket};
   }
   function calc(p,s,products){
     var r=rateOf(s),livDh=0,pe=p.priceEur||0,pd=p.priceDh||0;
@@ -671,8 +706,8 @@ var firebaseConfig = {
     S.fresh=false;S.timedOut=false;
     S.timer=setTimeout(function(){if(!S.fresh){S.timedOut=true;renderStatus()}},10000);
     renderStatus();
-    listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts();renderAccounting()});
-    listen('baskets','baskets','bs',function(){renderHero();renderBaskets();renderProducts()});
+    listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts();renderClients();renderAccounting()});
+    listen('baskets','baskets','bs',function(){renderHero();renderBaskets();renderProducts();renderClients()});
     listen('packages','packages','pkg',function(){renderHero();renderPackages();renderAccounting()});
     listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
     listen('clients','clients','c',function(){renderClients();renderTiles()});
@@ -725,11 +760,11 @@ var firebaseConfig = {
 
   /* ---------- hero + tiles ---------- */
   function renderHero(){
-    var s=S.settings,tot=0,g=0,b=0,liv=0,n=0,open=0,promoOrders={};
+    var s=S.settings,tot=0,g=0,b=0,primark=0,liv=0,n=0,open=0,promoOrders={};
     S.products.forEach(function(p){
       var c=calc(p,s);
       if(c.sold){
-        tot+=c.rev+c.primarkOriginalDh;g+=c.g;b+=c.b;liv+=c.livDh;n++;
+        tot+=c.rev+c.primarkOriginalDh;g+=c.g;b+=c.b;primark+=c.primarkOriginalDh;liv+=c.livDh;n++;
         if(c.promoAmountEur>0){
           var key=c.promoKey;
           if(!promoOrders[key])promoOrders[key]={baseEur:c.promoBaseEur,savedEur:c.promoAmountEur,soldBaseEur:0,gainG:0,gainB:0};
@@ -744,13 +779,22 @@ var firebaseConfig = {
     });
     var packageRevenue=S.packages.reduce(function(total,pkg){return total+(Number(pkg.feeDh)||0)},0);
     tot+=packageRevenue;b+=packageRevenue;
+    var roundingDifference=Math.round((tot-g-b+Number.EPSILON)*100)/100;
+    b=Math.round((b+roundingDifference+Number.EPSILON)*100)/100;
     $('#heroTotal').innerHTML=fmt(tot)+'<small>DH</small>';
     $('#heroSub').textContent=(n+' sold · '+open+' waiting for a selling price · '+S.packages.length+' packages');
     $('#gAmt').textContent=dh(g);$('#bAmt').textContent=dh(b);
-    $('#livAmt').textContent='Livraison '+dh(packageRevenue);
+    $('#primarkAmt').textContent=dh(primark);
+    var realRevenue=Math.max(0,b-packageRevenue),badrProfit=Math.max(0,realRevenue-primark);
+    $('#badrProfitAmt').textContent=dh(badrProfit);
+    $('#livAmt').textContent=dh(packageRevenue);
+    $('#badrProfitBar').style.width=(b>0?Math.min(100,badrProfit/b*100):0)+'%';
+    $('#heroBadrPrimarkBar').style.width=(b>0?Math.min(100,primark/b*100):0)+'%';
+    $('#livRevenueBar').style.width=(b>0?Math.min(100,packageRevenue/b*100):0)+'%';
     var segments=[
       {el:$('#heroGhitaBar'),amount:Math.max(0,g)},
-      {el:$('#heroBadrBar'),amount:Math.max(0,b-liv-packageRevenue)},
+      {el:$('#heroBadrBar'),amount:Math.max(0,b-primark-liv-packageRevenue)},
+      {el:$('#heroPrimarkBar'),amount:Math.max(0,primark)},
       {el:$('#livStripe'),amount:Math.max(0,packageRevenue)}
     ];
     var barTotal=segments.reduce(function(sum,segment){return sum+segment.amount},0);
@@ -765,16 +809,16 @@ var firebaseConfig = {
     S.products.forEach(function(p){
       var name=(p.orderName||'').trim();
       if(!name)return;
-      var key=basketKey(name);
-      if(!groups[key])groups[key]={name:name,items:[],basket:basketByName(name)};
+      var key=basketGroupKey(name);
+      if(!groups[key])groups[key]={name:basketGroupName(name),items:[],basket:basketForName(name)};
       groups[key].items.push(p);
     });
     S.baskets.forEach(function(b){
       var name=(b.name||'').trim();
       if(!name)return;
-      var key=basketKey(name);
-      if(!groups[key])groups[key]={name:name,items:[],basket:b};
-      else groups[key].basket=b;
+      var key=basketGroupKey(name);
+      if(!groups[key])groups[key]={name:basketGroupName(name),items:[],basket:basketForName(name)};
+      else groups[key].basket=basketForName(name);
     });
     var board=$('#basketBoard'),entries=Object.keys(groups).map(function(k){return groups[k]});
     if(!S.loaded.p){board.hidden=false;board.innerHTML='<article class="empty"><p>Loading baskets…</p></article>';return}
@@ -783,7 +827,7 @@ var firebaseConfig = {
     board.hidden=!entries.length;
     board.innerHTML=entries.map(function(g){
       var subtotal=g.items.reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
-      var coupon=g.basket,legacy=null;
+      var coupon=basketForName(g.name),legacy=null;
       if(!coupon){
         g.items.some(function(p){
           var c=calc(p,S.settings);
@@ -1094,7 +1138,92 @@ var firebaseConfig = {
   }
 
   /* ---------- clients ---------- */
+  function clientSaleBaskets(){
+    var groups={};
+    S.products.forEach(function(p){
+      var name=String(p.orderName||'').trim();
+      if(!name||typeof p.sellDh!=='number')return;
+      var key=basketKey(name);
+      if(!groups[key])groups[key]={name:name,amountDh:0,count:0};
+      groups[key].amountDh+=Number(p.sellDh)||0;
+      groups[key].count++;
+    });
+    return Object.keys(groups).map(function(key){
+      var group=groups[key];
+      group.amountDh=Math.round((group.amountDh+Number.EPSILON)*100)/100;
+      return group;
+    }).filter(function(group){return group.amountDh>0&&!clientForBasket(group.name)}).sort(function(a,b){return a.name.localeCompare(b.name)});
+  }
+  function selectedClientBasket(){
+    var id=$('#clientBasket').value;
+    return clientSaleBaskets().filter(function(group){return basketId(group.name)===id})[0]||null;
+  }
+  function clientForBasket(name){
+    var key=basketKey(name),exact=S.clients.filter(function(client){return basketKey(client.name)===key});
+    if(exact.length)return exact[0];
+    var related=S.clients.filter(function(client){
+      var clientKey=basketKey(client.name);
+      return clientKey.indexOf(key+' ')===0||key.indexOf(clientKey+' ')===0;
+    });
+    return related.length===1?related[0]:null;
+  }
+  function renderClientBasketControl(){
+    var select=$('#clientBasket'),selected=select.value,groups=clientSaleBaskets();
+    select.innerHTML='<option value="">Select a sold basket</option>'+groups.map(function(group){
+      var basket=basketByName(group.name),client=clientForBasket(group.name),label=(client?client.name:group.name)+' · '+dh(group.amountDh)+(basket&&basket.clientOweApplied?' · Added to owes':'');
+      return '<option value="'+esc(basketId(group.name))+'">'+esc(label)+'</option>';
+    }).join('');
+    select.value=groups.some(function(group){return basketId(group.name)===selected})?selected:'';
+    updateClientBasketPreview();
+  }
+  function updateClientBasketPreview(){
+    var group=selectedClientBasket(),button=$('#addBasketOwe');
+    if(!S.loaded.p||!S.loaded.c||!S.loaded.bs){
+      $('#clientBasketPreview').textContent='Loading products, clients, and basket records…';
+      button.disabled=true;return;
+    }
+    if(!group){
+      $('#clientBasketPreview').textContent=clientSaleBaskets().length?'Choose a basket to see its selling total.':'No unassigned sold baskets available.';
+      button.disabled=true;button.textContent='Add selling total to owes';return;
+    }
+    var basket=basketByName(group.name),client=clientForBasket(group.name);
+    $('#clientBasketPreview').textContent=group.count+' sold product'+(group.count===1?'':'s')+' · '+dh(group.amountDh)+' to '+(client?client.name:group.name)+(basket&&basket.clientOweApplied?' · already added to owes':'');
+    button.disabled=!!(basket&&basket.clientOweApplied);
+    button.textContent=basket&&basket.clientOweApplied?'Already added to owes':'Add '+dh(group.amountDh)+' to owes';
+  }
+  $('#clientBasket').addEventListener('change',updateClientBasketPreview);
+  $('#addBasketOwe').addEventListener('click',function(){
+    var group=selectedClientBasket();
+    if(!group){toast('Choose a sold basket first');return}
+    var amount=Math.round((group.amountDh+Number.EPSILON)*100)/100;
+    if(!(amount>0)){toast('This basket has no selling price to add');return}
+    var client=clientForBasket(group.name);
+    var clientRef=client?db.doc('clients/'+client.id):db.doc('clients/client_'+encodeURIComponent(basketKey(group.name)));
+    var basketRef=db.doc('baskets/'+basketId(group.name)),ledgerRef=db.collection('accounting').doc(),now=Date.now(),button=$('#addBasketOwe');
+    button.disabled=true;
+    db.runTransaction(function(transaction){
+      return transaction.get(basketRef).then(function(basketSnap){
+        if(basketSnap.exists&&basketSnap.data().clientOweApplied)return {alreadyApplied:true};
+        return transaction.get(clientRef).then(function(clientSnap){
+          var previous=clientSnap.exists?clientSnap.data():{},nextOwes=Math.round(((Number(previous.owes)||0)+amount+Number.EPSILON)*100)/100;
+          var nextClient={name:previous.name||group.name,gave:Number(previous.gave)||0,owes:nextOwes,note:previous.note||'',updatedAt:now,updatedBy:S.me};
+          var basketUpdate={name:group.name,clientOweApplied:true,clientOweAmountDh:amount,clientOweClientId:clientRef.id,clientOweAppliedAt:now,updatedAt:now,updatedBy:S.me};
+          if(clientSnap.exists)transaction.update(clientRef,nextClient);
+          else{nextClient.createdAt=now;nextClient.createdBy=S.me;transaction.set(clientRef,nextClient)}
+          if(basketSnap.exists)transaction.update(basketRef,basketUpdate);
+          else transaction.set(basketRef,basketUpdate);
+          transaction.set(ledgerRef,cleanActivity(Object.assign({timestamp:now,day:localDay(now),actor:S.me},activityEvent('client balance','basket added','client',clientRef.id,'Basket added to client balance: '+group.name,{amountDh:amount,basket:group.name,balanceOwedDh:nextOwes}))));
+          return {alreadyApplied:false};
+        });
+      });
+    }).then(function(result){
+      if(result.alreadyApplied){toast('This basket has already been added to owes');return}
+      $('#clientBasket').value='';
+      toast(dh(amount)+' added to '+(client?client.name:group.name)+' owes');
+    },failMsg).then(function(){button.disabled=false;renderClientBasketControl()});
+  });
   function renderClients(){
+    renderClientBasketControl();
     var ul=$('#clist');
     if(!S.loaded.c){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
     if(!S.clients.length){ul.innerHTML='<li class="empty"><h3>No client yet</h3><p>Write each client’s name, what he gave and what he still owes.</p><button class="btn" type="button" data-add="c">Add a client</button></li>';return}
@@ -1348,7 +1477,7 @@ var firebaseConfig = {
   });
 
   function basketSubtotal(name){
-    return S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)}).reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
+    return S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)}).reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
   }
   function renderBasketPreview(){
     var name=$('#bName').value.trim(),subtotal=basketSubtotal(name),type=$('#bType').value,value=parse($('#bValue').value)||0;
@@ -1356,14 +1485,14 @@ var firebaseConfig = {
     $('#bPrev').innerHTML='<div><span>Original basket subtotal</span><span>'+eur(subtotal)+'</span></div><div><span>One coupon discount</span><span>−'+eur(discount)+' · '+dh(discount*rateOf(S.settings))+'</span></div><div class="hr"><span>Basket total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
   }
   function openBasket(name){
-    var basket=basketByName(name),legacy=null;
-    S.editing.b=name;
-    $('#bName').value=name;$('#bCode').value=basket?basket.promoCode||'':'';
+    var basket=basketForName(name),basketName=basket?basket.name:(isMarwaRajaaBasket(name)?'Marwa':name),legacy=null;
+    S.editing.b=basketName;
+    $('#bName').value=basketName;$('#bCode').value=basket?basket.promoCode||'':'';
     $('#bType').value=basket&&basket.promoType==='percent'?'percent':'amount';
     $('#bValue').value=basket?f2(basket.promoValue||0):'';
     if(!basket){
       S.products.some(function(p){
-        if(basketKey(p.orderName)!==basketKey(name))return false;
+        if(basketGroupKey(p.orderName)!==basketGroupKey(name))return false;
         var c=calc(p,S.settings);
         if(c.promoAmountEur>0){legacy=c;return true}
         return false;
@@ -1380,11 +1509,11 @@ var firebaseConfig = {
     var name=$('#bName').value.trim(),type=$('#bType').value,value=parse($('#bValue').value);
     if(!name){toast('Give this basket a name');return}
     if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
-    var btn=$('#bSave'),subtotal=basketSubtotal(name),discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,ref=db.doc('baskets/'+basketId(name)),old=basketByName(name);
+    var btn=$('#bSave'),subtotal=basketSubtotal(name),discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,ref=db.doc('baskets/'+basketId(name)),old=basketForName(name);
     btn.disabled=true;
     var rate=rateOf(S.settings),couponDh=Math.round((discount*rate+Number.EPSILON)*100)/100;
     var body={name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,couponDh:couponDh,couponRateDh:rate,updatedAt:Date.now(),updatedBy:S.me};
-    var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
+    var legacyItems=S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
     var oldDiscount=old?(old.promoType==='amount'?Math.min(Number(old.promoValue)||0,subtotal):subtotal*(Number(old.promoValue)||0)/100):0;
     var oldCouponDh=old?(typeof old.couponDh==='number'?old.couponDh:oldDiscount*rate):0;
     var hasPriorCouponLedger=S.ledger.some(function(event){return event.category==='basket coupon'&&event.reference===ref.id});
@@ -1400,9 +1529,9 @@ var firebaseConfig = {
   $('#bRemove').addEventListener('click',function(){
     var name=S.editing.b;if(!name)return;
     var btn=$('#bRemove');btn.disabled=true;
-    var previous=basketByName(name),ref=db.doc('baskets/'+basketId(name)),discount=previous?(previous.promoType==='amount'?Math.min(Number(previous.promoValue)||0,basketSubtotal(name)):basketSubtotal(name)*(Number(previous.promoValue)||0)/100):0;
+    var previous=basketForName(name),ref=db.doc('baskets/'+basketId(name)),discount=previous?(previous.promoType==='amount'?Math.min(Number(previous.promoValue)||0,basketSubtotal(name)):basketSubtotal(name)*(Number(previous.promoValue)||0)/100):0;
     var discountDh=previous&&typeof previous.couponDh==='number'?previous.couponDh:discount*rateOf(S.settings);
-    var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
+    var legacyItems=S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
     commitActivity(function(batch){
       batch.update(ref,{promoCode:'',promoType:'amount',promoValue:0,couponDh:0,updatedAt:Date.now(),updatedBy:S.me});
       legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:Date.now(),updatedBy:S.me})});

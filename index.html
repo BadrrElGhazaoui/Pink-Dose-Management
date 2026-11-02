@@ -126,7 +126,7 @@ button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:tran
 .banner h3{margin:0;font-family:var(--font-display);font-size:18px;line-height:1.2}
 .banner p{margin:2px 0 0;font-size:14.5px;overflow-wrap:anywhere}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{border:0;border-radius:14px;padding:11px 16px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
+.btn{min-height:44px;border:0;border-radius:14px;padding:11px 16px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
 .btn.line{background:transparent;border:1.5px solid currentColor;color:inherit}
 .btn.soft{background:var(--surface-2);color:var(--ink)}
 .btn.block{width:100%}
@@ -159,6 +159,13 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 .promo-board{margin-top:12px;display:grid;gap:9px}
 .promo-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--surface),var(--accent-soft));border:1px solid var(--line);border-radius:20px;padding:15px;display:grid;gap:10px}
 .promo-card:after{content:"";position:absolute;width:110px;height:110px;border:1px solid color-mix(in srgb,var(--accent) 15%,transparent);border-radius:50%;right:-42px;top:-50px;pointer-events:none}
+.coupon-choices{display:grid;gap:7px}
+.field.coupon-fieldset{min-width:0}
+.coupon-choice{display:flex;align-items:center;gap:10px;min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:13px;background:var(--bg);font-size:14px}
+.coupon-choice input{width:20px;height:20px;flex:none;accent-color:var(--accent)}
+.coupon-choice span{min-width:0;flex:1}
+.coupon-choice small{color:var(--muted);font-variant-numeric:tabular-nums}
+.coupon-choice:has(input:disabled){opacity:.55}
 .promo-top{display:flex;align-items:center;gap:11px}
 .promo-mark{flex:none;min-width:54px;padding:8px 7px;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-family:var(--font-display);font-size:17px;font-weight:800;text-align:center}
 .promo-title{min-width:0}
@@ -177,6 +184,12 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 .vcard .vact{padding:0 16px 14px;display:flex;gap:8px;align-items:center;justify-content:space-between}
 .vcard .vact .btn{padding:9px 14px;font-size:14px}
 .vamt{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.v-transfer-to{display:grid;gap:6px;margin-bottom:14px}
+.v-bank-details{display:grid;gap:4px;padding-top:8px;border-top:1px solid var(--line);font-size:13px;overflow-wrap:anywhere}
+.v-status-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:0 12px 12px}
+.v-status-actions .btn{padding:8px 6px;font-size:12px}
+.v-status-actions .btn[aria-current="step"]{background:var(--accent);color:var(--accent-ink)}
+.v-section-empty{margin-top:0}
 
 /* cards & forms */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
@@ -214,7 +227,21 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 .tab svg{width:23px;height:23px}
 .tab[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
 .badge{position:absolute;top:1px;right:calc(50% - 24px);min-width:17px;height:17px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 4px}
-@media(max-width:360px){.tabs-in{gap:2px}.tab svg{width:21px;height:21px}.two{grid-template-columns:1fr}}
+@media(max-width:380px){
+  .tabs-in{gap:2px}
+  .tab{font-size:9px}
+  .tab svg{width:21px;height:21px}
+  .two,.balance-grid,.shares{grid-template-columns:1fr}
+  .two{gap:0}
+  .v-status-actions{gap:5px;padding:0 10px 10px}
+  .v-status-actions .btn{padding:8px 3px;font-size:11px}
+  .hero{padding:17px 16px 16px;border-radius:22px}
+  .hero .big{font-size:clamp(36px,12vw,44px)}
+  .ph{flex-direction:column;gap:8px}
+  .ph-tags{justify-content:flex-start}
+  .pcard{padding:14px;gap:12px}
+  .sec-h .btn{min-width:44px}
+}
 
 /* sheets */
 .layer{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -223,7 +250,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
   padding:18px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
 .sheet-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .sheet-h h2{margin:0;font-family:var(--font-display);font-size:22px}
-.x{border:0;background:var(--surface-2);width:38px;height:38px;border-radius:50%;font-size:20px;line-height:1}
+.x{flex:none;border:0;background:var(--surface-2);width:44px;height:44px;border-radius:50%;font-size:20px;line-height:1}
 .prev{background:var(--bg);border-radius:16px;padding:12px 14px;margin:4px 0 16px;display:grid;gap:6px;font-size:14.5px}
 .prev div{display:flex;justify-content:space-between;gap:12px}
 .prev div span:last-child{font-weight:700;text-align:right}
@@ -289,9 +316,9 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
       <button class="tile" type="button" data-go="clients"><span class="k">Clients still owe</span><span class="v num" id="tileOwe">0,00 DH</span></button>
       <button class="tile" type="button" data-go="virements"><span class="k">Virements pending</span><span class="v num" id="tilePend">0,00 DH</span></button>
     </div>
-    <div class="sec-h"><h2>Baskets</h2></div>
-    <p class="note">Group items with the same basket name, then apply one coupon to the whole basket.</p>
-    <section class="promo-board" id="basketBoard" aria-label="Baskets" hidden></section>
+    <div class="sec-h"><h2>Coupons</h2><button class="btn" id="addCoupon" type="button">+ Add coupon</button></div>
+    <p class="note">Create a coupon for one or two baskets. Baskets and their products stay grouped in the background.</p>
+    <section class="promo-board" id="couponBoard" aria-label="Coupons" hidden></section>
     <div class="sec-h"><h2>Products</h2><button class="btn" id="addBtn" type="button">+ Add</button></div>
     <p class="note" id="productAccessNote" hidden>Only Ghita can add products.</p>
     <ul class="plain" id="plist"></ul>
@@ -316,9 +343,12 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 
   <!-- VIREMENTS -->
   <main id="tab-virements" hidden>
-    <div class="sec-h" style="margin-top:18px"><h2 class="page-h" style="margin:0">Virements</h2><button class="btn" id="addVir" type="button">+ Add</button></div>
+    <div class="sec-h" style="margin-top:18px"><h2 class="page-h" style="margin:0">Virements</h2><button class="btn" id="addVir" type="button">Send</button></div>
     <div class="tiles" style="margin-top:0" id="vTiles"></div>
-    <ul class="plain" id="vlist" style="margin-top:14px"></ul>
+    <div class="sec-h"><h2>Sending</h2></div>
+    <ul class="plain" id="vlist"></ul>
+    <div class="sec-h"><h2>Receiving</h2><span class="note" id="receivingLabel">From the other account</span></div>
+    <ul class="plain" id="receivingVlist"></ul>
   </main>
 
   <!-- LIVRAISON -->
@@ -429,22 +459,25 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
   </section>
 </div>
 
-<!-- basket coupon sheet -->
+<!-- coupon sheet -->
 <div class="layer" id="bsheet" hidden>
   <div class="scrim" data-close="1"></div>
   <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
-    <div class="sheet-h"><h2 id="bsTitle">Basket coupon</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
+    <div class="sheet-h"><h2 id="bsTitle">Add coupon</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
     <form id="bForm" autocomplete="off">
-      <div class="field"><label for="bName">Basket / customer</label><input id="bName" type="text" readonly></div>
+      <fieldset class="field coupon-fieldset" style="border:0;padding:0;margin:0 0 12px">
+        <legend class="lab">Choose one or two baskets</legend>
+        <div id="couponBasketChoices" class="coupon-choices"></div>
+      </fieldset>
       <div class="field"><label for="bCode">Coupon code (optional)</label><input id="bCode" type="text" placeholder="Enter code"></div>
       <div class="two">
         <div class="field"><label for="bType">Discount type</label><select id="bType"><option value="amount">Fixed amount (€)</option><option value="percent">Percent (%)</option></select></div>
         <div class="field"><label for="bValue">Coupon discount</label><input id="bValue" type="text" inputmode="decimal" placeholder="0"></div>
       </div>
-      <p class="note">This coupon applies once to the whole basket subtotal. Product prices you entered remain unchanged; savings are allocated by item price.</p>
+      <p class="note" id="couponHelp">Fixed discounts are shared across the selected baskets by their subtotal. Percent discounts apply once at the same rate to each basket.</p>
       <div class="prev num" id="bPrev"></div>
       <div class="sheet-actions">
-        <button class="btn block" id="bSave" type="submit">Save basket coupon</button>
+        <button class="btn block" id="bSave" type="submit">Save coupon</button>
         <button class="btn soft block" id="bRemove" type="button" hidden>Remove coupon</button>
       </div>
     </form>
@@ -481,14 +514,15 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
   <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="vsTitle">
     <div class="sheet-h"><h2 id="vsTitle">Virement</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
     <form id="vForm" autocomplete="off">
-      <div class="field"><span class="lab">To</span>
-        <div class="seg"><label class="opt"><input type="radio" name="vWho" value="Badr"><span>Badr</span></label><label class="opt"><input type="radio" name="vWho" value="Ghita" checked><span>Ghita</span></label></div></div>
+      <div class="card v-transfer-to">
+        <div class="note">Sending to</div>
+        <strong id="vToLabel"></strong>
+        <div id="vBankDetails" class="v-bank-details"></div>
+      </div>
       <div class="two">
         <div class="field"><label for="vAmt">Amount</label><input id="vAmt" type="text" inputmode="decimal"></div>
         <div class="field"><label for="vCur">Currency</label><select id="vCur"><option value="DH">DH</option><option value="EUR">€</option></select></div>
       </div>
-      <div class="field"><span class="lab">Status</span>
-        <div class="seg"><label class="opt"><input type="radio" name="vStatus" value="pending" checked><span>Pending</span></label><label class="opt"><input type="radio" name="vStatus" value="sent"><span>Sent</span></label></div></div>
       <div class="field"><label for="vNote">Note</label><textarea id="vNote" placeholder="Optional"></textarea></div>
       <div class="sheet-actions">
         <button class="btn block" id="vSave" type="submit">Save</button>
@@ -540,10 +574,10 @@ var firebaseConfig = {
   var f2=function(n){return n==null?'':String(n).replace('.',',')};
   var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
 
-  var S={me:'',isBadr:false,isGhita:false,tab:'home',products:[],baskets:[],packages:[],pickups:[],clients:[],virements:[],ledger:[],
+  var S={me:'',isBadr:false,isGhita:false,tab:'home',products:[],baskets:[],coupons:[],packages:[],pickups:[],clients:[],virements:[],ledger:[],
     settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
-    loaded:{p:false,bs:false,pkg:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
-    editing:{p:null,c:null,v:null,b:null},unsubs:[],seeded:false,timer:null};
+    loaded:{p:false,bs:false,cp:false,pkg:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
+    editing:{p:null,c:null,v:null,b:null,coupon:null,legacyCoupon:null},unsubs:[],seeded:false,timer:null};
   var TABS=['home','clients','virements','livraison','packages','comptabilite'];
   var rateTab=$('#t-rate');
   if(rateTab){
@@ -559,16 +593,16 @@ var firebaseConfig = {
   function rateOf(s){return (s.paidEur>0&&s.gotDh>0)?s.gotDh/s.paidEur:0}
   function isPrimarkOrder(p){return /primark/i.test(String(p.brand||'')+' '+String(p.orderName||''))}
   function basketKey(name){return String(name||'').trim().toLowerCase()}
-  function isMarwaRajaaBasket(name){return /^(marwa|rajaa)(\s+basket)?$|^marwa\s*\+\s*rajaa$/.test(basketKey(name))}
-  function basketGroupKey(name){return isMarwaRajaaBasket(name)?'marwa-rajaa':basketKey(name)}
-  function basketGroupName(name){return isMarwaRajaaBasket(name)?'Marwa + Rajaa':String(name||'').trim()}
+  function basketGroupKey(name){return basketKey(name)}
+  function basketGroupName(name){return String(name||'').trim()}
+  function basketDisplayGroups(names){
+    var groups={};
+    names.forEach(function(name){var key=basketGroupKey(name);if(key)groups[key]=basketGroupName(name)});
+    return Object.keys(groups).map(function(key){return groups[key]});
+  }
   function basketHasCoupon(basket){return !!basket&&((Number(basket.promoValue)||0)>0||!!basket.promoCode)}
   function basketForName(name,baskets){
     var list=(baskets||S.baskets).filter(function(b){return basketGroupKey(b.name)===basketGroupKey(name)});
-    if(isMarwaRajaaBasket(name)){
-      var marwa=list.filter(function(b){return /^marwa(\s+basket)?$/.test(basketKey(b.name))})[0];
-      if(marwa&&basketHasCoupon(marwa))return marwa;
-    }
     return list.filter(basketHasCoupon)[0]||list[0]||null;
   }
   function basketId(name){return 'basket_'+encodeURIComponent(basketKey(name))}
@@ -576,8 +610,22 @@ var firebaseConfig = {
     var key=basketKey(name);
     return (baskets||S.baskets).filter(function(b){return basketKey(b.name)===key})[0]||null;
   }
+  function couponForBasket(name,coupons){
+    var key=basketKey(name);
+    return (coupons||S.coupons).filter(function(coupon){
+      return Array.isArray(coupon.basketNames)&&coupon.basketNames.some(function(basket){return basketKey(basket)===key});
+    })[0]||null;
+  }
   function promoDetails(p,products){
-    var list=products||S.products,basket=basketForName(p.orderName),legacyType=p.promoType||(p.promoEur!=null?'amount':'percent');
+    var list=products||S.products,campaign=couponForBasket(p.orderName),basket=campaign?null:basketForName(p.orderName),legacyType=p.promoType||(p.promoEur!=null?'amount':'percent');
+    if(campaign){
+      var names=campaign.basketNames.map(basketKey),campaignProducts=list.filter(function(item){return names.indexOf(basketKey(item.orderName))!==-1});
+      var campaignBase=campaignProducts.reduce(function(total,item){return total+(Number(item.priceEur)||0)},0);
+      var campaignType=campaign.promoType==='percent'?'percent':'amount',campaignValue=Math.max(0,Number(campaign.promoValue)||0);
+      var campaignSaved=campaignType==='amount'?Math.min(campaignValue,campaignBase):campaignBase*Math.min(100,campaignValue)/100;
+      var priceEur=Number(p.priceEur)||0;
+      return {type:campaignType,value:campaignValue,key:'coupon:'+campaign.id,baseEur:campaignBase,savedEur:campaignSaved,allocatedEur:campaignBase>0?campaignSaved*priceEur/campaignBase:0,code:campaign.promoCode||'',basket:true};
+    }
     var legacyValue=Number(p.promoValue!=null?p.promoValue:(legacyType==='amount'?p.promoEur:p.promoPct))||0;
     var type=basket?(basket.promoType==='amount'?'amount':'percent'):legacyType;
     if(type!=='amount')type='percent';
@@ -590,7 +638,7 @@ var firebaseConfig = {
       var itemBasket=basketByName(item.orderName),itemType=item.promoType||(item.promoEur!=null?'amount':'percent');
       var itemValue=Number(item.promoValue!=null?item.promoValue:(itemType==='amount'?item.promoEur:item.promoPct))||0;
       if(itemType!=='amount')itemType='percent';
-      var itemGroupKey=basket?(isMarwaRajaaBasket(p.orderName)?basketGroupKey(item.orderName):itemBasket?basketGroupKey(item.orderName):''):(itemBasket?basketGroupKey(item.orderName):[basketKey(item.orderName),basketKey(item.brand),itemType,Math.max(0,itemType==='percent'?Math.min(100,itemValue):itemValue),basketKey(item.promoCode)].join('|'));
+      var itemGroupKey=basket?(itemBasket?basketGroupKey(item.orderName):''):(itemBasket?basketGroupKey(item.orderName):[basketKey(item.orderName),basketKey(item.brand),itemType,Math.max(0,itemType==='percent'?Math.min(100,itemValue):itemValue),basketKey(item.promoCode)].join('|'));
       if(itemGroupKey===groupKey)baseEur+=Number(item.priceEur)||0;
     });
     baseEur+=Number(p.priceEur)||0;
@@ -614,7 +662,19 @@ var firebaseConfig = {
     }
     return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',primarkOriginalDh:primarkOriginalDh,badrProfit:badrProfit,basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
   }
-  function toDh(v){return v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}
+  function toDh(v){return v.cur==='EUR'?(v.amount||0)*(Number(v.rateDh)||rateOf(S.settings)):(v.amount||0)}
+  function normalizeTransferPerson(person){
+    var key=String(person||'').trim().toLowerCase();
+    return key==='badr'?'Badr':key==='ghita'?'Ghita':'';
+  }
+  function virementTo(v){return normalizeTransferPerson(v.to||v.who)}
+  function virementFrom(v){
+    var from=normalizeTransferPerson(v.from||v.createdBy);
+    if(from)return from;
+    return virementTo(v)==='Ghita'?'Badr':'Ghita';
+  }
+  function virementStatus(v){return v.status==='pending'?'confirmed':v.status||'confirmed'}
+  function virementAmountDh(v){return Number(v.amountDh)||toDh(v)}
 
   /* ---------- toast ---------- */
   var tt;
@@ -708,6 +768,7 @@ var firebaseConfig = {
     renderStatus();
     listen('products','products','p',function(){renderHero();renderBaskets();renderProducts();renderPkProducts();renderClients();renderAccounting()});
     listen('baskets','baskets','bs',function(){renderHero();renderBaskets();renderProducts();renderClients()});
+    listen('coupons','coupons','cp',function(){renderHero();renderBaskets();renderProducts();if(!$('#bsheet').hidden)renderCouponChoices()});
     listen('packages','packages','pkg',function(){renderHero();renderPackages();renderAccounting()});
     listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
     listen('clients','clients','c',function(){renderClients();renderTiles()});
@@ -724,13 +785,13 @@ var firebaseConfig = {
       }else if(!snap.metadata.fromCache&&!S.seeded){S.seeded=true;seed()}
       mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();renderPackages();
       if(!$('#sheet').hidden&&$('#fEur').value.trim()){syncPriceDh();renderPrev()}
-      if(!$('#bsheet').hidden)renderBasketPreview();
+      if(!$('#bsheet').hidden)renderCouponPreview();
     },onErr));
   }
   function stopListening(){
     S.unsubs.forEach(function(u){try{u()}catch(e){}});S.unsubs=[];
     clearTimeout(S.timer);
-    S.products=[];S.baskets=[];S.packages=[];S.pickups=[];S.clients=[];S.virements=[];S.ledger=[];S.loaded={p:false,bs:false,pkg:false,k:false,c:false,v:false,l:false};S.seeded=false;
+    S.products=[];S.baskets=[];S.coupons=[];S.packages=[];S.pickups=[];S.clients=[];S.virements=[];S.ledger=[];S.loaded={p:false,bs:false,cp:false,pkg:false,k:false,c:false,v:false,l:false};S.seeded=false;
   }
   function seed(){
     var now=Date.now();
@@ -750,6 +811,8 @@ var firebaseConfig = {
     $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'% + packages';
     $('#addBtn').hidden=!S.isGhita;
     $('#addBtn').disabled=!S.isGhita;
+    $('#addClient').hidden=!S.isGhita;
+    $('#addClient').disabled=!S.isGhita;
     $('#productAccessNote').hidden=S.isGhita;
     $('#packageName').disabled=!S.isBadr;
     $('#packageWeight').disabled=!S.isBadr;
@@ -805,63 +868,56 @@ var firebaseConfig = {
     renderBaskets();
   }
   function renderBaskets(){
-    var groups={};
-    S.products.forEach(function(p){
-      var name=(p.orderName||'').trim();
-      if(!name)return;
-      var key=basketGroupKey(name);
-      if(!groups[key])groups[key]={name:basketGroupName(name),items:[],basket:basketForName(name)};
-      groups[key].items.push(p);
+    var board=$('#couponBoard');
+    if(!S.loaded.p||!S.loaded.bs||!S.loaded.cp){board.hidden=false;board.innerHTML='<article class="empty"><p>Loading coupons…</p></article>';return}
+    var campaigns=S.coupons.map(function(coupon){
+      var names=Array.isArray(coupon.basketNames)?coupon.basketNames:[];
+      var groups=basketDisplayGroups(names);
+      var subtotal=names.reduce(function(total,name){return total+S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)}).reduce(function(sum,p){return sum+(Number(p.priceEur)||0)},0)},0);
+      var type=coupon.promoType==='percent'?'percent':'amount',value=Number(coupon.promoValue)||0;
+      var discount=type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,value)/100;
+      return {id:coupon.id,names:names,name:groups.map(basketGroupName).join(' + '),basketCount:groups.length,subtotal:subtotal,discount:discount,type:type,value:value,code:coupon.promoCode||'',legacy:false};
     });
-    S.baskets.forEach(function(b){
-      var name=(b.name||'').trim();
-      if(!name)return;
-      var key=basketGroupKey(name);
-      if(!groups[key])groups[key]={name:basketGroupName(name),items:[],basket:basketForName(name)};
-      else groups[key].basket=basketForName(name);
+    var legacyGroups={};
+    S.baskets.filter(basketHasCoupon).forEach(function(basket){
+      var name=String(basket.name||'').trim(),key=basketGroupKey(name);
+      if(!name||legacyGroups[key]||couponForBasket(name))return;
+      var names=Array.from(new Set(S.products.filter(function(p){return basketGroupKey(p.orderName)===key}).map(function(p){return String(p.orderName||'').trim()}).filter(Boolean)));
+      if(!names.length)names=[name];
+      if(names.some(function(basketName){return !!couponForBasket(basketName)}))return;
+      var subtotal=names.reduce(function(total,basketName){return total+S.products.filter(function(p){return basketKey(p.orderName)===basketKey(basketName)}).reduce(function(sum,p){return sum+(Number(p.priceEur)||0)},0)},0);
+      var type=basket.promoType==='amount'?'amount':'percent',value=Number(basket.promoValue)||0;
+      var groups=basketDisplayGroups(names);
+      legacyGroups[key]={id:basket.id,names:names,name:groups.map(basketGroupName).join(' + '),basketCount:groups.length,subtotal:subtotal,discount:type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,value)/100,type:type,value:value,code:basket.promoCode||'',legacy:true};
     });
-    var board=$('#basketBoard'),entries=Object.keys(groups).map(function(k){return groups[k]});
-    if(!S.loaded.p){board.hidden=false;board.innerHTML='<article class="empty"><p>Loading baskets…</p></article>';return}
-    if(!entries.length){board.hidden=false;board.innerHTML='<article class="empty"><h3>No baskets yet</h3><p>Add products with the same basket name, then configure a coupon once for the total.</p></article>';return}
-    entries.sort(function(a,b){return a.name.localeCompare(b.name)});
-    board.hidden=!entries.length;
-    board.innerHTML=entries.map(function(g){
-      var subtotal=g.items.reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
-      var coupon=basketForName(g.name),legacy=null;
-      if(!coupon){
-        g.items.some(function(p){
-          var c=calc(p,S.settings);
-          if(c.promoAmountEur>0){legacy=c;return true}
-          return false;
-        });
-      }
-      var type=coupon?(coupon.promoType==='amount'?'amount':'percent'):(legacy?legacy.promoType:'amount');
-      var value=coupon?(Number(coupon.promoValue)||0):(legacy?legacy.promoValue:0);
-      var discount=coupon?(type==='amount'?Math.min(value,subtotal):subtotal*value/100):(legacy?legacy.promoAmountEur:0);
-      var code=coupon?(coupon.promoCode||''):(legacy?legacy.promoCode:'');
-      var couponLabel=discount>0?(type==='amount'?eur(discount):fmt(value)+'%'):'No coupon';
-      var note=discount>0?couponLabel+' coupon'+(code?' · '+esc(code):'')+(legacy&&!coupon?' · existing item promo':''):'No coupon applied';
-      var final= Math.max(0,subtotal-discount),savedDh=discount*rateOf(S.settings);
-      var mark=discount>0?'−'+(type==='amount'?eur(discount):fmt(value)+'%'):'B';
-      var totalSummary=discount>0?'Coupon: −'+eur(discount)+' ('+dh(savedDh)+') · Basket total: ':'No coupon · Basket total: ';
-      var soldItems=g.items.filter(function(p){return typeof p.sellDh==='number'});
-      var soldBase=soldItems.reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
-      var revenueSaving=discount*(subtotal>0?soldBase/subtotal:0)*rateOf(S.settings);
-      var totalText=g.items.length+' product'+(g.items.length===1?'':'s');
-      return '<article class="promo-card"><div class="promo-top"><div class="promo-mark">'+esc(mark)+'</div><div class="promo-title"><strong>'+esc(g.name)+' basket</strong><span>'+totalText+' · '+note+'</span></div></div><div class="promo-saved"><span>Original subtotal</span><strong class="num">'+eur(subtotal)+'</strong></div><div class="promo-meta">'+totalSummary+'<b>'+eur(final)+'</b></div><div class="promo-meta">Sold-item savings counted toward revenue: '+dh(revenueSaving)+'</div><button class="btn soft block" type="button" data-basket="'+esc(g.name)+'">'+(coupon||legacy?'Edit basket coupon':'Add one coupon')+'</button></article>';
+    var cards=campaigns.concat(Object.keys(legacyGroups).map(function(key){return legacyGroups[key]})).sort(function(a,b){return a.name.localeCompare(b.name)});
+    if(!cards.length){board.hidden=false;board.innerHTML='<article class="empty"><h3>No coupons yet</h3><p>Add a coupon and choose one or two baskets to apply it to.</p></article>';return}
+    board.hidden=false;
+    board.innerHTML=cards.map(function(coupon){
+      var final=Math.max(0,coupon.subtotal-coupon.discount),label=coupon.type==='amount'?eur(coupon.value):fmt(coupon.value)+'%',discountLabel=coupon.type==='amount'?eur(coupon.discount):label;
+      var savingsDh=Math.round((coupon.discount*rateOf(S.settings)+Number.EPSILON)*100)/100;
+      var action=coupon.legacy
+        ?'<button class="btn soft block" type="button" data-edit-legacy-coupon="'+esc(coupon.id)+'">Manage existing coupon</button>'
+        :'<button class="btn soft block" type="button" data-edit-coupon="'+esc(coupon.id)+'">Manage coupon</button>';
+      return '<article class="promo-card"><div class="promo-top"><div class="promo-mark">−'+esc(label)+'</div><div class="promo-title"><strong>'+esc(coupon.name)+'</strong><span>'+coupon.basketCount+' basket'+(coupon.basketCount===1?'':'s')+(coupon.code?' · '+esc(coupon.code):'')+(coupon.legacy?' · existing coupon':'')+'</span></div></div><div class="promo-saved"><span>Original total</span><strong class="num">'+eur(coupon.subtotal)+'</strong></div><div class="promo-meta">Coupon: −'+discountLabel+' · '+dh(savingsDh)+'<br>Combined total: <b>'+eur(final)+'</b></div>'+action+'</article>';
     }).join('');
   }
   function vSums(){
-    var o={Badr:{sent:0,pend:0},Ghita:{sent:0,pend:0}};
-    S.virements.forEach(function(v){var k=o[v.who];if(!k)return;if(v.status==='sent')k.sent+=toDh(v);else k.pend+=toDh(v)});
-    return o;
+    var sent=0,receiving=0,pending=0,sendingPending=0;
+    S.virements.forEach(function(v){
+      var amount=virementAmountDh(v),status=virementStatus(v);
+      if(status!=='sent')pending+=amount;
+      if(virementFrom(v)===S.me){if(status==='sent')sent+=amount;else sendingPending+=amount}
+      if(virementTo(v)===S.me)receiving+=amount;
+    });
+    return {sent:sent,receiving:receiving,pending:pending,sendingPending:sendingPending};
   }
   function renderTiles(){
     var owe=0,gave=0;S.clients.forEach(function(c){owe+=c.owes||0;gave+=c.gave||0});
-    var vs=vSums(),pend=vs.Badr.pend+vs.Ghita.pend;
+    var vs=vSums(),pend=vs.pending;
     $('#tileOwe').textContent=dh(owe);$('#tilePend').textContent=dh(pend);
     $('#cGave').textContent=dh(gave);$('#cOwe').textContent=dh(owe);
-    var np=S.virements.filter(function(v){return v.status!=='sent'}).length,bd=$('#vBadge');
+    var np=S.virements.filter(function(v){return virementStatus(v)!=='sent'}).length,bd=$('#vBadge');
     bd.hidden=!np;bd.textContent=np;
   }
 
@@ -920,6 +976,15 @@ var firebaseConfig = {
       var timestamp=Number(pkg.createdAt)||0,day=timestamp?localDay(timestamp):'';
       var inPeriod=day&&(period.type==='day'?day===period.value:day.indexOf(period.value)===0);
       if(!hasPackageEntry&&timestamp<packageComptaCutoff&&inPeriod&&packageIsConfirmed(pkg))rows.push({timestamp:timestamp,day:day,category:'package',action:'from packages',entity:'package',reference:pkg.id,packageId:pkg.id,packageWeightKg:Number(pkg.weightKg)||0,packageStatus:pkg.status||'sent',description:'Package delivery cost: '+(pkg.name||'Package for Ghita'),amountEur:Number(pkg.feeEur)||0,amountDh:Number(pkg.feeDh)||0,deliveryAssetDeltaDh:Number(pkg.feeDh)||0});
+    });
+    S.virements.forEach(function(virement){
+      var hasVirementEntry=S.ledger.some(function(event){return event.entity==='virement'&&event.reference===virement.id});
+      var timestamp=Number(virement.createdAt||virement.updatedAt)||0,day=timestamp?localDay(timestamp):'';
+      var inPeriod=day&&(period.type==='day'?day===period.value:day.indexOf(period.value)===0);
+      if(!hasVirementEntry&&inPeriod){
+        var amountDh=virementAmountDh(virement),status=virementStatus(virement),from=virementFrom(virement),to=virementTo(virement);
+        rows.push({timestamp:timestamp,day:day,category:'transfer',action:'from virements',entity:'virement',reference:virement.id,description:'Virement '+from+' to '+to+' · '+status,amount:Number(virement.amount)||0,amountEur:virement.cur==='EUR'?Number(virement.amount)||0:null,amountDh:amountDh,currency:virement.cur||'DH',from:from,to:to,virementStatus:status});
+      }
     });
     S.baskets.forEach(function(basket){
       var hasCouponEntry=S.ledger.some(function(event){return event.category==='basket coupon'&&event.reference===basket.id});
@@ -1226,7 +1291,7 @@ var firebaseConfig = {
     renderClientBasketControl();
     var ul=$('#clist');
     if(!S.loaded.c){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
-    if(!S.clients.length){ul.innerHTML='<li class="empty"><h3>No client yet</h3><p>Write each client’s name, what he gave and what he still owes.</p><button class="btn" type="button" data-add="c">Add a client</button></li>';return}
+    if(!S.clients.length){ul.innerHTML='<li class="empty"><h3>No client yet</h3><p>Write each client’s name, what he gave and what he still owes.</p>'+(S.isGhita?'<button class="btn" type="button" data-add="c">Add a client</button>':'')+'</li>';return}
     ul.innerHTML=S.clients.slice().sort(function(a,b){return (b.owes||0)-(a.owes||0)||(b.createdAt||0)-(a.createdAt||0)}).map(function(c){
       var settled=!(c.owes>0);
       return '<li><button class="pcard" type="button" data-edit-c="'+esc(c.id)+'"><div class="ph"><h3>'+esc(c.name)+'</h3><span class="chip '+(settled?'sold':'open')+'">'+(settled?'Settled':'Owes')+'</span></div>'
@@ -1238,19 +1303,44 @@ var firebaseConfig = {
   /* ---------- virements ---------- */
   function renderVirements(){
     var vs=vSums();
-    $('#vTiles').innerHTML=['Badr','Ghita'].map(function(n){
-      return '<div class="tile"><span class="k">To '+n+'</span><span class="v num">'+dh(vs[n].sent)+'</span><span class="note num">sent · '+dh(vs[n].pend)+' pending</span></div>';
-    }).join('');
-    var ul=$('#vlist');
-    if(!S.loaded.v){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
-    if(!S.virements.length){ul.innerHTML='<li class="empty"><h3>No virement yet</h3><p>Pick Badr or Ghita, write the amount and mark it pending or sent.</p><button class="btn" type="button" data-add="v">Add a virement</button></li>';return}
-    var list=S.virements.slice().sort(function(a,b){var pa=a.status==='sent'?1:0,pb=b.status==='sent'?1:0;return pa-pb||(b.createdAt||0)-(a.createdAt||0)});
-    ul.innerHTML=list.map(function(v){
-      var sent=v.status==='sent',amt=v.cur==='EUR'?eur(v.amount||0):dh(v.amount||0);
-      return '<li><article class="vcard"><button class="pcard" type="button" data-edit-v="'+esc(v.id)+'"><div class="ph"><h3>To '+esc(v.who)+'</h3><span class="chip '+(sent?'sent':'pend')+'">'+(sent?'Sent':'Pending')+'</span></div>'
-        +'<div class="vamt num">'+amt+'</div><div class="note">'+esc(when(sent&&v.sentAt?v.sentAt:v.createdAt))+(v.note?' · '+esc(v.note):'')+'</div></button>'
-        +'<div class="vact"><span class="note">'+(sent?'Marked sent':'Not sent yet')+'</span><button class="btn '+(sent?'soft':'')+'" type="button" data-vtoggle="'+esc(v.id)+'">'+(sent?'Back to pending':'Mark as sent')+'</button></div></article></li>';
-    }).join('');
+    var recipient=S.isBadr?'Ghita':S.isGhita?'Badr':'';
+    var sender=S.isBadr?'Ghita':S.isGhita?'Badr':'the other account';
+    $('#addVir').textContent=recipient?'Send to '+recipient:'Send';
+    $('#addVir').disabled=!recipient;
+    $('#receivingLabel').textContent='From '+sender;
+    $('#vTiles').innerHTML='<div class="tile"><span class="k">Sending · '+esc(recipient||'—')+'</span><span class="v num">'+dh(vs.sent+vs.sendingPending)+'</span><span class="note num">'+dh(vs.sendingPending)+' in progress</span></div>'
+      +'<div class="tile"><span class="k">Receiving</span><span class="v num">'+dh(vs.receiving)+'</span><span class="note">From '+esc(sender)+'</span></div>';
+    var outgoing=$('#vlist'),incoming=$('#receivingVlist');
+    if(!S.loaded.v){
+      outgoing.innerHTML='<li class="empty"><p>Loading…</p></li>';
+      incoming.innerHTML='<li class="empty"><p>Loading…</p></li>';
+      return;
+    }
+    var sortTransfers=function(a,b){var order={confirmed:0,ongoing:1,sent:2};return order[virementStatus(a)]-order[virementStatus(b)]||(b.createdAt||0)-(a.createdAt||0)};
+    var sentByMe=S.virements.filter(function(v){return virementFrom(v)===S.me}).sort(sortTransfers);
+    var receivedByMe=S.virements.filter(function(v){return virementTo(v)===S.me&&virementFrom(v)!==S.me}).sort(sortTransfers);
+    outgoing.innerHTML=sentByMe.length?sentByMe.map(function(v){return virementCard(v,false)}).join(''):'<li class="empty v-section-empty"><h3>No outgoing virement</h3><p>Use “Send to '+esc(recipient||'the other account')+'” to record a transfer.</p></li>';
+    incoming.innerHTML=receivedByMe.length?receivedByMe.map(function(v){return virementCard(v,true)}).join(''):'<li class="empty v-section-empty"><h3>No incoming virement</h3><p>Transfers sent by '+esc(sender)+' appear here.</p></li>';
+  }
+  function virementCard(v,receiving){
+    var status=virementStatus(v),statusLabel=({confirmed:'Confirmed',ongoing:'On going',sent:'Sent'})[status]||'Confirmed';
+    var statusClass=status==='sent'?'sent':status==='confirmed'?'pend':'sold';
+    var amount=v.cur==='EUR'?eur(v.amount||0):dh(v.amount||0),amountDh=virementAmountDh(v);
+    var person=receiving?virementFrom(v):virementTo(v),title=(receiving?'From ':'To ')+person;
+    var actions='';
+    if(!receiving&&virementFrom(v)===S.me){
+      var statuses=[['confirmed','Confirmed'],['ongoing','On going'],['sent','Sent']];
+      actions='<div class="v-status-actions">'+statuses.map(function(step,index){
+        var currentIndex=statuses.findIndex(function(candidate){return candidate[0]===status});
+        var enabled=statuses[index][0]===statuses[currentIndex+1]?.[0];
+        return '<button class="btn '+(statuses[index][0]===status?'':'soft')+'" type="button" data-vstatus="'+statuses[index][0]+'" data-virement-id="'+esc(v.id)+'"'+(statuses[index][0]===status?' aria-current="step"':'')+(!enabled?' disabled':'')+'>'+statuses[index][1]+'</button>';
+      }).join('')+'</div>';
+    }
+    var edit=receiving?'':'<button class="pcard" type="button" data-edit-v="'+esc(v.id)+'"><div class="ph"><h3>'+esc(title)+'</h3><span class="chip '+statusClass+'">'+statusLabel+'</span></div>'
+      +'<div class="vamt num">'+amount+'</div><div class="note">'+esc(when(v.sentAt||v.createdAt))+(v.note?' · '+esc(v.note):'')+'</div><div class="note num">'+dh(amountDh)+' recorded for Compta</div></button>';
+    var received=receiving?'<div class="pcard"><div class="ph"><h3>'+esc(title)+'</h3><span class="chip '+statusClass+'">'+statusLabel+'</span></div>'
+      +'<div class="vamt num">'+amount+'</div><div class="note">'+esc(when(v.sentAt||v.createdAt))+(v.note?' · '+esc(v.note):'')+'</div><div class="note num">'+dh(amountDh)+' recorded for Compta</div></div>':'';
+    return '<li><article class="vcard">'+(receiving?received:edit)+actions+'</article></li>';
   }
 
   /* ---------- package sending ---------- */
@@ -1375,19 +1465,19 @@ var firebaseConfig = {
   window.addEventListener('hashchange',function(){showTab(location.hash.slice(1))});
 
   /* ---------- sheets ---------- */
-  function closeAll(){['#sheet','#bsheet','#csheet','#vsheet','#acct'].forEach(function(s){$(s).hidden=true});S.editing={p:null,c:null,v:null,b:null}}
+  function closeAll(){['#sheet','#bsheet','#csheet','#vsheet','#acct'].forEach(function(s){$(s).hidden=true});S.editing={p:null,c:null,v:null,b:null,coupon:null,legacyCoupon:null}}
   document.addEventListener('click',function(e){
     if(e.target.closest('[data-close]'))closeAll();
     var a=e.target.closest('[data-add]');
-    if(a){var k=a.getAttribute('data-add');if(k==='p'){if(S.isGhita)openProduct(null);else toast('Only Ghita can add products')}else if(k==='c')openClient(null);else openVir(null)}
+    if(a){var k=a.getAttribute('data-add');if(k==='p'){if(S.isGhita)openProduct(null);else toast('Only Ghita can add products')}else if(k==='c'){if(S.isGhita)openClient(null);else toast('Only Ghita can add clients')}else openVir(null)}
     var ep=e.target.closest('[data-edit-p]');if(ep)openProduct(ep.getAttribute('data-edit-p'));
     var ec=e.target.closest('[data-edit-c]');if(ec)openClient(ec.getAttribute('data-edit-c'));
     var ev=e.target.closest('[data-edit-v]');if(ev)openVir(ev.getAttribute('data-edit-v'));
-    var eb=e.target.closest('[data-basket]');if(eb)openBasket(eb.getAttribute('data-basket'));
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll()});
   $('#addBtn').addEventListener('click',function(){if(S.isGhita)openProduct(null);else toast('Only Ghita can add products')});
-  $('#addClient').addEventListener('click',function(){openClient(null)});
+  $('#addCoupon').addEventListener('click',function(){openCoupon(null,null)});
+  $('#addClient').addEventListener('click',function(){if(S.isGhita)openClient(null);else toast('Only Ghita can add clients')});
   $('#addVir').addEventListener('click',function(){openVir(null)});
   function byId(list,id){return list.filter(function(x){return x.id===id})[0]||null}
   function armDelete(btn,label,fn){
@@ -1479,64 +1569,124 @@ var firebaseConfig = {
   function basketSubtotal(name){
     return S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)}).reduce(function(total,p){return total+(Number(p.priceEur)||0)},0);
   }
-  function renderBasketPreview(){
-    var name=$('#bName').value.trim(),subtotal=basketSubtotal(name),type=$('#bType').value,value=parse($('#bValue').value)||0;
-    var discount=type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,Math.max(0,value))/100;
-    $('#bPrev').innerHTML='<div><span>Original basket subtotal</span><span>'+eur(subtotal)+'</span></div><div><span>One coupon discount</span><span>−'+eur(discount)+' · '+dh(discount*rateOf(S.settings))+'</span></div><div class="hr"><span>Basket total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
+  function couponSubtotalForNames(names){
+    var seen={};
+    return names.reduce(function(total,name){
+      var key=basketGroupKey(name);
+      if(!key||seen[key])return total;
+      seen[key]=true;
+      return total+basketSubtotal(name);
+    },0);
   }
-  function openBasket(name){
-    var basket=basketForName(name),basketName=basket?basket.name:(isMarwaRajaaBasket(name)?'Marwa':name),legacy=null;
-    S.editing.b=basketName;
-    $('#bName').value=basketName;$('#bCode').value=basket?basket.promoCode||'':'';
-    $('#bType').value=basket&&basket.promoType==='percent'?'percent':'amount';
-    $('#bValue').value=basket?f2(basket.promoValue||0):'';
-    if(!basket){
-      S.products.some(function(p){
-        if(basketGroupKey(p.orderName)!==basketGroupKey(name))return false;
-        var c=calc(p,S.settings);
-        if(c.promoAmountEur>0){legacy=c;return true}
-        return false;
+  function couponBasketOptions(){
+    var groups={};
+    S.products.forEach(function(product){
+      var name=String(product.orderName||'').trim();
+      var key=basketGroupKey(name);
+      if(name&&!groups[key])groups[key]={key:key,name:name,names:[]};
+      if(name&&groups[key].names.indexOf(name)===-1)groups[key].names.push(name);
+    });
+    return Object.keys(groups).map(function(key){
+      var group=groups[key];
+      var subtotal=S.products.filter(function(product){return basketGroupKey(product.orderName)===key}).reduce(function(total,product){return total+(Number(product.priceEur)||0)},0);
+      return {key:key,name:group.name,names:group.names,subtotal:subtotal,coupon:group.names.map(function(name){return couponForBasket(name)}).filter(Boolean)[0]||null};
+    }).sort(function(a,b){return a.name.localeCompare(b.name)});
+  }
+  function selectedCouponBasketOptions(){
+    var selected=$$('#couponBasketChoices input:checked').map(function(input){return input.value});
+    return couponBasketOptions().filter(function(option){return selected.indexOf(option.key)!==-1});
+  }
+  function selectedCouponBasketNames(){
+    return selectedCouponBasketOptions().reduce(function(names,option){return names.concat(option.names)},[]);
+  }
+  function renderCouponChoices(initialNames){
+    var selected=initialNames||selectedCouponBasketNames(),choices=$('#couponBasketChoices'),options=couponBasketOptions();
+    if(!S.loaded.p||!S.loaded.cp){choices.innerHTML='<span class="note">Loading baskets…</span>';return}
+    if(!options.length){choices.innerHTML='<span class="note">Add products with basket names before creating a coupon.</span>';return}
+    choices.innerHTML=options.map(function(option){
+      var current=S.editing.coupon&&option.coupon&&option.coupon.id===S.editing.coupon;
+      var unavailable=!!option.coupon&&!current,checked=selected.some(function(name){return basketGroupKey(name)===option.key});
+      return '<label class="coupon-choice"><input type="checkbox" value="'+esc(option.key)+'"'+(checked?' checked':'')+(current?' data-current="true"':'')+(unavailable?' disabled':'')+'><span>'+esc(basketGroupName(option.name))+(unavailable?' · already has a coupon':'')+'</span><small>'+eur(option.subtotal)+'</small></label>';
+    }).join('');
+    choices.querySelectorAll('input').forEach(function(input){input.addEventListener('change',function(){
+      var selectedCount=$$('#couponBasketChoices input:checked').length;
+      if(selectedCount>2){input.checked=false;toast('Choose one or two baskets');selectedCount=$$('#couponBasketChoices input:checked').length}
+      choices.querySelectorAll('input:not(:checked)').forEach(function(option){
+        var basket=options.filter(function(item){return item.key===option.value})[0];
+        option.disabled=selectedCount>=2||!!basket&&!!basket.coupon&&option.dataset.current!=='true';
       });
-      if(legacy){$('#bType').value=legacy.promoType;$('#bValue').value=f2(legacy.promoValue);$('#bCode').value=legacy.promoCode}
-    }
-    $('#bRemove').hidden=!basket||(!(Number(basket.promoValue)>0)&&!basket.promoCode);
-    renderBasketPreview();$('#bsheet').hidden=false;setTimeout(function(){$('#bCode').focus()},30);
+      renderCouponPreview();
+    })});
+    renderCouponPreview();
   }
-  ['#bCode','#bValue'].forEach(function(id){$(id).addEventListener('input',renderBasketPreview)});
-  $('#bType').addEventListener('change',renderBasketPreview);
+  function renderCouponPreview(){
+    var selected=selectedCouponBasketOptions(),subtotal=selected.reduce(function(total,option){return total+option.subtotal},0);
+    var type=$('#bType').value,value=parse($('#bValue').value)||0,discount=type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,Math.max(0,value))/100;
+    var valueLabel=type==='amount'?eur(discount):fmt(Math.min(100,value))+'%';
+    $('#couponHelp').textContent=type==='amount'?'Fixed discounts are shared across the selected baskets by their subtotal.':'The same percentage discount applies once to each selected basket.';
+    $('#bPrev').innerHTML='<div><span>Selected baskets</span><span>'+selected.length+' / 2</span></div><div><span>Original total</span><span>'+eur(subtotal)+'</span></div><div><span>Coupon discount</span><span>−'+valueLabel+(type==='amount'?' · '+dh(discount*rateOf(S.settings)):'')+'</span></div><div class="hr"><span>Combined total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
+  }
+  function openCoupon(id,legacyId){
+    var coupon=id?byId(S.coupons,id):null,legacy=legacyId?byId(S.baskets,legacyId):null,names=coupon?coupon.basketNames.slice():legacy?S.products.filter(function(product){return basketGroupKey(product.orderName)===basketGroupKey(legacy.name)}).map(function(product){return String(product.orderName||'').trim()}).filter(function(name,index,all){return name&&all.indexOf(name)===index}):[];
+    if(legacy&&!names.length)names=[legacy.name];
+    S.editing.coupon=coupon?coupon.id:null;S.editing.legacyCoupon=legacy?legacy.id:null;
+    $('#bsTitle').textContent=coupon||legacy?'Edit coupon':'Add coupon';
+    $('#bCode').value=(coupon?coupon.promoCode:legacy?legacy.promoCode:'')||'';
+    $('#bType').value=(coupon?coupon.promoType:legacy?legacy.promoType:'amount')==='percent'?'percent':'amount';
+    $('#bValue').value=f2(coupon?coupon.promoValue:legacy?legacy.promoValue:'');
+    $('#bRemove').hidden=!coupon&&!legacy;
+    renderCouponChoices(names);$('#bsheet').hidden=false;setTimeout(function(){$('#bCode').focus()},30);
+  }
+  $('#couponBoard').addEventListener('click',function(e){
+    var edit=e.target.closest('[data-edit-coupon]');if(edit){openCoupon(edit.getAttribute('data-edit-coupon'),null);return}
+    var legacy=e.target.closest('[data-edit-legacy-coupon]');if(legacy)openCoupon(null,legacy.getAttribute('data-edit-legacy-coupon'));
+  });
+  ['#bCode','#bValue'].forEach(function(id){$(id).addEventListener('input',renderCouponPreview)});
+  $('#bType').addEventListener('change',renderCouponPreview);
+  $('#couponBasketChoices').addEventListener('change',renderCouponPreview);
   $('#bForm').addEventListener('submit',function(e){
     e.preventDefault();
-    var name=$('#bName').value.trim(),type=$('#bType').value,value=parse($('#bValue').value);
-    if(!name){toast('Give this basket a name');return}
+    var selected=selectedCouponBasketOptions(),names=selected.reduce(function(all,option){return all.concat(option.names)},[]),type=$('#bType').value,value=parse($('#bValue').value);
+    if(selected.length<1||selected.length>2){toast('Choose one or two baskets');return}
     if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
-    var btn=$('#bSave'),subtotal=basketSubtotal(name),discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,ref=db.doc('baskets/'+basketId(name)),old=basketForName(name);
+    var subtotal=selected.reduce(function(total,option){return total+option.subtotal},0);
+    var discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,discountDh=Math.round((discount*rateOf(S.settings)+Number.EPSILON)*100)/100;
+    var btn=$('#bSave'),now=Date.now(),old=S.editing.coupon?byId(S.coupons,S.editing.coupon):null,legacy=S.editing.legacyCoupon?byId(S.baskets,S.editing.legacyCoupon):null;
+    var ref=old?db.doc('coupons/'+old.id):db.collection('coupons').doc(),body={basketNames:names,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,couponDh:discountDh,couponRateDh:rateOf(S.settings),updatedAt:now,updatedBy:S.me};
+    if(!old){body.createdAt=now;body.createdBy=S.me}
+    var oldSubtotal=old?couponSubtotalForNames(old.basketNames||[]):legacy?basketSubtotal(legacy.name):0;
+    var oldDiscount=old?(old.promoType==='amount'?Math.min(Number(old.promoValue)||0,oldSubtotal):oldSubtotal*(Number(old.promoValue)||0)/100):legacy?(legacy.promoType==='amount'?Math.min(Number(legacy.promoValue)||0,oldSubtotal):oldSubtotal*(Number(legacy.promoValue)||0)/100):0;
+    var oldCouponDh=old?(Number(old.couponDh)||oldDiscount*rateOf(S.settings)):legacy?(Number(legacy.couponDh)||oldDiscount*rateOf(S.settings)):0;
+    var clearNames=names.slice();
+    var legacyBaskets=S.baskets.filter(function(basket){return clearNames.some(function(name){return basketKey(name)===basketKey(basket.name)})&&basketHasCoupon(basket)});
+    var legacyItems=S.products.filter(function(product){return clearNames.some(function(name){return basketKey(name)===basketKey(product.orderName)})&&(Number(product.promoPct)>0||Number(product.promoValue)>0||product.promoCode)});
+    var event=activityEvent('basket coupon',old?'updated':'added','basket',ref.id,(old?'Coupon updated: ':'Coupon added: ')+basketDisplayGroups(names).join(' + '),{amountEur:discount,amountDh:discountDh,couponReductionDeltaDh:Math.round((discountDh-oldCouponDh+Number.EPSILON)*100)/100,couponCode:body.promoCode,basketNames:names,before:old?{promoType:old.promoType,promoValue:old.promoValue,basketNames:old.basketNames||[]}:legacy?{promoType:legacy.promoType,promoValue:legacy.promoValue,basketNames:clearNames}:null,after:{promoType:type,promoValue:value,basketNames:names},legacyItemCouponsRemoved:legacyItems.length});
     btn.disabled=true;
-    var rate=rateOf(S.settings),couponDh=Math.round((discount*rate+Number.EPSILON)*100)/100;
-    var body={name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,couponDh:couponDh,couponRateDh:rate,updatedAt:Date.now(),updatedBy:S.me};
-    var legacyItems=S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
-    var oldDiscount=old?(old.promoType==='amount'?Math.min(Number(old.promoValue)||0,subtotal):subtotal*(Number(old.promoValue)||0)/100):0;
-    var oldCouponDh=old?(typeof old.couponDh==='number'?old.couponDh:oldDiscount*rate):0;
-    var hasPriorCouponLedger=S.ledger.some(function(event){return event.category==='basket coupon'&&event.reference===ref.id});
-    var couponDelta=!old||hasPriorCouponLedger?couponDh-oldCouponDh:couponDh;
-    var events=[activityEvent('basket coupon',old?'updated':'added','basket',ref.id,(old?'Basket coupon updated: ':'Basket coupon added: ')+name,{amountEur:discount,amountDh:couponDh,couponReductionDeltaDh:Math.round((couponDelta+Number.EPSILON)*100)/100,couponCode:body.promoCode,before:old?{promoType:old.promoType,promoValue:old.promoValue,promoCode:old.promoCode||''}:null,after:{promoType:type,promoValue:value,promoCode:body.promoCode},legacyItemCouponsRemoved:legacyItems.length})];
     commitActivity(function(batch){
-      batch.set(ref,body);
-      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:body.updatedAt,updatedBy:S.me})});
-    },events)
-      .then(function(){closeAll();toast('One coupon saved for the whole basket')},failMsg)
+      if(old)batch.set(ref,body,{merge:true});else batch.set(ref,body);
+      legacyBaskets.forEach(function(basket){batch.update(db.doc('baskets/'+basket.id),{promoType:'amount',promoValue:0,promoPct:0,promoEur:firebase.firestore.FieldValue.delete(),promoCode:'',updatedAt:now,updatedBy:S.me})});
+      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoEur:firebase.firestore.FieldValue.delete(),promoCode:'',updatedAt:now,updatedBy:S.me})});
+    },event)
+      .then(function(){closeAll();toast('Coupon saved for '+selected.length+' basket'+(selected.length===1?'':'s'))},failMsg)
       .then(function(){btn.disabled=false});
   });
   $('#bRemove').addEventListener('click',function(){
-    var name=S.editing.b;if(!name)return;
-    var btn=$('#bRemove');btn.disabled=true;
-    var previous=basketForName(name),ref=db.doc('baskets/'+basketId(name)),discount=previous?(previous.promoType==='amount'?Math.min(Number(previous.promoValue)||0,basketSubtotal(name)):basketSubtotal(name)*(Number(previous.promoValue)||0)/100):0;
-    var discountDh=previous&&typeof previous.couponDh==='number'?previous.couponDh:discount*rateOf(S.settings);
-    var legacyItems=S.products.filter(function(p){return basketGroupKey(p.orderName)===basketGroupKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
+    var coupon=S.editing.coupon?byId(S.coupons,S.editing.coupon):null,legacy=S.editing.legacyCoupon?byId(S.baskets,S.editing.legacyCoupon):null;
+    if(!coupon&&!legacy)return;
+    var btn=$('#bRemove'),names=coupon?coupon.basketNames.slice():S.products.filter(function(product){return basketKey(product.orderName)===basketKey(legacy.name)}).map(function(product){return String(product.orderName||'').trim()}).filter(function(name,index,all){return name&&all.indexOf(name)===index});
+    if(!names.length&&legacy)names=[legacy.name];
+    var subtotal=coupon?couponSubtotalForNames(names):basketSubtotal(legacy.name),type=coupon?coupon.promoType:legacy.promoType,value=Number(coupon?coupon.promoValue:legacy.promoValue)||0;
+    var discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,discountDh=coupon?(Number(coupon.couponDh)||discount*rateOf(S.settings)):(Number(legacy.couponDh)||discount*rateOf(S.settings));
+    var ref=coupon?db.doc('coupons/'+coupon.id):db.doc('baskets/'+legacy.id),now=Date.now();
+    var legacyBaskets=coupon?[]:S.baskets.filter(function(basket){return names.some(function(name){return basketKey(name)===basketKey(basket.name)})&&basketHasCoupon(basket)});
+    var legacyItems=S.products.filter(function(product){return names.some(function(name){return basketKey(name)===basketKey(product.orderName)})&&(Number(product.promoPct)>0||Number(product.promoValue)>0||product.promoCode)});
+    btn.disabled=true;
     commitActivity(function(batch){
-      batch.update(ref,{promoCode:'',promoType:'amount',promoValue:0,couponDh:0,updatedAt:Date.now(),updatedBy:S.me});
-      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:Date.now(),updatedBy:S.me})});
-    },activityEvent('basket coupon','removed','basket',ref.id,'Basket coupon removed: '+name,{amountEur:discount,amountDh:discountDh,couponReductionDeltaDh:-discountDh,legacyItemCouponsRemoved:legacyItems.length}))
-      .then(function(){closeAll();toast('Basket coupon removed')},failMsg)
+      if(coupon)batch.delete(ref);
+      legacyBaskets.forEach(function(basket){batch.update(db.doc('baskets/'+basket.id),{promoType:'amount',promoValue:0,promoPct:0,promoEur:firebase.firestore.FieldValue.delete(),promoCode:'',updatedAt:now,updatedBy:S.me})});
+      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoEur:firebase.firestore.FieldValue.delete(),promoCode:'',updatedAt:now,updatedBy:S.me})});
+    },activityEvent('basket coupon','removed','basket',ref.id,'Coupon removed: '+basketDisplayGroups(names).join(' + '),{amountEur:discount,amountDh:discountDh,couponReductionDeltaDh:-discountDh,basketNames:names,legacyItemCouponsRemoved:legacyItems.length}))
+      .then(function(){closeAll();toast('Coupon removed')},failMsg)
       .then(function(){btn.disabled=false});
   });
 
@@ -1544,6 +1694,7 @@ var firebaseConfig = {
   var pendingClientPayments=0;
   function openClient(id){
     var c=id?byId(S.clients,id):null;
+    if(!id&&!S.isGhita){toast('Only Ghita can add clients');return}
     S.editing.c=c?c.id:null;
     pendingClientPayments=0;
     $('#csTitle').textContent=c?'Edit client':'New client';
@@ -1584,17 +1735,26 @@ var firebaseConfig = {
   });
 
   /* virement sheet */
-  function radio(name,val){var r=document.querySelector('input[name="'+name+'"][value="'+val+'"]');if(r)r.checked=true}
-  function radioVal(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:''}
+  function transferRecipient(){
+    return S.isBadr?'Ghita':S.isGhita?'Badr':'';
+  }
+  function bankDetailsHtml(name){
+    if(name==='Badr'||name==='Ghita')return '<div>For your security, confirm the recipient’s bank details with them directly before sending.</div>';
+    return '';
+  }
   function openVir(id){
     var v=id?byId(S.virements,id):null;
+    if(v&&virementFrom(v)!==S.me){toast('Only the sender can edit this virement');return}
+    var recipient=v?virementTo(v):transferRecipient();
+    if(!recipient){toast('This account cannot create a virement');return}
     S.editing.v=v?v.id:null;
-    $('#vsTitle').textContent=v?'Edit virement':'New virement';
-    radio('vWho',v?v.who:'Ghita');radio('vStatus',v?v.status:'pending');
+    $('#vsTitle').textContent=v?'Edit virement':'Send to '+recipient;
+    $('#vToLabel').textContent=recipient;
+    $('#vBankDetails').innerHTML=bankDetailsHtml(recipient);
     $('#vAmt').value=v?f2(v.amount):'';$('#vCur').value=v&&v.cur==='EUR'?'EUR':'DH';$('#vNote').value=v?(v.note||''):'';
     var d=$('#vDel');d.hidden=!v;
     if(v)armDelete(d,'Delete virement',function(){
-      commitActivity(function(batch){batch.delete(db.doc('virements/'+v.id))},activityEvent('transfer','deleted','virement',v.id,'Transfer deleted: '+v.who,{amount:v.amount||0,currency:v.cur||'DH',amountDh:v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}))
+      commitActivity(function(batch){batch.delete(db.doc('virements/'+v.id))},activityEvent('transfer','deleted','virement',v.id,'Transfer deleted: '+virementFrom(v)+' to '+virementTo(v),{amount:v.amount||0,currency:v.cur||'DH',amountDh:virementAmountDh(v),from:virementFrom(v),to:virementTo(v),virementStatus:virementStatus(v)}))
         .then(function(){closeAll();toast('Transfer deleted')},failMsg);
     });
     $('#vsheet').hidden=false;setTimeout(function(){$('#vAmt').focus()},30);
@@ -1603,18 +1763,19 @@ var firebaseConfig = {
     e.preventDefault();
     var amt=parse($('#vAmt').value);
     if(!(amt>0)){toast('Enter the amount');$('#vAmt').focus();return}
-    var now=Date.now(),btn=$('#vSave'),st=radioVal('vStatus')==='sent'?'sent':'pending';
+    var now=Date.now(),btn=$('#vSave'),existing=S.editing.v?byId(S.virements,S.editing.v):null,recipient=existing?virementTo(existing):transferRecipient();
+    if(!recipient||existing&&virementFrom(existing)!==S.me){toast('This account cannot create or edit that virement');return}
+    var rate=rateOf(S.settings),st=existing?virementStatus(existing):'confirmed',amountDh=Math.round(((($('#vCur').value==='EUR'?amt*rate:amt))+Number.EPSILON)*100)/100;
     btn.disabled=true;
-    var body={who:radioVal('vWho')||'Ghita',amount:amt,cur:$('#vCur').value==='EUR'?'EUR':'DH',status:st,note:$('#vNote').value.trim(),updatedAt:now,updatedBy:S.me};
-    if(st==='sent')body.sentAt=now;
-    var existing=S.editing.v?byId(S.virements,S.editing.v):null,ref=existing?db.doc('virements/'+existing.id):db.collection('virements').doc();
-    var amountDh=body.cur==='EUR'?body.amount*rateOf(S.settings):body.amount;
-    var event=activityEvent('transfer',existing?'updated':'added','virement',ref.id,(existing?'Transfer updated to ':'Transfer added to ')+body.who,{amount:body.amount,currency:body.cur,amountDh:amountDh,status:body.status,before:existing?{who:existing.who,amount:existing.amount,currency:existing.cur,status:existing.status}:null,after:{who:body.who,amount:body.amount,currency:body.cur,status:body.status}});
+    var body={from:S.me,to:recipient,who:recipient,amount:amt,cur:$('#vCur').value==='EUR'?'EUR':'DH',rateDh:rate,amountDh:amountDh,status:st,note:$('#vNote').value.trim(),updatedAt:now,updatedBy:S.me};
+    if(!existing){body.confirmedAt=now;body.confirmedBy=S.me}
+    var ref=existing?db.doc('virements/'+existing.id):db.collection('virements').doc();
+    var event=activityEvent('transfer',existing?'updated':'confirmed','virement',ref.id,(existing?'Transfer updated: ':'Transfer confirmed: ')+S.me+' to '+recipient,{amount:body.amount,currency:body.cur,amountDh:amountDh,from:S.me,to:recipient,virementStatus:body.status,before:existing?{amount:existing.amount,currency:existing.cur,status:virementStatus(existing),amountDh:virementAmountDh(existing)}:null,after:{amount:body.amount,currency:body.cur,status:body.status,amountDh:amountDh}});
     var job=commitActivity(function(batch){
       if(existing)batch.update(ref,body);
       else{body.createdAt=now;body.createdBy=S.me;batch.set(ref,body)}
     },event);
-    job.then(function(){closeAll();toast('Virement saved')},failMsg).then(function(){btn.disabled=false});
+    job.then(function(){closeAll();toast(existing?'Virement updated':'Virement confirmed for '+recipient)},failMsg).then(function(){btn.disabled=false});
   });
 
   /* ---------- pickups + virement quick actions ---------- */
@@ -1641,12 +1802,20 @@ var firebaseConfig = {
       if(!armed[id]){armed[id]=true;renderPickups();setTimeout(function(){delete armed[id];renderPickups()},3000);return}
       delete armed[id];var removedPickup=byId(S.pickups,id);
       commitActivity(function(batch){batch.delete(db.doc('pickups/'+id))},activityEvent('delivery notice','deleted','pickup',id,'Pickup notice deleted: '+(removedPickup?removedPickup.place:''))).catch(failMsg);return}
-    var t=e.target.closest('[data-vtoggle]');
-    if(t){var vid=t.getAttribute('data-vtoggle'),v=byId(S.virements,vid);if(!v)return;t.disabled=true;
-      var sent=v.status==='sent',upd=sent?{status:'pending',updatedAt:Date.now(),updatedBy:S.me}:{status:'sent',sentAt:Date.now(),updatedAt:Date.now(),updatedBy:S.me};
-      var amountDh=v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0);
-      commitActivity(function(batch){batch.update(db.doc('virements/'+vid),upd)},activityEvent('transfer',sent?'reopened':'sent','virement',vid,(sent?'Transfer returned to pending: ':'Transfer marked sent: ')+v.who,{amount:v.amount||0,currency:v.cur||'DH',amountDh:amountDh}))
-        .then(function(){toast(sent?'Back to pending':'Marked as sent')},failMsg)}
+    var statusButton=e.target.closest('[data-vstatus]');
+    if(statusButton){
+      var vid=statusButton.getAttribute('data-virement-id'),v=byId(S.virements,vid),next=statusButton.getAttribute('data-vstatus');
+      if(!v||virementFrom(v)!==S.me){toast('Only the sender can update this virement');return}
+      var current=virementStatus(v),nextByStatus={confirmed:'ongoing',ongoing:'sent'};
+      if(nextByStatus[current]!==next){toast('Move this virement to the next status');return}
+      var now=Date.now(),updates={status:next,updatedAt:now,updatedBy:S.me};
+      if(next==='ongoing'){updates.ongoingAt=now;updates.ongoingBy=S.me}
+      if(next==='sent'){updates.sentAt=now;updates.sentBy=S.me}
+      statusButton.disabled=true;
+      commitActivity(function(batch){batch.update(db.doc('virements/'+vid),updates)},activityEvent('transfer',next,'virement',vid,'Transfer '+({ongoing:'on going',sent:'sent'}[next])+': '+S.me+' to '+virementTo(v),{amount:v.amount||0,currency:v.cur||'DH',amountDh:virementAmountDh(v),from:S.me,to:virementTo(v),virementStatus:next}))
+        .then(function(){toast('Virement marked '+({ongoing:'On going',sent:'Sent'}[next]))},failMsg)
+        .then(renderVirements);
+    }
   });
 
   /* ---------- render all ---------- */

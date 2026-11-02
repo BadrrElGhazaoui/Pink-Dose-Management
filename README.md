@@ -2,6 +2,8 @@
 
 A lightweight, private operations app for Pink Dose, a company managed by **Ghita Sqalli** with **Badr El Ghazaoui** as associate. It brings product pricing, package tracking, customer balances, transfers, pickup notices, and a period-based internal accounting view together in one mobile-friendly interface.
 
+The interface is optimized mobile-first: preserve phone-width layouts, safe-area spacing, readable cards, and touch targets of at least 44px when adding or changing features.
+
 The app is a static web application. GitHub Pages serves the interface, Firebase Authentication handles sign-in, and Cloud Firestore synchronizes shared records between Ghita’s and Badr’s devices.
 
 ## What the app does
@@ -10,7 +12,7 @@ The app is a static web application. GitHub Pages serves the interface, Firebase
 
 - Ghita is the only account allowed to create products. This is restricted in the interface and in Firestore rules.
 - Both accounts can view products and edit existing product details.
-- Products can be grouped by basket/customer name. A basket can have one percentage or fixed-value coupon shared across its products.
+- Products can be grouped by basket/customer name. The **Coupons** section creates percentage or fixed-value coupons for one or two separately selected baskets; Marwa and Rajaa remain distinct baskets. Basket records remain available in the background, and each basket can belong to one active coupon at a time.
 - Entering a product’s price in EUR calculates its DH value using the shared exchange rate. A selling price can be recorded when the product is sold.
 - Product delivery is not set on the product itself; Badr records package weight and package delivery fees in **Packages**.
 
@@ -23,12 +25,12 @@ The app is a static web application. GitHub Pages serves the interface, Firebase
 
 ### Revenue overview
 
-The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. For products whose brand or basket name includes **Primark**, the original EUR price is also credited directly to Badr at **11.33 DH/€**; the product-profit split remains unchanged, and Primark revenue is highlighted separately in Badr’s summary. Marwa and Rajaa’s baskets are combined and share one €10 coupon. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
+The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. For products whose brand or basket name includes **Primark**, the original EUR price is also credited directly to Badr at **11.33 DH/€**; the product-profit split remains unchanged, and Primark revenue is highlighted separately in Badr’s summary. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
 
 ### Clients, transfers, and pickup notices
 
 - **Clients** stores amounts received and still owed. Sold baskets with a customer name appear in a selector; adding a basket adds the sum of its selling prices in DH to that client’s outstanding balance, once per basket.
-- **Virements** tracks transfers to Ghita or Badr, with pending and sent states.
+- **Virements** lets Badr send to Ghita and Ghita send to Badr. Recipient bank details are shown in the send form; incoming transfers appear in a separate **Receiving** list. Outgoing transfers move through **Confirmed → On going → Sent**, and each creation, edit, and status change is recorded in Compta.
 - **Livraison** lets a user post a pickup notice that is shared with the other account. The notice remains available until it is marked picked up.
 
 ### Compta
@@ -37,6 +39,8 @@ Compta provides day, month, and year filters, an activity list, and a downloadab
 
 - **Actif:** product purchase values and confirmed package/delivery charges.
 - **Passif:** product sale values and coupon reductions.
+
+Virement creation, amount edits, and each transfer status update also appear in the period activity list; internal transfers are not added to the Active or Passif totals.
 
 This is an internal management report, **not** a certified statutory balance sheet or a representation of legal compliance. Have a qualified accountant validate accounting classifications and reporting requirements for the applicable jurisdiction.
 

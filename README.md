@@ -23,7 +23,7 @@ The app is a static web application. GitHub Pages serves the interface, Firebase
 
 ### Revenue overview
 
-The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
+The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. For products whose brand or basket name includes **Primark**, the original EUR price is also credited directly to Badr at **11.33 DH/€**; the product-profit split remains unchanged. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
 
 ### Clients, transfers, and pickup notices
 

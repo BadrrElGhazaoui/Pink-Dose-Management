@@ -21,7 +21,7 @@
 :root{
   --bg:#f7e8e7; --surface:#fffaf8; --surface-2:#f2d9d7; --ink:#3b1d2a; --muted:#7f5c68; --line:#e6c8c6;
   --accent:#c93a73; --accent-ink:#ffffff; --accent-soft:#f6cfdc;
-  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e;
+  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e; --hero-badr:#b76a88; --hero-liv:#fff;
   --good:#1f7a55; --good-soft:#d6efe3; --bad:#b3261e; --warn:#8f4d08; --warn-soft:#fbe3c4;
   --shadow:0 1px 0 rgba(59,29,42,.05),0 10px 26px -14px rgba(59,29,42,.35);
   --font-display:'Bricolage Grotesque',ui-rounded,system-ui,sans-serif;
@@ -32,7 +32,7 @@
   :root{
     --bg:#1d1117; --surface:#2a1821; --surface-2:#38212c; --ink:#f8e6e8; --muted:#bb97a4; --line:#44293a;
     --accent:#f0679a; --accent-ink:#2a0f1a; --accent-soft:#4a2434;
-    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6;
+    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6; --hero-badr:#8f405e; --hero-liv:#fff;
     --good:#55d49b; --good-soft:#173a2c; --bad:#ff8a80; --warn:#f2b366; --warn-soft:#4a3115;
     --shadow:none; color-scheme:dark;
   }
@@ -82,13 +82,18 @@ button{cursor:pointer}
 .hero .big{font-family:var(--font-display);font-weight:800;font-size:clamp(38px,12vw,52px);letter-spacing:-.03em;line-height:1.05;margin:4px 0 2px}
 .hero .big small{font-size:.4em;letter-spacing:0;margin-left:6px;font-weight:700;color:var(--hero-muted)}
 .hero .sub{font-size:13.5px;color:var(--hero-muted)}
-.split{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:16px 0 12px;background:var(--hero-bar-2)}
-.split b{display:block;background:var(--hero-bar);height:100%;transition:width .4s}
+.split{display:flex;gap:3px;height:14px;padding:2px;border-radius:99px;overflow:hidden;margin:16px 0 12px;background:color-mix(in srgb,var(--hero-fg) 12%,transparent)}
+.split-segment{display:block;min-width:0;height:100%;flex:0 1 0%;border-radius:99px;transition:flex-grow .4s ease}
+.split-ghita{background:var(--hero-bar)}
+.split-badr{background:var(--hero-badr)}
+.split-liv{background:var(--hero-liv)}
 .shares{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .shares div{min-width:0}
 .shares .who{font-size:12.5px;color:var(--hero-muted);display:flex;align-items:center;gap:6px}
 .shares .who:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--hero-bar-2)}
 .shares .g .who:before{background:var(--hero-bar)}
+.shares>div:not(.g) .who:before{width:9px;height:9px;border-radius:50%;background:var(--hero-badr);box-shadow:0 0 0 2px color-mix(in srgb,var(--hero-badr) 28%,transparent)}
+.shares>div:not(.g) .who:after{content:"";width:12px;height:5px;flex:none;border-radius:99px;background:var(--hero-liv);box-shadow:0 0 0 1px color-mix(in srgb,var(--hero-fg) 32%,transparent)}
 .shares .amt{font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:-.01em;overflow-wrap:anywhere}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .tile{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:2px;min-width:0}
@@ -228,7 +233,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
       <div class="lbl">Revenu DH total</div>
       <div class="big num" id="heroTotal">0,00<small>DH</small></div>
       <div class="sub" id="heroSub">Nothing sold yet</div>
-      <div class="split" aria-hidden="true"><b id="heroBar" style="width:70%"></b></div>
+      <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
       <div class="shares">
         <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
         <div><div class="who" id="bLbl">Badr 30% + livraison</div><div class="amt num" id="bAmt">0,00 DH</div></div>
@@ -547,12 +552,21 @@ var firebaseConfig = {
 
   /* ---------- hero + tiles ---------- */
   function renderHero(){
-    var s=S.settings,tot=0,g=0,b=0,n=0,open=0;
-    S.products.forEach(function(p){var c=calc(p,s);if(c.sold){tot+=c.rev;g+=c.g;b+=c.b;n++}else open++});
+    var s=S.settings,tot=0,g=0,b=0,liv=0,n=0,open=0;
+    S.products.forEach(function(p){var c=calc(p,s);if(c.sold){tot+=c.rev;g+=c.g;b+=c.b;liv+=c.livDh;n++}else open++});
     $('#heroTotal').innerHTML=fmt(tot)+'<small>DH</small>';
     $('#heroSub').textContent=S.products.length?(n+' sold · '+open+' waiting for a selling price'):'Nothing sold yet';
     $('#gAmt').textContent=dh(g);$('#bAmt').textContent=dh(b);
-    $('#heroBar').style.width=Math.max(0,Math.min(100,s.ghitaPct))+'%';
+    var segments=[
+      {el:$('#heroGhitaBar'),amount:Math.max(0,g)},
+      {el:$('#heroBadrBar'),amount:Math.max(0,b-liv)},
+      {el:$('#livStripe'),amount:Math.max(0,liv)}
+    ];
+    var barTotal=segments.reduce(function(sum,segment){return sum+segment.amount},0);
+    segments.forEach(function(segment){
+      segment.el.hidden=!(barTotal>0&&segment.amount>0);
+      segment.el.style.flexGrow=barTotal>0?segment.amount/barTotal:0;
+    });
   }
   function vSums(){
     var o={Badr:{sent:0,pend:0},Ghita:{sent:0,pend:0}};

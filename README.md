@@ -77,6 +77,7 @@ Run `npm run dev` from this folder, then open http://127.0.0.1:5173. Stop the se
 - Firebase free plan (Spark) is far above what two people need.
 - The app does not send push notifications. Badr sees a livraison notice when he opens the app, and live while it is open.
 - In a product form, entering Price EUR automatically calculates Price DH using the shared rate; change that rate in the Rate tab.
+- New products default to €1.50 for livraison. Badr receives his percentage of product profit (30% by default) plus the livraison price converted to DH; Ghita's percentage is calculated from product profit before livraison.
 
 ## Troubleshooting
 

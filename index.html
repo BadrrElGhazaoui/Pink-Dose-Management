@@ -231,7 +231,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
       <div class="split" aria-hidden="true"><b id="heroBar" style="width:70%"></b></div>
       <div class="shares">
         <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
-        <div><div class="who" id="bLbl">Badr 30%</div><div class="amt num" id="bAmt">0,00 DH</div></div>
+        <div><div class="who" id="bLbl">Badr 30% + livraison</div><div class="amt num" id="bAmt">0,00 DH</div></div>
       </div>
     </section>
     <div id="bannerBox" aria-live="polite"></div>
@@ -292,10 +292,10 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
         <div class="field"><label for="rGot">Received (DH)</label><input id="rGot" type="text" inputmode="decimal"></div>
       </div>
       <div class="field"><label for="rPct">Ghita's share of revenu (%)</label><input id="rPct" type="text" inputmode="decimal"></div>
-      <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest.</p>
+      <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest, plus livraison.</p>
       <button class="btn block" id="rSave" type="submit">Save rate and split</button>
     </form>
-    <p class="note" style="margin-top:14px">Revenu DH total = Selling price DH − (Total € × rate). Livraison DH = Livraison € × rate.</p>
+    <p class="note" style="margin-top:14px">Badr gets his percentage of the product profit, plus the livraison price converted to DH at this rate. Ghita's share is calculated from product profit before livraison.</p>
   </main>
 
   <nav class="tabs" aria-label="Sections"><div class="tabs-in" role="tablist">
@@ -319,7 +319,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
         <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
       </div>
       <div class="two">
-        <div class="field"><label for="fLiv">Livraison EUR</label><input id="fLiv" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="fLiv">Livraison EUR (Badr)</label><input id="fLiv" type="text" inputmode="decimal"></div>
         <div class="field"><label for="fSell">Selling price DH</label><input id="fSell" type="text" inputmode="decimal" placeholder="Empty if unsold"></div>
       </div>
       <div class="prev num" id="prev"></div>
@@ -435,7 +435,8 @@ var firebaseConfig = {
     var livDh=liv*r,totalEur=pe+liv,totalDh=pd+livDh,costDh=totalEur*r;
     var sold=typeof p.sellDh==='number';
     var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
-    var rev=sold?r2(p.sellDh-costDh):null,g=sold?r2(rev*s.ghitaPct/100):null,b=sold?r2(rev-g):null;
+    var productRev=sold?r2(p.sellDh-costDh):null;
+    var rev=sold?r2(productRev+livDh):null,g=sold?r2(productRev*s.ghitaPct/100):null,b=sold?r2(rev-g):null;
     return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,sold:sold,rev:rev,g:g,b:b};
   }
   function toDh(v){return v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}
@@ -540,7 +541,7 @@ var firebaseConfig = {
   function renderMe(){
     $('#meName').textContent=S.me;$('#meIni').textContent=S.me?S.me.charAt(0):'?';
     $('#gLbl').textContent='Ghita '+S.settings.ghitaPct+'%';
-    $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'%';
+    $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'% + livraison';
     $('#pkSend').textContent=S.me==='Badr'?'Post a pick-up notice':'Tell Badr to pick up';
   }
 
@@ -609,7 +610,7 @@ var firebaseConfig = {
     if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No pair yet</h3><p>Add the first product. Both phones will show it right away.</p><button class="btn" type="button" data-add="p">Add a product</button></li>';return}
     ul.innerHTML=S.products.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(p){
       var c=calc(p,S.settings);
-      var foot=c.sold?'<div class="pfoot num"><span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr '+dh(c.b)+'</span></div>':'<div class="pfoot muted">Tap to add the selling price and see the split</div>';
+      var foot=c.sold?'<div class="pfoot num"><span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr (+'+dh(c.livDh)+' livraison) '+dh(c.b)+'</span></div>':'<div class="pfoot muted">Tap to add the selling price and see the split</div>';
       return '<li><button class="pcard" type="button" data-edit-p="'+esc(p.id)+'"><div class="ph"><h3>'+esc(p.name)+'</h3><span class="chip '+(c.sold?'sold':'open')+'">'+(c.sold?'Sold':'Not sold yet')+'</span></div>'
         +'<div class="stats num"><div><div class="k">Total €</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Total DH</div><div class="v">'+dh(c.totalDh)+'</div></div><div><div class="k">Selling</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
     }).join('');
@@ -652,9 +653,9 @@ var firebaseConfig = {
     $('#rateBig').textContent=r?r.toFixed(4).replace('.',','):'—';
     $('#rateInv').textContent=r?('1 DH = '+(1/r).toFixed(4).replace('.',',')+' €'):'';
     if(!S.rateDirty){$('#rPaid').value=f2(s.paidEur);$('#rGot').value=f2(s.gotDh);$('#rPct').value=f2(s.ghitaPct)}
-    $('#rPctNote').textContent='Badr gets '+(100-s.ghitaPct)+'%.';
+    $('#rPctNote').textContent='Badr gets '+(100-s.ghitaPct)+'% plus livraison.';
   }
-  ['#rPaid','#rGot','#rPct'].forEach(function(id){$(id).addEventListener('input',function(){S.rateDirty=true;var v=parse($('#rPct').value);$('#rPctNote').textContent=v!=null?('Badr gets '+(Math.round((100-v)*100)/100)+'%.'):''})});
+  ['#rPaid','#rGot','#rPct'].forEach(function(id){$(id).addEventListener('input',function(){S.rateDirty=true;var v=parse($('#rPct').value);$('#rPctNote').textContent=v!=null?('Badr gets '+(Math.round((100-v)*100)/100)+'% plus livraison.'):''})});
   $('#rateForm').addEventListener('submit',function(e){
     e.preventDefault();
     var a=parse($('#rPaid').value),b=parse($('#rGot').value),c=parse($('#rPct').value);
@@ -707,8 +708,8 @@ var firebaseConfig = {
   }
   function renderPrev(){
     var v=pVals(),c=calc({priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh==null?undefined:v.sellDh},S.settings);
-    var h='<div><span>Livraison DH</span><span>'+dh(c.livDh)+'</span></div><div><span>Total €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Total DH</span><span>'+dh(c.totalDh)+'</span></div>';
-    if(c.sold)h+='<div class="hr"><span>Revenu DH total</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'%</span><span>'+dh(c.b)+'</span></div>';
+    var h='<div><span>Livraison DH · Badr</span><span>'+dh(c.livDh)+'</span></div><div><span>Total €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Total DH</span><span>'+dh(c.totalDh)+'</span></div>';
+    if(c.sold)h+='<div class="hr"><span>Revenu DH total</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'% + livraison ('+dh(c.livDh)+')</span><span>'+dh(c.b)+'</span></div>';
     else h+='<div class="hr"><span class="muted">Revenu, Ghita, Badr</span><span class="muted">Add a selling price</span></div>';
     $('#prev').innerHTML=h;
   }
@@ -716,7 +717,7 @@ var firebaseConfig = {
     var p=id?byId(S.products,id):null;
     S.editing.p=p?p.id:null;
     $('#sheetTitle').textContent=p?'Edit product':'New product';
-    $('#fName').value=p?p.name:'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
+    $('#fName').value=p?p.name:'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'1,5';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
     var d=$('#fDel');d.hidden=!p;
     if(p)armDelete(d,'Delete product',function(){db.doc('products/'+p.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
     renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);

@@ -14,7 +14,8 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap"></noscript>
 <style>
 /* Layout: one-column phone app. Login screen, sticky header with live status, dark split-card hero, two summary tiles, cards per section, bottom tab bar.
    Palette: Pink Dose pale pink ground (#f7e8e7), deep plum ink, one rose accent. Type: Bricolage Grotesque display, Figtree body. */
@@ -48,14 +49,14 @@ body{
   -webkit-text-size-adjust:100%;
 }
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
+button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .wrap{max-width:560px;margin:0 auto}
 .num{font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
 
 /* login */
-.login{min-height:100vh;display:grid;place-items:center;padding:24px 0}
+.login{min-height:100vh;min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:grid;place-items:center;padding:24px 0}
 .login-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:28px 22px;box-shadow:var(--shadow);display:grid;gap:6px}
 .login-card .logo{width:64px;height:64px;border-radius:18px;margin-bottom:8px}
 .login-card h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.05}
@@ -73,7 +74,7 @@ button{cursor:pointer}
 .dot.off{background:var(--bad)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 55%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
 @media (prefers-reduced-motion:reduce){.dot.live{animation:none}}
-.me{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px 7px 8px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.me{flex:none;min-height:44px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px 7px 8px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
 .me i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:12px;font-weight:700}
 
 /* hero */
@@ -130,6 +131,7 @@ button{cursor:pointer}
 .sec-h h2{margin:0;font-family:var(--font-display);font-size:22px;letter-spacing:-.01em}
 .sec-h .btn{padding:9px 14px;font-size:14px}
 ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 .pcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);display:grid;gap:14px}
 .ph{display:flex;justify-content:space-between;align-items:start;gap:10px}
 .ph h3{margin:0;font-family:var(--font-display);font-size:19px;line-height:1.2;letter-spacing:-.01em;overflow-wrap:anywhere}
@@ -197,18 +199,19 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .pay .field{margin:0}
 
 /* tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--bg) 96%,transparent);border-top:1px solid var(--line);
   padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
 .tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
-.tab{border:0;background:transparent;border-radius:14px;padding:7px 2px 5px;display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);position:relative}
+.tab{min-width:0;min-height:44px;border:0;background:transparent;border-radius:14px;padding:6px 2px 4px;display:grid;justify-items:center;align-content:center;gap:3px;font-size:clamp(9px,3vw,11px);font-weight:600;color:var(--muted);position:relative;white-space:nowrap}
 .tab svg{width:23px;height:23px}
 .tab[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
 .badge{position:absolute;top:1px;right:calc(50% - 24px);min-width:17px;height:17px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 4px}
+@media(max-width:360px){.tabs-in{gap:2px}.tab svg{width:21px;height:21px}.two{grid-template-columns:1fr}}
 
 /* sheets */
 .layer{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .scrim{position:absolute;inset:0;background:rgba(30,10,20,.5)}
-.sheet{position:relative;width:100%;max-width:560px;max-height:92%;overflow:auto;background:var(--surface);border-radius:28px 28px 0 0;border:1px solid var(--line);
+.sheet{position:relative;width:100%;max-width:560px;max-height:calc(100dvh - env(safe-area-inset-top,0px));overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--surface);border-radius:28px 28px 0 0;border:1px solid var(--line);
   padding:18px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
 .sheet-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .sheet-h h2{margin:0;font-family:var(--font-display);font-size:22px}
@@ -488,8 +491,6 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* ============ 1. PASTE YOUR FIREBASE CONFIG HERE (README, step 6) ============ */
 var firebaseConfig = {
@@ -953,6 +954,30 @@ var firebaseConfig = {
       return '<li><article class="pcard"><div class="ph"><h3>'+esc(event.description||event.entity||'Activity')+'</h3><span class="chip order">'+esc(event.action||'recorded')+'</span></div><div class="note">'+esc(time)+' · '+esc(event.category||'activity')+'</div>'+product+(amounts.length?'<div class="pfoot num">'+amounts.map(esc).join(' · ')+'</div>':'')+'</article></li>';
     }).join('');
   }
+  var pdfLibrariesPromise=null;
+  function loadPdfScript(src){
+    return new Promise(function(resolve,reject){
+      var script=document.createElement('script');
+      script.src=src;script.async=true;
+      script.onload=resolve;
+      script.onerror=function(){script.remove();reject(new Error('Could not load '+src))};
+      document.head.appendChild(script);
+    });
+  }
+  function loadAccountingPdfLibraries(){
+    var Pdf=window.jspdf&&window.jspdf.jsPDF;
+    if(Pdf&&typeof Pdf.API.autoTable==='function')return Promise.resolve();
+    if(!pdfLibrariesPromise){
+      pdfLibrariesPromise=loadPdfScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js')
+        .then(function(){return loadPdfScript('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js')})
+        .then(function(){
+          var loaded=window.jspdf&&window.jspdf.jsPDF;
+          if(!loaded||typeof loaded.API.autoTable!=='function')throw new Error('PDF table support did not initialize');
+        })
+        .catch(function(error){pdfLibrariesPromise=null;throw error});
+    }
+    return pdfLibrariesPromise;
+  }
   function downloadAccountingPdf(){
     var rows=accountingRows(),period=accountingPeriod(),summary=accountingSummary(rows);
     var Pdf=window.jspdf&&window.jspdf.jsPDF;
@@ -1006,7 +1031,14 @@ var firebaseConfig = {
   $('#accountingDate').value=localDay(Date.now());
   $('#accountingDate').addEventListener('change',renderAccounting);
   $('#accountingDate').addEventListener('input',renderAccounting);
-  $('#accountingPdf').addEventListener('click',downloadAccountingPdf);
+  $('#accountingPdf').addEventListener('click',function(){
+    var button=this;
+    if(button.disabled)return;
+    button.disabled=true;button.textContent='Preparing PDF…';
+    loadAccountingPdfLibraries().then(function(){downloadAccountingPdf()})
+      .catch(function(error){console.error('Could not prepare accounting PDF:',error);toast('Could not prepare the PDF. Check your connection and try again.')})
+      .then(function(){button.disabled=false;button.textContent='Download report PDF'});
+  });
 
   /* ---------- pickups banner / list ---------- */
   function pending(){return S.pickups.filter(function(k){return k.status==='pending'}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)})}

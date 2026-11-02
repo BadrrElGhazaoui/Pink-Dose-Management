@@ -80,7 +80,7 @@ From the project directory:
 npm run dev
 ```
 
-Open [http://127.0.0.1:5173](http://127.0.0.1:5173). The app still needs a working Firebase configuration and internet access to authenticate, sync Firestore data, and load the PDF libraries. Stop the local server with **Ctrl+C**.
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173). The app still needs a working Firebase configuration and internet access to authenticate and sync Firestore data. PDF libraries load on demand when you create your first report. Stop the local server with **Ctrl+C**.
 
 ## Deploy to GitHub Pages
 
@@ -98,7 +98,7 @@ For iPhone use, open the published site in Safari and choose **Share → Add to 
 - The two signed-in accounts share records through Firestore; changes appear on connected devices when the app is online.
 - Accounting activity is recorded as append-only events. Existing product and package records can also supply fallback activity where older records lack a corresponding ledger entry.
 - Older sold products without a recorded sale date use the last product update date as an estimate for report filtering.
-- PDF creation requires internet access to load jsPDF and its table plugin.
+- PDF creation requires internet access; jsPDF and its table plugin are downloaded on demand when you create your first report.
 - The app does not send push notifications.
 - The account password reset flow must be managed in Firebase Authentication; the configured `@pinkdose.app` addresses are application login identities.
 

@@ -317,7 +317,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
       <button class="tile" type="button" data-go="virements"><span class="k">Virements pending</span><span class="v num" id="tilePend">0,00 DH</span></button>
     </div>
     <div class="sec-h"><h2>Coupons</h2><button class="btn" id="addCoupon" type="button">+ Add coupon</button></div>
-    <p class="note">Create a coupon for one or two baskets. Baskets and their products stay grouped in the background.</p>
+    <p class="note">Create a coupon for as many baskets as you need. Baskets and their products stay grouped in the background.</p>
     <section class="promo-board" id="couponBoard" aria-label="Coupons" hidden></section>
     <div class="sec-h"><h2>Products</h2><button class="btn" id="addBtn" type="button">+ Add</button></div>
     <p class="note" id="productAccessNote" hidden>Only Ghita can add products.</p>
@@ -466,7 +466,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
     <div class="sheet-h"><h2 id="bsTitle">Add coupon</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
     <form id="bForm" autocomplete="off">
       <fieldset class="field coupon-fieldset" style="border:0;padding:0;margin:0 0 12px">
-        <legend class="lab">Choose one or two baskets</legend>
+        <legend class="lab">Choose one or more baskets</legend>
         <div id="couponBasketChoices" class="coupon-choices"></div>
       </fieldset>
       <div class="field"><label for="bCode">Coupon code (optional)</label><input id="bCode" type="text" placeholder="Enter code"></div>
@@ -537,7 +537,9 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
   <div class="scrim" data-close="1"></div>
   <section class="mid-card" role="dialog" aria-modal="true" aria-labelledby="acctT">
     <h2 id="acctT">Signed in as <span id="acctName"></span></h2>
-    <p>Both phones show the same live data.</p>
+    <p>Both phones show the same live data. Enable push on each device to receive every app activity, including your own changes.</p>
+    <p class="note" id="pushStatus" aria-live="polite">Push notifications are not enabled on this device.</p>
+    <button class="btn" id="pushEnable" type="button">Enable notifications</button>
     <button class="btn" id="outBtn" type="button">Sign out</button>
     <button class="btn soft" type="button" data-close="1">Close</button>
   </section>
@@ -548,6 +550,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script>
 /* ============ 1. PASTE YOUR FIREBASE CONFIG HERE (README, step 6) ============ */
 var firebaseConfig = {
@@ -558,6 +561,7 @@ var firebaseConfig = {
   messagingSenderId: "833630043648",
   appId: "1:833630043648:web:2084a8dc083898a95822e5"
 };
+var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwdDnCbn45T4kNve00uJ_5AEe7CM23zNpW_r4DULc";
 /* ================================================================================ */
 
 (function(){
@@ -577,7 +581,8 @@ var firebaseConfig = {
   var S={me:'',isBadr:false,isGhita:false,tab:'home',products:[],baskets:[],coupons:[],packages:[],pickups:[],clients:[],virements:[],ledger:[],
     settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
     loaded:{p:false,bs:false,cp:false,pkg:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
-    editing:{p:null,c:null,v:null,b:null,coupon:null,legacyCoupon:null},unsubs:[],seeded:false,timer:null};
+    editing:{p:null,c:null,v:null,b:null,coupon:null,legacyCoupon:null},unsubs:[],seeded:false,timer:null,
+    pushMessaging:null,pushTokenId:null,pushServiceWorker:null,pushMessageListenerStarted:false};
   var TABS=['home','clients','virements','livraison','packages','comptabilite'];
   var rateTab=$('#t-rate');
   if(rateTab){
@@ -719,6 +724,90 @@ var firebaseConfig = {
   }
   try{firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore()}catch(e){showLogin();loginErr('Could not start Firebase: '+e.message);return}
 
+  function pushAccountEmail(){return S.isBadr?'badr@pinkdose.app':S.isGhita?'ghita@pinkdose.app':''}
+  function pushTokenId(token){
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)).then(function(hash){
+      return Array.from(new Uint8Array(hash)).map(function(byte){return byte.toString(16).padStart(2,'0')}).join('');
+    });
+  }
+  function updatePushStatus(message){
+    $('#pushStatus').textContent=message;
+    $('#pushEnable').textContent=window.Notification&&Notification.permission==='granted'?'Refresh notifications':'Enable notifications';
+  }
+  function startForegroundPushListener(){
+    if(S.pushMessageListenerStarted||!S.pushMessaging)return;
+    S.pushMessageListenerStarted=true;
+    S.pushMessaging.onMessage(function(payload){
+      var data=payload.data||{},title=data.title||'Pink Dose Management';
+      var options={body:data.body||'New app activity',icon:'icon-192.png',badge:'icon-192.png',tag:data.entryId||undefined,data:{url:location.href}};
+      return navigator.serviceWorker.ready.then(function(registration){return registration.showNotification(title,options)}).catch(function(error){
+        console.error('Could not display the foreground push notification.',error);
+        updatePushStatus('A notification arrived, but this device could not display it.');
+      });
+    });
+  }
+  function registerPushToken(){
+    if(!('Notification' in window)||!navigator.serviceWorker||!window.isSecureContext){
+      updatePushStatus('Push notifications require a supported browser and a secure HTTPS app.');
+      return Promise.reject(new Error('Push notifications are not supported in this browser context.'));
+    }
+    if(firebaseWebPushVapidKey.indexOf('PASTE_')===0){
+      updatePushStatus('Push setup is incomplete. Add the Firebase Web Push certificate key and deploy the notification function.');
+      return Promise.reject(new Error('Firebase Web Push certificate key is not configured.'));
+    }
+    var messaging;
+    try{messaging=firebase.messaging()}catch(error){
+      updatePushStatus('This browser does not support Firebase push notifications.');
+      return Promise.reject(error);
+    }
+    S.pushMessaging=messaging;
+    return navigator.serviceWorker.register('./firebase-messaging-sw.js').then(function(registration){
+      S.pushServiceWorker=registration;
+      return messaging.getToken({vapidKey:firebaseWebPushVapidKey,serviceWorkerRegistration:registration});
+    }).then(function(token){
+      if(!token)throw new Error('Firebase did not return a push token.');
+      return pushTokenId(token).then(function(id){
+        var email=pushAccountEmail();
+        if(!email)throw new Error('Only Pink Dose accounts can register for push notifications.');
+        return db.collection('pushTokens').doc(id).set({token:token,email:email,updatedAt:Date.now()},{merge:true}).then(function(){
+          S.pushTokenId=id;
+          startForegroundPushListener();
+          updatePushStatus('Push notifications are enabled on this device.');
+        });
+      });
+    }).catch(function(error){
+      console.error('Could not register this device for push notifications.',error);
+      updatePushStatus(error&&error.code==='messaging/permission-blocked'
+        ?'Notifications are blocked in this browser’s settings.'
+        :'Could not enable push notifications. Check Firebase setup and try again.');
+      throw error;
+    });
+  }
+  function syncExistingPushToken(){
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    registerPushToken().catch(function(error){console.error('Could not refresh the existing push subscription.',error)});
+  }
+  $('#pushEnable').addEventListener('click',function(){
+    var button=this;
+    if(!('Notification' in window)){updatePushStatus('This browser does not support push notifications.');return}
+    if(firebaseWebPushVapidKey.indexOf('PASTE_')===0){
+      updatePushStatus('Push setup is incomplete. Add the Firebase Web Push certificate key and deploy the notification function.');
+      return;
+    }
+    button.disabled=true;
+    var permission=Notification.permission==='default'?Notification.requestPermission():Promise.resolve(Notification.permission);
+    permission.then(function(result){
+      if(result!=='granted'){
+        updatePushStatus(result==='denied'?'Notifications are blocked in this browser’s settings.':'Notification permission was not granted.');
+        return;
+      }
+      return registerPushToken().then(function(){toast('Notifications enabled on this device')});
+    }).catch(function(error){
+      console.error('Could not enable push notifications.',error);
+      toast('Could not enable notifications. Check the setup and try again.');
+    }).then(function(){button.disabled=false});
+  });
+
   /* ---------- login ---------- */
   $('#loginForm').addEventListener('submit',function(e){
     e.preventDefault();
@@ -731,7 +820,20 @@ var firebaseConfig = {
     }).then(function(){btn.disabled=false});
   });
   $('#meBtn').addEventListener('click',function(){$('#acctName').textContent=S.me;$('#acct').hidden=false});
-  $('#outBtn').addEventListener('click',function(){$('#acct').hidden=true;auth.signOut()});
+  $('#outBtn').addEventListener('click',function(){
+    var button=this;button.disabled=true;
+    var cleanupErrors=[],cleanup=[];
+    if(S.pushTokenId)cleanup.push(db.collection('pushTokens').doc(S.pushTokenId).delete().catch(function(error){cleanupErrors.push(error);console.error('Could not remove this device’s push registration.',error)}));
+    if(S.pushMessaging)cleanup.push(S.pushMessaging.deleteToken().catch(function(error){cleanupErrors.push(error);console.error('Could not clear the browser push token.',error)}));
+    Promise.all(cleanup).then(function(){
+      S.pushTokenId=null;$('#acct').hidden=true;return auth.signOut();
+    }).then(function(){
+      if(cleanupErrors.length)toast('Signed out, but this device’s notification subscription may need cleanup.');
+    }).catch(function(error){
+      console.error('Could not sign out.',error);
+      toast('Could not sign out. Check the connection and try again.');
+    }).then(function(){button.disabled=false});
+  });
 
   auth.onAuthStateChanged(function(user){
     if(user){
@@ -741,6 +843,7 @@ var firebaseConfig = {
       S.isGhita=(user.email||'').toLowerCase()==='ghita@pinkdose.app';
       $('#lPass').value='';
       showApp();renderAll();startListening();
+      syncExistingPushToken();
     }else{
       S.me='';S.isBadr=false;S.isGhita=false;
       stopListening();showLogin();
@@ -891,7 +994,7 @@ var firebaseConfig = {
       legacyGroups[key]={id:basket.id,names:names,name:groups.map(basketGroupName).join(' + '),basketCount:groups.length,subtotal:subtotal,discount:type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,value)/100,type:type,value:value,code:basket.promoCode||'',legacy:true};
     });
     var cards=campaigns.concat(Object.keys(legacyGroups).map(function(key){return legacyGroups[key]})).sort(function(a,b){return a.name.localeCompare(b.name)});
-    if(!cards.length){board.hidden=false;board.innerHTML='<article class="empty"><h3>No coupons yet</h3><p>Add a coupon and choose one or two baskets to apply it to.</p></article>';return}
+    if(!cards.length){board.hidden=false;board.innerHTML='<article class="empty"><h3>No coupons yet</h3><p>Add a coupon and choose one or more baskets to apply it to.</p></article>';return}
     board.hidden=false;
     board.innerHTML=cards.map(function(coupon){
       var final=Math.max(0,coupon.subtotal-coupon.discount),label=coupon.type==='amount'?eur(coupon.value):fmt(coupon.value)+'%',discountLabel=coupon.type==='amount'?eur(coupon.discount):label;
@@ -1609,11 +1712,9 @@ var firebaseConfig = {
       return '<label class="coupon-choice"><input type="checkbox" value="'+esc(option.key)+'"'+(checked?' checked':'')+(current?' data-current="true"':'')+(unavailable?' disabled':'')+'><span>'+esc(basketGroupName(option.name))+(unavailable?' · already has a coupon':'')+'</span><small>'+eur(option.subtotal)+'</small></label>';
     }).join('');
     choices.querySelectorAll('input').forEach(function(input){input.addEventListener('change',function(){
-      var selectedCount=$$('#couponBasketChoices input:checked').length;
-      if(selectedCount>2){input.checked=false;toast('Choose one or two baskets');selectedCount=$$('#couponBasketChoices input:checked').length}
       choices.querySelectorAll('input:not(:checked)').forEach(function(option){
         var basket=options.filter(function(item){return item.key===option.value})[0];
-        option.disabled=selectedCount>=2||!!basket&&!!basket.coupon&&option.dataset.current!=='true';
+        option.disabled=!!basket&&!!basket.coupon&&option.dataset.current!=='true';
       });
       renderCouponPreview();
     })});
@@ -1624,7 +1725,7 @@ var firebaseConfig = {
     var type=$('#bType').value,value=parse($('#bValue').value)||0,discount=type==='amount'?Math.min(value,subtotal):subtotal*Math.min(100,Math.max(0,value))/100;
     var valueLabel=type==='amount'?eur(discount):fmt(Math.min(100,value))+'%';
     $('#couponHelp').textContent=type==='amount'?'Fixed discounts are shared across the selected baskets by their subtotal.':'The same percentage discount applies once to each selected basket.';
-    $('#bPrev').innerHTML='<div><span>Selected baskets</span><span>'+selected.length+' / 2</span></div><div><span>Original total</span><span>'+eur(subtotal)+'</span></div><div><span>Coupon discount</span><span>−'+valueLabel+(type==='amount'?' · '+dh(discount*rateOf(S.settings)):'')+'</span></div><div class="hr"><span>Combined total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
+    $('#bPrev').innerHTML='<div><span>Selected baskets</span><span>'+selected.length+'</span></div><div><span>Original total</span><span>'+eur(subtotal)+'</span></div><div><span>Coupon discount</span><span>−'+valueLabel+(type==='amount'?' · '+dh(discount*rateOf(S.settings)):'')+'</span></div><div class="hr"><span>Combined total</span><span>'+eur(Math.max(0,subtotal-discount))+'</span></div>';
   }
   function openCoupon(id,legacyId){
     var coupon=id?byId(S.coupons,id):null,legacy=legacyId?byId(S.baskets,legacyId):null,names=coupon?coupon.basketNames.slice():legacy?S.products.filter(function(product){return basketGroupKey(product.orderName)===basketGroupKey(legacy.name)}).map(function(product){return String(product.orderName||'').trim()}).filter(function(name,index,all){return name&&all.indexOf(name)===index}):[];
@@ -1647,7 +1748,7 @@ var firebaseConfig = {
   $('#bForm').addEventListener('submit',function(e){
     e.preventDefault();
     var selected=selectedCouponBasketOptions(),names=selected.reduce(function(all,option){return all.concat(option.names)},[]),type=$('#bType').value,value=parse($('#bValue').value);
-    if(selected.length<1||selected.length>2){toast('Choose one or two baskets');return}
+    if(selected.length<1){toast('Choose at least one basket');return}
     if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
     var subtotal=selected.reduce(function(total,option){return total+option.subtotal},0);
     var discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,discountDh=Math.round((discount*rateOf(S.settings)+Number.EPSILON)*100)/100;

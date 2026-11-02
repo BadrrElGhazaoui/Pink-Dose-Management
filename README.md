@@ -12,7 +12,7 @@ The app is a static web application. GitHub Pages serves the interface, Firebase
 
 - Ghita is the only account allowed to create products. This is restricted in the interface and in Firestore rules.
 - Both accounts can view products and edit existing product details.
-- Products can be grouped by basket/customer name. The **Coupons** section creates percentage or fixed-value coupons for one or two separately selected baskets; Marwa and Rajaa remain distinct baskets. Basket records remain available in the background, and each basket can belong to one active coupon at a time.
+- Products can be grouped by basket/customer name. The **Coupons** section creates percentage or fixed-value coupons for any number of separately selected baskets; Marwa and Rajaa remain distinct baskets. Basket records remain available in the background, and each basket can belong to one active coupon at a time.
 - Entering a product’s price in EUR calculates its DH value using the shared exchange rate. A selling price can be recorded when the product is sold.
 - Product delivery is not set on the product itself; Badr records package weight and package delivery fees in **Packages**.
 
@@ -73,6 +73,16 @@ The app requires a Firebase project with **Email/Password Authentication** and *
 5. In the Firestore **Rules** tab, publish the contents of [`firestore.rules`](./firestore.rules).
 6. Register a Firebase web app, then copy its `firebaseConfig` values into the `firebaseConfig` object in `index.html`.
 7. In Firebase Authentication settings, add the deployed website domain to **Authorized domains**.
+8. In **Project settings → Cloud Messaging → Web Push certificates**, generate a key pair and copy its public key into `firebaseWebPushVapidKey` in `index.html`.
+9. Install the Firebase CLI, sign in with access to the project, and deploy the notification function and token rules:
+
+   ```sh
+   npm install -g firebase-tools
+   firebase login
+   firebase deploy --only functions,firestore:rules
+   ```
+
+   Deploying Cloud Functions requires a Firebase project on the Blaze plan. Each person must open the installed app on each phone, sign in, open **Account**, and select **Enable notifications**. Allow notifications when prompted. On iPhone, use iOS 16.4 or newer and install the site with **Share → Add to Home Screen** first. Push notifications include activity descriptions and are sent for both people’s changes, so they may be visible on a locked screen.
 
 The Firebase web API key is intended to be included in a client app; it is not an authorization boundary. Protect data with Firestore rules and keep account passwords private. Do not place service-account credentials or other server-side secrets in this repository.
 
@@ -101,9 +111,9 @@ For iPhone use, open the published site in Safari and choose **Share → Add to 
 
 - The two signed-in accounts share records through Firestore; changes appear on connected devices when the app is online.
 - Accounting activity is recorded as append-only events. Existing product and package records can also supply fallback activity where older records lack a corresponding ledger entry.
+- Push notifications are sent from a Firebase Cloud Function when an accounting activity event is created. Device tokens are private to the registering account and removed from the server when that device signs out.
 - Older sold products without a recorded sale date use the last product update date as an estimate for report filtering.
 - PDF creation requires internet access; jsPDF and its table plugin are downloaded on demand when you create your first report.
-- The app does not send push notifications.
 - The account password reset flow must be managed in Firebase Authentication; the configured `@pinkdose.app` addresses are application login identities.
 
 ## Troubleshooting
@@ -115,5 +125,6 @@ For iPhone use, open the published site in Safari and choose **Share → Add to 
 | Signed in but shared data cannot load | Confirm the Firestore database exists and the latest contents of `firestore.rules` have been published. |
 | Product creation is rejected for Ghita | Check the signed-in email and ensure the Ghita-only product rule has been published. |
 | Package status updates are rejected | Publish the current rules and ensure the action follows the allowed status sequence and account role. |
+| Push notifications cannot be enabled | Check that `firebaseWebPushVapidKey` is set, the Cloud Function and Firestore rules are deployed, and notifications are allowed for the installed app. |
 | PDF download is unavailable | Check connectivity and reload the app so the PDF libraries can load. |
 | GitHub Pages shows an error or old version | Check the Pages deployment status and reload after deployment completes. |

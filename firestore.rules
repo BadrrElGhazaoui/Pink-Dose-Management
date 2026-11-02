@@ -61,14 +61,29 @@ service cloud.firestore {
       allow delete: if isBadrAccount();
     }
 
+    // Push tokens are private to the account that registers each device.
+    match /pushTokens/{tokenId} {
+      allow read: if false;
+      allow create, update: if isPinkDoseAccount()
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.keys().hasOnly(['token', 'email', 'updatedAt'])
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 0
+        && request.resource.data.token.size() <= 4096;
+      allow delete: if isPinkDoseAccount()
+        && resource.data.email == request.auth.token.email;
+    }
+
     // Other application data remains writable by the two accounts.
     match /{document=**} {
       allow read: if isPinkDoseAccount()
-        && !document.matches('accounting/.*');
+        && !document.matches('accounting/.*')
+        && !document.matches('pushTokens/.*');
       allow write: if isPinkDoseAccount()
         && !document.matches('accounting/.*')
         && !document.matches('products/.*')
-        && !document.matches('packages/.*');
+        && !document.matches('packages/.*')
+        && !document.matches('pushTokens/.*');
     }
   }
 }

@@ -66,12 +66,17 @@ Replace each `PASTE_...` value with the values from Firebase (keep the quotes). 
 
 Edit a file on GitHub (open it, pencil icon, change, Commit). Pages republishes in about a minute. On the iPhone, close the app fully from the app switcher and open it again.
 
+## Local preview
+
+Run `npm run dev` from this folder, then open http://127.0.0.1:5173. Stop the server with Ctrl+C.
+
 ## Good to know
 
 - Sign-in is by username. Anyone can open the web address and see the login screen, but without the right account they get no data.
 - To change a password: Firebase, Authentication, Users, menu on the user, **Reset password** (sends a reset email to the fake address, so instead delete the user and add it again with a new password).
 - Firebase free plan (Spark) is far above what two people need.
 - The app does not send push notifications. Badr sees a livraison notice when he opens the app, and live while it is open.
+- In a product form, entering Price EUR automatically calculates Price DH using the shared rate; change that rate in the Rate tab.
 
 ## Troubleshooting
 

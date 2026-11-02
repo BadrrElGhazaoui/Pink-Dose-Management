@@ -283,7 +283,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
     <p class="lede">Every DH amount that comes from euros uses this rate. It comes from your first transaction.</p>
     <div class="card">
       <div class="note">DH for 1 €</div>
-      <div class="rate-big num" id="rateBig">11,4340</div>
+      <div class="rate-big num" id="rateBig">11,4299</div>
       <div class="note num" id="rateInv">1 DH = 0,0875 €</div>
     </div>
     <form class="card" id="rateForm" style="margin-top:12px" autocomplete="off">
@@ -421,7 +421,7 @@ var firebaseConfig = {
   var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
 
   var S={me:'',tab:'home',products:[],pickups:[],clients:[],virements:[],
-    settings:{paidEur:104.95,gotDh:1200,ghitaPct:70},
+    settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
     loaded:{p:false,k:false,c:false,v:false},fresh:false,timedOut:false,rateDirty:false,
     editing:{p:null,c:null,v:null},unsubs:[],seeded:false,timer:null};
   var TABS=['home','clients','virements','livraison','rate'];
@@ -509,9 +509,14 @@ var firebaseConfig = {
     S.unsubs.push(db.doc('settings/main').onSnapshot(function(snap){
       if(snap.exists){
         var o=snap.data();
-        if(o&&o.paidEur>0&&o.gotDh>0)S.settings={paidEur:o.paidEur,gotDh:o.gotDh,ghitaPct:(typeof o.ghitaPct==='number'?o.ghitaPct:70)};
+        if(o&&o.paidEur>0&&o.gotDh>0){
+          var starterRate=o.paidEur===104.95&&o.gotDh===1200;
+          S.settings={paidEur:o.paidEur,gotDh:starterRate?1199.57:o.gotDh,ghitaPct:(typeof o.ghitaPct==='number'?o.ghitaPct:70)};
+          if(starterRate)db.doc('settings/main').update({gotDh:1199.57,updatedBy:S.me,updatedAt:Date.now()}).catch(failMsg);
+        }
       }else if(!snap.metadata.fromCache&&!S.seeded){S.seeded=true;seed()}
       mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();
+      if(!$('#sheet').hidden&&$('#fEur').value.trim()){syncPriceDh();renderPrev()}
     },onErr));
   }
   function stopListening(){
@@ -521,7 +526,7 @@ var firebaseConfig = {
   }
   function seed(){
     var now=Date.now();
-    db.doc('settings/main').set({paidEur:104.95,gotDh:1200,ghitaPct:70,updatedBy:S.me,updatedAt:now}).catch(function(){});
+    db.doc('settings/main').set({paidEur:104.95,gotDh:1199.57,ghitaPct:70,updatedBy:S.me,updatedAt:now}).catch(function(){});
     db.doc('products/air-jordan-1-low-se').set({name:'Air Jordan 1 Low SE',priceEur:104.95,priceDh:1999.57,livEur:1.5,sellDh:null,createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me}).catch(function(){});
   }
 
@@ -696,6 +701,10 @@ var firebaseConfig = {
 
   /* product sheet */
   function pVals(){return {name:$('#fName').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livEur:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
+  function syncPriceDh(){
+    var eurAmount=parse($('#fEur').value),r=rateOf(S.settings);
+    $('#fDh').value=eurAmount==null||!r?'':f2(Math.round((eurAmount*r+Number.EPSILON)*100)/100);
+  }
   function renderPrev(){
     var v=pVals(),c=calc({priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh==null?undefined:v.sellDh},S.settings);
     var h='<div><span>Livraison DH</span><span>'+dh(c.livDh)+'</span></div><div><span>Total €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Total DH</span><span>'+dh(c.totalDh)+'</span></div>';
@@ -712,7 +721,8 @@ var firebaseConfig = {
     if(p)armDelete(d,'Delete product',function(){db.doc('products/'+p.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
     renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);
   }
-  ['#fName','#fEur','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
+  ['#fName','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
+  $('#fEur').addEventListener('input',function(){syncPriceDh();renderPrev()});
   $('#pForm').addEventListener('submit',function(e){
     e.preventDefault();
     var v=pVals();

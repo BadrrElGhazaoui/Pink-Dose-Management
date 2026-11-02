@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pink Dose Management</title>
+<meta name="theme-color" content="#f7e8e7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pink Dose">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column phone app. Login screen, sticky header with live status, dark split-card hero, two summary tiles, cards per section, bottom tab bar.
+   Palette: Pink Dose pale pink ground (#f7e8e7), deep plum ink, one rose accent. Type: Bricolage Grotesque display, Figtree body. */
+:root{
+  --bg:#f7e8e7; --surface:#fffaf8; --surface-2:#f2d9d7; --ink:#3b1d2a; --muted:#7f5c68; --line:#e6c8c6;
+  --accent:#c93a73; --accent-ink:#ffffff; --accent-soft:#f6cfdc;
+  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e;
+  --good:#1f7a55; --good-soft:#d6efe3; --bad:#b3261e; --warn:#8f4d08; --warn-soft:#fbe3c4;
+  --shadow:0 1px 0 rgba(59,29,42,.05),0 10px 26px -14px rgba(59,29,42,.35);
+  --font-display:'Bricolage Grotesque',ui-rounded,system-ui,sans-serif;
+  --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#1d1117; --surface:#2a1821; --surface-2:#38212c; --ink:#f8e6e8; --muted:#bb97a4; --line:#44293a;
+    --accent:#f0679a; --accent-ink:#2a0f1a; --accent-soft:#4a2434;
+    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6;
+    --good:#55d49b; --good-soft:#173a2c; --bad:#ff8a80; --warn:#f2b366; --warn-soft:#4a3115;
+    --shadow:none; color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px 0}
+.login-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:28px 22px;box-shadow:var(--shadow);display:grid;gap:6px}
+.login-card .logo{width:64px;height:64px;border-radius:18px;margin-bottom:8px}
+.login-card h1{margin:0;font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1.05}
+.login-card h1 span{color:var(--accent)}
+.login-card p{margin:0 0 14px;color:var(--muted)}
+.err{color:var(--bad);font-weight:600;font-size:14.5px;min-height:1.4em;margin:0 0 8px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:14px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.05;margin:0}
+.brand span{color:var(--accent)}
+.status{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:5px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.live{background:var(--good);animation:pulse 2.4s infinite}
+.dot.off{background:var(--bad)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 55%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.dot.live{animation:none}}
+.me{flex:none;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px 7px 8px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.me i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:12px;font-weight:700}
+
+/* hero */
+.hero{background:var(--hero-bg);color:var(--hero-fg);border-radius:26px;padding:20px 20px 18px;margin-top:6px}
+.hero .lbl{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--hero-muted);font-weight:600}
+.hero .big{font-family:var(--font-display);font-weight:800;font-size:clamp(38px,12vw,52px);letter-spacing:-.03em;line-height:1.05;margin:4px 0 2px}
+.hero .big small{font-size:.4em;letter-spacing:0;margin-left:6px;font-weight:700;color:var(--hero-muted)}
+.hero .sub{font-size:13.5px;color:var(--hero-muted)}
+.split{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:16px 0 12px;background:var(--hero-bar-2)}
+.split b{display:block;background:var(--hero-bar);height:100%;transition:width .4s}
+.shares{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.shares div{min-width:0}
+.shares .who{font-size:12.5px;color:var(--hero-muted);display:flex;align-items:center;gap:6px}
+.shares .who:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--hero-bar-2)}
+.shares .g .who:before{background:var(--hero-bar)}
+.shares .amt{font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:-.01em;overflow-wrap:anywhere}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.tile{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:2px;min-width:0}
+.tile .k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--font-display);font-weight:700;font-size:20px;overflow-wrap:anywhere}
+
+/* banner */
+.banner{margin-top:14px;border-radius:20px;padding:14px 16px;display:grid;gap:10px}
+.banner.go{background:var(--accent);color:var(--accent-ink)}
+.banner.wait{background:var(--warn-soft);color:var(--warn)}
+.banner h3{margin:0;font-family:var(--font-display);font-size:18px;line-height:1.2}
+.banner p{margin:2px 0 0;font-size:14.5px;overflow-wrap:anywhere}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:14px;padding:11px 16px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
+.btn.line{background:transparent;border:1.5px solid currentColor;color:inherit}
+.btn.soft{background:var(--surface-2);color:var(--ink)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.55;cursor:default}
+.banner.go .btn.solid{background:var(--accent-ink);color:var(--accent)}
+.banner.wait .btn{background:transparent;border:1.5px solid currentColor;color:inherit}
+
+/* sections */
+.sec-h{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:26px 0 12px}
+.sec-h h2{margin:0;font-family:var(--font-display);font-size:22px;letter-spacing:-.01em}
+.sec-h .btn{padding:9px 14px;font-size:14px}
+ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.pcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);display:grid;gap:14px}
+.ph{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.ph h3{margin:0;font-family:var(--font-display);font-size:19px;line-height:1.2;letter-spacing:-.01em;overflow-wrap:anywhere}
+.chip{flex:none;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip.sold,.chip.sent{background:var(--good-soft);color:var(--good)}
+.chip.open,.chip.pend{background:var(--warn-soft);color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stats.two2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats div{min-width:0}
+.stats .k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stats .v{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.pfoot{border-top:1px dashed var(--line);padding-top:12px;font-size:14px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.neg{color:var(--bad)}
+.empty{background:var(--surface);border:1.5px dashed var(--line);border-radius:22px;padding:28px 20px;text-align:center;display:grid;gap:10px;justify-items:center}
+.empty h3{margin:0;font-family:var(--font-display);font-size:20px}
+.empty p{margin:0;color:var(--muted);max-width:32ch}
+.vcard{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.vcard .pcard{border:0;border-radius:0;box-shadow:none;background:transparent}
+.vcard .vact{padding:0 16px 14px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.vcard .vact .btn{padding:9px 14px;font-size:14px}
+.vamt{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+
+/* cards & forms */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+.field{display:grid;gap:5px;margin-bottom:12px}
+.field>label,.field>.lab{font-size:13px;font-weight:600;color:var(--muted)}
+.field input[type=text],.field input[type=password],.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:13px;padding:11px 13px;min-height:46px}
+.field textarea{min-height:72px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two>*{min-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{position:relative;display:block}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt span{display:block;text-align:center;padding:12px;border:1.5px solid var(--line);border-radius:13px;font-weight:600;background:var(--bg)}
+.opt input:checked+span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.page-h{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em;margin:18px 0 4px}
+.lede{margin:0 0 16px;color:var(--muted);max-width:44ch}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 16px;display:grid;gap:8px}
+.pk.pending{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+.pk h4{margin:0;font-family:var(--font-display);font-size:18px;overflow-wrap:anywhere}
+.pk .meta{font-size:13px;color:var(--muted)}
+.pk p{margin:0;overflow-wrap:anywhere}
+.pk .btn{padding:9px 14px;font-size:14px}
+.rate-big{font-family:var(--font-display);font-weight:800;font-size:38px;letter-spacing:-.02em}
+.note{font-size:13.5px;color:var(--muted)}
+.pay{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px}
+.pay .field{margin:0}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.tab{border:0;background:transparent;border-radius:14px;padding:7px 2px 5px;display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);position:relative}
+.tab svg{width:23px;height:23px}
+.tab[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+.badge{position:absolute;top:1px;right:calc(50% - 24px);min-width:17px;height:17px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 4px}
+
+/* sheets */
+.layer{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:rgba(30,10,20,.5)}
+.sheet{position:relative;width:100%;max-width:560px;max-height:92%;overflow:auto;background:var(--surface);border-radius:28px 28px 0 0;border:1px solid var(--line);
+  padding:18px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-h h2{margin:0;font-family:var(--font-display);font-size:22px}
+.x{border:0;background:var(--surface-2);width:38px;height:38px;border-radius:50%;font-size:20px;line-height:1}
+.prev{background:var(--bg);border-radius:16px;padding:12px 14px;margin:4px 0 16px;display:grid;gap:6px;font-size:14.5px}
+.prev div{display:flex;justify-content:space-between;gap:12px}
+.prev div span:last-child{font-weight:700;text-align:right}
+.prev .hr{border-top:1px dashed var(--line);padding-top:6px}
+.sheet-actions{display:grid;gap:10px}
+.mid{align-items:center;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.mid-card{position:relative;width:100%;max-width:420px;background:var(--surface);border-radius:28px;padding:26px 22px;display:grid;gap:14px;text-align:center}
+.mid-card h2{margin:0;font-family:var(--font-display);font-size:26px;letter-spacing:-.02em}
+.mid-card p{margin:0;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:99px;font-weight:600;font-size:14.5px;max-width:min(92vw,460px);text-align:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.sys{background:var(--warn-soft);color:var(--warn);border-radius:16px;padding:12px 14px;margin-top:12px;font-size:14.5px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="wrap login" id="loginView" hidden>
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <img class="logo" src="icon-192.png" alt="" width="64" height="64">
+    <h1>Pink Dose <span>Management</span></h1>
+    <p>Sign in with your username and password.</p>
+    <div class="field"><label for="lUser">Username</label><input id="lUser" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label for="lPass">Password</label><input id="lPass" name="password" type="password" autocomplete="current-password"></div>
+    <p class="err" id="lErr" role="alert"></p>
+    <button class="btn block" id="lBtn" type="submit">Sign in</button>
+  </form>
+</div>
+
+<!-- APP -->
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div>
+      <h1 class="brand">Pink Dose <span>Management</span></h1>
+      <div class="status" role="status"><i class="dot" id="dot"></i><span id="statusTxt">Connecting…</span></div>
+    </div>
+    <button class="me" id="meBtn" type="button" aria-label="Account"><i id="meIni">?</i><span id="meName"></span></button>
+  </header>
+
+  <div id="sysBox"></div>
+
+  <!-- HOME / PRODUCTS -->
+  <main id="tab-home">
+    <section class="hero" aria-label="Revenue">
+      <div class="lbl">Revenu DH total</div>
+      <div class="big num" id="heroTotal">0,00<small>DH</small></div>
+      <div class="sub" id="heroSub">Nothing sold yet</div>
+      <div class="split" aria-hidden="true"><b id="heroBar" style="width:70%"></b></div>
+      <div class="shares">
+        <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
+        <div><div class="who" id="bLbl">Badr 30%</div><div class="amt num" id="bAmt">0,00 DH</div></div>
+      </div>
+    </section>
+    <div id="bannerBox" aria-live="polite"></div>
+    <div class="tiles">
+      <button class="tile" type="button" data-go="clients"><span class="k">Clients still owe</span><span class="v num" id="tileOwe">0,00 DH</span></button>
+      <button class="tile" type="button" data-go="virements"><span class="k">Virements pending</span><span class="v num" id="tilePend">0,00 DH</span></button>
+    </div>
+    <div class="sec-h"><h2>Products</h2><button class="btn" id="addBtn" type="button">+ Add</button></div>
+    <ul class="plain" id="plist"></ul>
+  </main>
+
+  <!-- CLIENTS -->
+  <main id="tab-clients" hidden>
+    <div class="sec-h" style="margin-top:18px"><h2 class="page-h" style="margin:0">Clients</h2><button class="btn" id="addClient" type="button">+ Add</button></div>
+    <div class="tiles" style="margin-top:0">
+      <div class="tile"><span class="k">Received</span><span class="v num" id="cGave">0,00 DH</span></div>
+      <div class="tile"><span class="k">Still owed</span><span class="v num" id="cOwe">0,00 DH</span></div>
+    </div>
+    <ul class="plain" id="clist" style="margin-top:14px"></ul>
+  </main>
+
+  <!-- VIREMENTS -->
+  <main id="tab-virements" hidden>
+    <div class="sec-h" style="margin-top:18px"><h2 class="page-h" style="margin:0">Virements</h2><button class="btn" id="addVir" type="button">+ Add</button></div>
+    <div class="tiles" style="margin-top:0" id="vTiles"></div>
+    <ul class="plain" id="vlist" style="margin-top:14px"></ul>
+  </main>
+
+  <!-- LIVRAISON -->
+  <main id="tab-livraison" hidden>
+    <h2 class="page-h">Livraison</h2>
+    <p class="lede">Post where the parcel is. The notice shows at the top of Badr's home screen until he marks it picked up.</p>
+    <form class="card" id="pkForm" autocomplete="off">
+      <div class="field"><label for="pkPlace">Pick-up place</label><input id="pkPlace" type="text" placeholder="Relay point, shop, address"></div>
+      <div class="two">
+        <div class="field"><label for="pkWhen">When</label><input id="pkWhen" type="text" placeholder="Today, 6 pm"></div>
+        <div class="field"><label for="pkProduct">Product</label><select id="pkProduct"><option value="">None</option></select></div>
+      </div>
+      <div class="field"><label for="pkNote">Note for Badr</label><textarea id="pkNote" placeholder="Name on the order, code, floor…"></textarea></div>
+      <button class="btn block" id="pkSend" type="submit">Tell Badr to pick up</button>
+    </form>
+    <div class="sec-h"><h2>Notices</h2></div>
+    <ul class="plain" id="pklist"></ul>
+  </main>
+
+  <!-- RATE -->
+  <main id="tab-rate" hidden>
+    <h2 class="page-h">Rate and split</h2>
+    <p class="lede">Every DH amount that comes from euros uses this rate. It comes from your first transaction.</p>
+    <div class="card">
+      <div class="note">DH for 1 €</div>
+      <div class="rate-big num" id="rateBig">11,4340</div>
+      <div class="note num" id="rateInv">1 DH = 0,0875 €</div>
+    </div>
+    <form class="card" id="rateForm" style="margin-top:12px" autocomplete="off">
+      <div class="two">
+        <div class="field"><label for="rPaid">Paid (€)</label><input id="rPaid" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="rGot">Received (DH)</label><input id="rGot" type="text" inputmode="decimal"></div>
+      </div>
+      <div class="field"><label for="rPct">Ghita's share of revenu (%)</label><input id="rPct" type="text" inputmode="decimal"></div>
+      <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest.</p>
+      <button class="btn block" id="rSave" type="submit">Save rate and split</button>
+    </form>
+    <p class="note" style="margin-top:14px">Revenu DH total = Selling price DH − (Total € × rate). Livraison DH = Livraison € × rate.</p>
+  </main>
+
+  <nav class="tabs" aria-label="Sections"><div class="tabs-in" role="tablist">
+    <button class="tab" role="tab" id="t-home" data-tab="home" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15c0-2 1.5-3 3.5-3 2 0 2.8-1.4 3.5-3.5L11 6l3 3c1.5 1.5 3.3 2.3 5.5 2.7 1.5.3 2.5 1.4 2.5 3.3V17H3z"/><path d="M3 17v1.5h19V17"/></svg>Products</button>
+    <button class="tab" role="tab" id="t-clients" data-tab="clients" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14.6c2.4.2 4 1.9 4 4.4"/></svg>Clients</button>
+    <button class="tab" role="tab" id="t-virements" data-tab="virements" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h14l-3-3"/><path d="M20 15H6l3 3"/></svg>Virements<span class="badge" id="vBadge" hidden>0</span></button>
+    <button class="tab" role="tab" id="t-livraison" data-tab="livraison" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Livraison<span class="badge" id="pkBadge" hidden>0</span></button>
+    <button class="tab" role="tab" id="t-rate" data-tab="rate" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Rate</button>
+  </div></nav>
+</div>
+
+<!-- product sheet -->
+<div class="layer" id="sheet" hidden>
+  <div class="scrim" data-close="1"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-h"><h2 id="sheetTitle">Product</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
+    <form id="pForm" autocomplete="off">
+      <div class="field"><label for="fName">Product</label><input id="fName" type="text" placeholder="Air Jordan 1 Low SE"></div>
+      <div class="two">
+        <div class="field"><label for="fEur">Price EUR</label><input id="fEur" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="fLiv">Livraison EUR</label><input id="fLiv" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="fSell">Selling price DH</label><input id="fSell" type="text" inputmode="decimal" placeholder="Empty if unsold"></div>
+      </div>
+      <div class="prev num" id="prev"></div>
+      <div class="sheet-actions">
+        <button class="btn block" id="fSave" type="submit">Save</button>
+        <button class="btn soft block" id="fDel" type="button" hidden>Delete product</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- client sheet -->
+<div class="layer" id="csheet" hidden>
+  <div class="scrim" data-close="1"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="csTitle">
+    <div class="sheet-h"><h2 id="csTitle">Client</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
+    <form id="cForm" autocomplete="off">
+      <div class="field"><label for="cName">Client name</label><input id="cName" type="text" placeholder="Name"></div>
+      <div class="two">
+        <div class="field"><label for="cGaveIn">He gave (DH)</label><input id="cGaveIn" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="cOweIn">He owes (DH)</label><input id="cOweIn" type="text" inputmode="decimal"></div>
+      </div>
+      <div class="pay">
+        <div class="field"><label for="cPay">New payment (DH)</label><input id="cPay" type="text" inputmode="decimal" placeholder="Adds to gave, lowers owes"></div>
+        <button class="btn soft" id="cPayBtn" type="button">Add</button>
+      </div>
+      <div class="field"><label for="cNote">Note</label><textarea id="cNote" placeholder="Product, phone number, deadline…"></textarea></div>
+      <div class="sheet-actions">
+        <button class="btn block" id="cSave" type="submit">Save</button>
+        <button class="btn soft block" id="cDel" type="button" hidden>Delete client</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- virement sheet -->
+<div class="layer" id="vsheet" hidden>
+  <div class="scrim" data-close="1"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="vsTitle">
+    <div class="sheet-h"><h2 id="vsTitle">Virement</h2><button class="x" type="button" data-close="1" aria-label="Close">×</button></div>
+    <form id="vForm" autocomplete="off">
+      <div class="field"><span class="lab">To</span>
+        <div class="seg"><label class="opt"><input type="radio" name="vWho" value="Badr"><span>Badr</span></label><label class="opt"><input type="radio" name="vWho" value="Ghita" checked><span>Ghita</span></label></div></div>
+      <div class="two">
+        <div class="field"><label for="vAmt">Amount</label><input id="vAmt" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="vCur">Currency</label><select id="vCur"><option value="DH">DH</option><option value="EUR">€</option></select></div>
+      </div>
+      <div class="field"><span class="lab">Status</span>
+        <div class="seg"><label class="opt"><input type="radio" name="vStatus" value="pending" checked><span>Pending</span></label><label class="opt"><input type="radio" name="vStatus" value="sent"><span>Sent</span></label></div></div>
+      <div class="field"><label for="vNote">Note</label><textarea id="vNote" placeholder="Optional"></textarea></div>
+      <div class="sheet-actions">
+        <button class="btn block" id="vSave" type="submit">Save</button>
+        <button class="btn soft block" id="vDel" type="button" hidden>Delete virement</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- account -->
+<div class="layer mid" id="acct" hidden>
+  <div class="scrim" data-close="1"></div>
+  <section class="mid-card" role="dialog" aria-modal="true" aria-labelledby="acctT">
+    <h2 id="acctT">Signed in as <span id="acctName"></span></h2>
+    <p>Both phones show the same live data.</p>
+    <button class="btn" id="outBtn" type="button">Sign out</button>
+    <button class="btn soft" type="button" data-close="1">Close</button>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============ 1. PASTE YOUR FIREBASE CONFIG HERE (README, step 6) ============ */
+var firebaseConfig = {
+  apiKey: "AIzaSyB3082us3rNOP5ZOOrztElLHrgcWR7tkXg",
+  authDomain: "pink-dose.firebaseapp.com",
+  projectId: "pink-dose",
+  storageBucket: "pink-dose.firebasestorage.app",
+  messagingSenderId: "833630043648",
+  appId: "1:833630043648:web:2084a8dc083898a95822e5"
+};
+/* ================================================================================ */
+
+(function(){
+  'use strict';
+  var DOMAIN='@pinkdose.app';
+  var $=function(s){return document.querySelector(s)};
+  var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
+  var nf=new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var fmt=function(n){return nf.format(n)};
+  var eur=function(n){return fmt(n)+' €'};
+  var dh=function(n){return fmt(n)+' DH'};
+  var parse=function(s){s=String(s==null?'':s).replace(/\s/g,'').replace(',','.');if(s==='')return null;var n=parseFloat(s);return isFinite(n)?n:null};
+  var f2=function(n){return n==null?'':String(n).replace('.',',')};
+  var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
+
+  var S={me:'',tab:'home',products:[],pickups:[],clients:[],virements:[],
+    settings:{paidEur:104.95,gotDh:1200,ghitaPct:70},
+    loaded:{p:false,k:false,c:false,v:false},fresh:false,timedOut:false,rateDirty:false,
+    editing:{p:null,c:null,v:null},unsubs:[],seeded:false,timer:null};
+  var TABS=['home','clients','virements','livraison','rate'];
+  var configured=firebaseConfig.apiKey&&firebaseConfig.apiKey.indexOf('PASTE')!==0;
+  var auth=null,db=null;
+
+  /* ---------- maths ---------- */
+  function rateOf(s){return (s.paidEur>0&&s.gotDh>0)?s.gotDh/s.paidEur:0}
+  function calc(p,s){
+    var r=rateOf(s),liv=p.livEur||0,pe=p.priceEur||0,pd=p.priceDh||0;
+    var livDh=liv*r,totalEur=pe+liv,totalDh=pd+livDh,costDh=totalEur*r;
+    var sold=typeof p.sellDh==='number';
+    var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
+    var rev=sold?r2(p.sellDh-costDh):null,g=sold?r2(rev*s.ghitaPct/100):null,b=sold?r2(rev-g):null;
+    return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,sold:sold,rev:rev,g:g,b:b};
+  }
+  function toDh(v){return v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}
+
+  /* ---------- toast ---------- */
+  var tt;
+  function toast(m){var t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(function(){t.hidden=true},3200)}
+  function failMsg(e){toast(e&&e.code==='permission-denied'?'Not saved. This account is not allowed to write.':'Not saved. Check the connection and try again.')}
+
+  /* ---------- views ---------- */
+  function showLogin(){$('#loginView').hidden=false;$('#app').hidden=true}
+  function showApp(){$('#loginView').hidden=true;$('#app').hidden=false}
+  function loginErr(m){$('#lErr').textContent=m||''}
+
+  if(!configured){
+    showLogin();
+    loginErr('Firebase is not set up yet. Paste your Firebase config in index.html (README, step 6).');
+    $('#lBtn').disabled=true;
+    return;
+  }
+  try{firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore()}catch(e){showLogin();loginErr('Could not start Firebase: '+e.message);return}
+
+  /* ---------- login ---------- */
+  $('#loginForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var u=$('#lUser').value.trim().toLowerCase().replace(/\s/g,''),p=$('#lPass').value;
+    if(!u||!p){loginErr('Enter your username and password.');return}
+    var btn=$('#lBtn');btn.disabled=true;loginErr('');
+    auth.signInWithEmailAndPassword(u+DOMAIN,p).catch(function(err){
+      var c=err&&err.code;
+      loginErr(c==='auth/too-many-requests'?'Too many tries. Wait a few minutes and try again.':c==='auth/network-request-failed'?'No connection. Try again.':'Wrong username or password.');
+    }).then(function(){btn.disabled=false});
+  });
+  $('#meBtn').addEventListener('click',function(){$('#acctName').textContent=S.me;$('#acct').hidden=false});
+  $('#outBtn').addEventListener('click',function(){$('#acct').hidden=true;auth.signOut()});
+
+  auth.onAuthStateChanged(function(user){
+    if(user){
+      var n=(user.email||'').split('@')[0];
+      S.me=n?n.charAt(0).toUpperCase()+n.slice(1):'User';
+      $('#lPass').value='';
+      showApp();renderAll();startListening();
+    }else{
+      stopListening();showLogin();
+    }
+  });
+
+  /* ---------- live data ---------- */
+  function mark(snap){if(snap.metadata&&!snap.metadata.fromCache&&!S.fresh){S.fresh=true;clearTimeout(S.timer);renderStatus()}}
+  function onErr(err){
+    if(err&&err.code==='permission-denied'){
+      $('#sysBox').innerHTML='<div class="sys">This account can’t read the data. In Firebase, check that the Firestore rules were published (README, step 5).</div>';
+    }
+    S.timedOut=true;renderStatus();
+  }
+  function listen(path,key,flag,after){
+    S.unsubs.push(db.collection(path).onSnapshot(function(snap){
+      S[key]=snap.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});
+      S.loaded[flag]=true;mark(snap);after();
+    },onErr));
+  }
+  function startListening(){
+    stopListening();
+    S.fresh=false;S.timedOut=false;
+    S.timer=setTimeout(function(){if(!S.fresh){S.timedOut=true;renderStatus()}},10000);
+    renderStatus();
+    listen('products','products','p',function(){renderHero();renderProducts();renderPkProducts()});
+    listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
+    listen('clients','clients','c',function(){renderClients();renderTiles()});
+    listen('virements','virements','v',function(){renderVirements();renderTiles()});
+    S.unsubs.push(db.doc('settings/main').onSnapshot(function(snap){
+      if(snap.exists){
+        var o=snap.data();
+        if(o&&o.paidEur>0&&o.gotDh>0)S.settings={paidEur:o.paidEur,gotDh:o.gotDh,ghitaPct:(typeof o.ghitaPct==='number'?o.ghitaPct:70)};
+      }else if(!snap.metadata.fromCache&&!S.seeded){S.seeded=true;seed()}
+      mark(snap);renderMe();renderHero();renderProducts();renderVirements();renderRate();
+    },onErr));
+  }
+  function stopListening(){
+    S.unsubs.forEach(function(u){try{u()}catch(e){}});S.unsubs=[];
+    clearTimeout(S.timer);
+    S.products=[];S.pickups=[];S.clients=[];S.virements=[];S.loaded={p:false,k:false,c:false,v:false};S.seeded=false;
+  }
+  function seed(){
+    var now=Date.now();
+    db.doc('settings/main').set({paidEur:104.95,gotDh:1200,ghitaPct:70,updatedBy:S.me,updatedAt:now}).catch(function(){});
+    db.doc('products/air-jordan-1-low-se').set({name:'Air Jordan 1 Low SE',priceEur:104.95,priceDh:1999.57,livEur:1.5,sellDh:null,createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me}).catch(function(){});
+  }
+
+  /* ---------- status / me ---------- */
+  function renderStatus(){
+    var d=$('#dot'),t=$('#statusTxt');
+    if(S.fresh){d.className='dot live';t.textContent='Live · same data on both phones'}
+    else if(S.timedOut){d.className='dot off';t.textContent='Can’t reach shared data yet'}
+    else{d.className='dot';t.textContent='Connecting…'}
+  }
+  function renderMe(){
+    $('#meName').textContent=S.me;$('#meIni').textContent=S.me?S.me.charAt(0):'?';
+    $('#gLbl').textContent='Ghita '+S.settings.ghitaPct+'%';
+    $('#bLbl').textContent='Badr '+(100-S.settings.ghitaPct)+'%';
+    $('#pkSend').textContent=S.me==='Badr'?'Post a pick-up notice':'Tell Badr to pick up';
+  }
+
+  /* ---------- hero + tiles ---------- */
+  function renderHero(){
+    var s=S.settings,tot=0,g=0,b=0,n=0,open=0;
+    S.products.forEach(function(p){var c=calc(p,s);if(c.sold){tot+=c.rev;g+=c.g;b+=c.b;n++}else open++});
+    $('#heroTotal').innerHTML=fmt(tot)+'<small>DH</small>';
+    $('#heroSub').textContent=S.products.length?(n+' sold · '+open+' waiting for a selling price'):'Nothing sold yet';
+    $('#gAmt').textContent=dh(g);$('#bAmt').textContent=dh(b);
+    $('#heroBar').style.width=Math.max(0,Math.min(100,s.ghitaPct))+'%';
+  }
+  function vSums(){
+    var o={Badr:{sent:0,pend:0},Ghita:{sent:0,pend:0}};
+    S.virements.forEach(function(v){var k=o[v.who];if(!k)return;if(v.status==='sent')k.sent+=toDh(v);else k.pend+=toDh(v)});
+    return o;
+  }
+  function renderTiles(){
+    var owe=0,gave=0;S.clients.forEach(function(c){owe+=c.owes||0;gave+=c.gave||0});
+    var vs=vSums(),pend=vs.Badr.pend+vs.Ghita.pend;
+    $('#tileOwe').textContent=dh(owe);$('#tilePend').textContent=dh(pend);
+    $('#cGave').textContent=dh(gave);$('#cOwe').textContent=dh(owe);
+    var np=S.virements.filter(function(v){return v.status!=='sent'}).length,bd=$('#vBadge');
+    bd.hidden=!np;bd.textContent=np;
+  }
+
+  /* ---------- pickups banner / list ---------- */
+  function pending(){return S.pickups.filter(function(k){return k.status==='pending'}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)})}
+  function renderBanner(){
+    var box=$('#bannerBox'),list=pending(),badge=$('#pkBadge');
+    badge.hidden=!list.length;badge.textContent=list.length;
+    if(!list.length){box.innerHTML='';return}
+    var k=list[0],more=list.length>1?(' · +'+(list.length-1)+' more'):'';
+    var det=[k.when,k.productName].filter(Boolean).map(esc).join(' · ');
+    if(S.me==='Badr'){
+      box.innerHTML='<div class="banner go"><div><h3>Go pick up'+esc(more)+'</h3><p><b>'+esc(k.place)+'</b>'+(det?'<br>'+det:'')+(k.note?'<br>'+esc(k.note):'')+'</p></div><div class="row"><button class="btn solid" type="button" data-done="'+esc(k.id)+'">Picked up</button><button class="btn line" type="button" data-go="livraison">Details</button></div></div>';
+    }else{
+      box.innerHTML='<div class="banner wait"><div><h3>Waiting for Badr'+esc(more)+'</h3><p><b>'+esc(k.place)+'</b>'+(det?'<br>'+det:'')+'</p></div><div class="row"><button class="btn" type="button" data-go="livraison">Details</button></div></div>';
+    }
+  }
+  var armed={};
+  function renderPickups(){
+    var ul=$('#pklist');
+    if(!S.loaded.k){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
+    if(!S.pickups.length){ul.innerHTML='<li class="empty"><h3>No notice yet</h3><p>When Ghita posts a pick-up place, it appears here and on Badr’s home screen.</p></li>';return}
+    var done=S.pickups.filter(function(k){return k.status!=='pending'}).sort(function(a,b){return (b.doneAt||0)-(a.doneAt||0)}).slice(0,15);
+    ul.innerHTML=pending().concat(done).map(function(k){
+      var isP=k.status==='pending',meta=[k.when,k.productName].filter(Boolean).map(esc).join(' · ');
+      return '<li><article class="pk '+(isP?'pending':'')+'"><h4>'+esc(k.place)+'</h4>'
+        +(meta?'<div class="meta">'+meta+'</div>':'')+(k.note?'<p>'+esc(k.note)+'</p>':'')
+        +'<div class="meta">Posted by '+esc(k.by||'?')+' · '+esc(when(k.createdAt))+(isP?'':' · Picked up by '+esc(k.doneBy||'?')+' · '+esc(when(k.doneAt)))+'</div>'
+        +'<div class="row">'+(isP?'<button class="btn" type="button" data-done="'+esc(k.id)+'">Picked up</button>':'<button class="btn soft" type="button" data-reopen="'+esc(k.id)+'">Not picked up yet</button>')
+        +'<button class="btn soft" type="button" data-rm="'+esc(k.id)+'">'+(armed[k.id]?'Tap again to remove':'Remove')+'</button></div></article></li>';
+    }).join('');
+  }
+  function renderPkProducts(){
+    var sel=$('#pkProduct'),cur=sel.value;
+    sel.innerHTML='<option value="">None</option>'+S.products.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>'}).join('');
+    sel.value=cur;
+  }
+
+  /* ---------- products ---------- */
+  function renderProducts(){
+    var ul=$('#plist');
+    if(!S.loaded.p){ul.innerHTML='<li class="empty"><p>Loading the shared list…</p></li>';return}
+    if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No pair yet</h3><p>Add the first product. Both phones will show it right away.</p><button class="btn" type="button" data-add="p">Add a product</button></li>';return}
+    ul.innerHTML=S.products.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(p){
+      var c=calc(p,S.settings);
+      var foot=c.sold?'<div class="pfoot num"><span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr '+dh(c.b)+'</span></div>':'<div class="pfoot muted">Tap to add the selling price and see the split</div>';
+      return '<li><button class="pcard" type="button" data-edit-p="'+esc(p.id)+'"><div class="ph"><h3>'+esc(p.name)+'</h3><span class="chip '+(c.sold?'sold':'open')+'">'+(c.sold?'Sold':'Not sold yet')+'</span></div>'
+        +'<div class="stats num"><div><div class="k">Total €</div><div class="v">'+eur(c.totalEur)+'</div></div><div><div class="k">Total DH</div><div class="v">'+dh(c.totalDh)+'</div></div><div><div class="k">Selling</div><div class="v">'+(c.sold?dh(p.sellDh):'—')+'</div></div></div>'+foot+'</button></li>';
+    }).join('');
+  }
+
+  /* ---------- clients ---------- */
+  function renderClients(){
+    var ul=$('#clist');
+    if(!S.loaded.c){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
+    if(!S.clients.length){ul.innerHTML='<li class="empty"><h3>No client yet</h3><p>Write each client’s name, what he gave and what he still owes.</p><button class="btn" type="button" data-add="c">Add a client</button></li>';return}
+    ul.innerHTML=S.clients.slice().sort(function(a,b){return (b.owes||0)-(a.owes||0)||(b.createdAt||0)-(a.createdAt||0)}).map(function(c){
+      var settled=!(c.owes>0);
+      return '<li><button class="pcard" type="button" data-edit-c="'+esc(c.id)+'"><div class="ph"><h3>'+esc(c.name)+'</h3><span class="chip '+(settled?'sold':'open')+'">'+(settled?'Settled':'Owes')+'</span></div>'
+        +'<div class="stats two2 num"><div><div class="k">Gave</div><div class="v">'+dh(c.gave||0)+'</div></div><div><div class="k">Owes</div><div class="v '+(settled?'':'neg')+'">'+dh(c.owes||0)+'</div></div></div>'
+        +(c.note?'<div class="pfoot muted">'+esc(c.note)+'</div>':'')+'</button></li>';
+    }).join('');
+  }
+
+  /* ---------- virements ---------- */
+  function renderVirements(){
+    var vs=vSums();
+    $('#vTiles').innerHTML=['Badr','Ghita'].map(function(n){
+      return '<div class="tile"><span class="k">To '+n+'</span><span class="v num">'+dh(vs[n].sent)+'</span><span class="note num">sent · '+dh(vs[n].pend)+' pending</span></div>';
+    }).join('');
+    var ul=$('#vlist');
+    if(!S.loaded.v){ul.innerHTML='<li class="empty"><p>Loading…</p></li>';return}
+    if(!S.virements.length){ul.innerHTML='<li class="empty"><h3>No virement yet</h3><p>Pick Badr or Ghita, write the amount and mark it pending or sent.</p><button class="btn" type="button" data-add="v">Add a virement</button></li>';return}
+    var list=S.virements.slice().sort(function(a,b){var pa=a.status==='sent'?1:0,pb=b.status==='sent'?1:0;return pa-pb||(b.createdAt||0)-(a.createdAt||0)});
+    ul.innerHTML=list.map(function(v){
+      var sent=v.status==='sent',amt=v.cur==='EUR'?eur(v.amount||0):dh(v.amount||0);
+      return '<li><article class="vcard"><button class="pcard" type="button" data-edit-v="'+esc(v.id)+'"><div class="ph"><h3>To '+esc(v.who)+'</h3><span class="chip '+(sent?'sent':'pend')+'">'+(sent?'Sent':'Pending')+'</span></div>'
+        +'<div class="vamt num">'+amt+'</div><div class="note">'+esc(when(sent&&v.sentAt?v.sentAt:v.createdAt))+(v.note?' · '+esc(v.note):'')+'</div></button>'
+        +'<div class="vact"><span class="note">'+(sent?'Marked sent':'Not sent yet')+'</span><button class="btn '+(sent?'soft':'')+'" type="button" data-vtoggle="'+esc(v.id)+'">'+(sent?'Back to pending':'Mark as sent')+'</button></div></article></li>';
+    }).join('');
+  }
+
+  /* ---------- rate ---------- */
+  function renderRate(){
+    var s=S.settings,r=rateOf(s);
+    $('#rateBig').textContent=r?r.toFixed(4).replace('.',','):'—';
+    $('#rateInv').textContent=r?('1 DH = '+(1/r).toFixed(4).replace('.',',')+' €'):'';
+    if(!S.rateDirty){$('#rPaid').value=f2(s.paidEur);$('#rGot').value=f2(s.gotDh);$('#rPct').value=f2(s.ghitaPct)}
+    $('#rPctNote').textContent='Badr gets '+(100-s.ghitaPct)+'%.';
+  }
+  ['#rPaid','#rGot','#rPct'].forEach(function(id){$(id).addEventListener('input',function(){S.rateDirty=true;var v=parse($('#rPct').value);$('#rPctNote').textContent=v!=null?('Badr gets '+(Math.round((100-v)*100)/100)+'%.'):''})});
+  $('#rateForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var a=parse($('#rPaid').value),b=parse($('#rGot').value),c=parse($('#rPct').value);
+    if(!(a>0)||!(b>0)||c==null||c<0||c>100){toast('Enter positive amounts and a share between 0 and 100');return}
+    var btn=$('#rSave');btn.disabled=true;
+    db.doc('settings/main').set({paidEur:a,gotDh:b,ghitaPct:c,updatedBy:S.me,updatedAt:Date.now()}).then(function(){S.rateDirty=false;toast('Rate saved for both phones')},failMsg).then(function(){btn.disabled=false});
+  });
+
+  /* ---------- tabs ---------- */
+  function showTab(t){
+    if(TABS.indexOf(t)<0)t='home';
+    S.tab=t;
+    TABS.forEach(function(n){$('#tab-'+n).hidden=(n!==t);$('#t-'+n).setAttribute('aria-selected',n===t?'true':'false')});
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-tab],[data-go]');
+    if(t){var n=t.getAttribute('data-tab')||t.getAttribute('data-go');showTab(n);try{history.replaceState(null,'','#'+n)}catch(x){}window.scrollTo(0,0)}
+  });
+  window.addEventListener('hashchange',function(){showTab(location.hash.slice(1))});
+
+  /* ---------- sheets ---------- */
+  function closeAll(){['#sheet','#csheet','#vsheet','#acct'].forEach(function(s){$(s).hidden=true});S.editing={p:null,c:null,v:null}}
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-close]'))closeAll();
+    var a=e.target.closest('[data-add]');
+    if(a){var k=a.getAttribute('data-add');if(k==='p')openProduct(null);else if(k==='c')openClient(null);else openVir(null)}
+    var ep=e.target.closest('[data-edit-p]');if(ep)openProduct(ep.getAttribute('data-edit-p'));
+    var ec=e.target.closest('[data-edit-c]');if(ec)openClient(ec.getAttribute('data-edit-c'));
+    var ev=e.target.closest('[data-edit-v]');if(ev)openVir(ev.getAttribute('data-edit-v'));
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll()});
+  $('#addBtn').addEventListener('click',function(){openProduct(null)});
+  $('#addClient').addEventListener('click',function(){openClient(null)});
+  $('#addVir').addEventListener('click',function(){openVir(null)});
+  function byId(list,id){return list.filter(function(x){return x.id===id})[0]||null}
+  function armDelete(btn,label,fn){
+    var armedNow=false;
+    btn.textContent=label;
+    btn.onclick=function(){
+      if(!armedNow){armedNow=true;btn.textContent='Tap again to delete';return}
+      fn();
+    };
+  }
+
+  /* product sheet */
+  function pVals(){return {name:$('#fName').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livEur:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
+  function renderPrev(){
+    var v=pVals(),c=calc({priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh==null?undefined:v.sellDh},S.settings);
+    var h='<div><span>Livraison DH</span><span>'+dh(c.livDh)+'</span></div><div><span>Total €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Total DH</span><span>'+dh(c.totalDh)+'</span></div>';
+    if(c.sold)h+='<div class="hr"><span>Revenu DH total</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'%</span><span>'+dh(c.b)+'</span></div>';
+    else h+='<div class="hr"><span class="muted">Revenu, Ghita, Badr</span><span class="muted">Add a selling price</span></div>';
+    $('#prev').innerHTML=h;
+  }
+  function openProduct(id){
+    var p=id?byId(S.products,id):null;
+    S.editing.p=p?p.id:null;
+    $('#sheetTitle').textContent=p?'Edit product':'New product';
+    $('#fName').value=p?p.name:'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
+    var d=$('#fDel');d.hidden=!p;
+    if(p)armDelete(d,'Delete product',function(){db.doc('products/'+p.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);
+  }
+  ['#fName','#fEur','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
+  $('#pForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=pVals();
+    if(!v.name){toast('Give the product a name');$('#fName').focus();return}
+    if(v.priceEur==null||v.priceEur<0){toast('Enter the price in EUR');$('#fEur').focus();return}
+    var now=Date.now(),btn=$('#fSave');btn.disabled=true;
+    var body={name:v.name,priceEur:v.priceEur,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
+    var job;
+    if(S.editing.p)job=db.doc('products/'+S.editing.p).update(body);
+    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('products').add(body)}
+    job.then(function(){closeAll();toast('Saved for both phones')},failMsg).then(function(){btn.disabled=false});
+  });
+
+  /* client sheet */
+  function openClient(id){
+    var c=id?byId(S.clients,id):null;
+    S.editing.c=c?c.id:null;
+    $('#csTitle').textContent=c?'Edit client':'New client';
+    $('#cName').value=c?c.name:'';$('#cGaveIn').value=c?f2(c.gave):'';$('#cOweIn').value=c?f2(c.owes):'';$('#cNote').value=c?(c.note||''):'';$('#cPay').value='';
+    var d=$('#cDel');d.hidden=!c;
+    if(c)armDelete(d,'Delete client',function(){db.doc('clients/'+c.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    $('#csheet').hidden=false;setTimeout(function(){$('#cName').focus()},30);
+  }
+  $('#cPayBtn').addEventListener('click',function(){
+    var x=parse($('#cPay').value);
+    if(!(x>0)){toast('Enter the payment amount');return}
+    var gave=parse($('#cGaveIn').value)||0,owes=parse($('#cOweIn').value)||0;
+    $('#cGaveIn').value=f2(Math.round((gave+x)*100)/100);
+    $('#cOweIn').value=f2(Math.max(0,Math.round((owes-x)*100)/100));
+    $('#cPay').value='';toast('Payment added. Tap Save to keep it.');
+  });
+  $('#cForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=$('#cName').value.trim();
+    if(!name){toast('Write the client’s name');$('#cName').focus();return}
+    var now=Date.now(),btn=$('#cSave');btn.disabled=true;
+    var body={name:name,gave:parse($('#cGaveIn').value)||0,owes:parse($('#cOweIn').value)||0,note:$('#cNote').value.trim(),updatedAt:now,updatedBy:S.me};
+    var job;
+    if(S.editing.c)job=db.doc('clients/'+S.editing.c).update(body);
+    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('clients').add(body)}
+    job.then(function(){closeAll();toast('Client saved')},failMsg).then(function(){btn.disabled=false});
+  });
+
+  /* virement sheet */
+  function radio(name,val){var r=document.querySelector('input[name="'+name+'"][value="'+val+'"]');if(r)r.checked=true}
+  function radioVal(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:''}
+  function openVir(id){
+    var v=id?byId(S.virements,id):null;
+    S.editing.v=v?v.id:null;
+    $('#vsTitle').textContent=v?'Edit virement':'New virement';
+    radio('vWho',v?v.who:'Ghita');radio('vStatus',v?v.status:'pending');
+    $('#vAmt').value=v?f2(v.amount):'';$('#vCur').value=v&&v.cur==='EUR'?'EUR':'DH';$('#vNote').value=v?(v.note||''):'';
+    var d=$('#vDel');d.hidden=!v;
+    if(v)armDelete(d,'Delete virement',function(){db.doc('virements/'+v.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    $('#vsheet').hidden=false;setTimeout(function(){$('#vAmt').focus()},30);
+  }
+  $('#vForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var amt=parse($('#vAmt').value);
+    if(!(amt>0)){toast('Enter the amount');$('#vAmt').focus();return}
+    var now=Date.now(),btn=$('#vSave'),st=radioVal('vStatus')==='sent'?'sent':'pending';
+    btn.disabled=true;
+    var body={who:radioVal('vWho')||'Ghita',amount:amt,cur:$('#vCur').value==='EUR'?'EUR':'DH',status:st,note:$('#vNote').value.trim(),updatedAt:now,updatedBy:S.me};
+    if(st==='sent')body.sentAt=now;
+    var job;
+    if(S.editing.v)job=db.doc('virements/'+S.editing.v).update(body);
+    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('virements').add(body)}
+    job.then(function(){closeAll();toast('Virement saved')},failMsg).then(function(){btn.disabled=false});
+  });
+
+  /* ---------- pickups + virement quick actions ---------- */
+  $('#pkForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var place=$('#pkPlace').value.trim();
+    if(!place){toast('Write the pick-up place first');$('#pkPlace').focus();return}
+    var pid=$('#pkProduct').value,prod=byId(S.products,pid),btn=$('#pkSend');btn.disabled=true;
+    db.collection('pickups').add({place:place,when:$('#pkWhen').value.trim(),note:$('#pkNote').value.trim(),productId:pid,productName:prod?prod.name:'',status:'pending',by:S.me,createdAt:Date.now()})
+      .then(function(){$('#pkPlace').value='';$('#pkWhen').value='';$('#pkNote').value='';toast('Notice posted. It shows on Badr’s home screen.')},failMsg)
+      .then(function(){btn.disabled=false});
+  });
+  document.addEventListener('click',function(e){
+    var d=e.target.closest('[data-done]');
+    if(d){d.disabled=true;db.doc('pickups/'+d.getAttribute('data-done')).update({status:'done',doneBy:S.me,doneAt:Date.now()}).then(function(){toast('Marked as picked up')},failMsg);return}
+    var r=e.target.closest('[data-reopen]');
+    if(r){db.doc('pickups/'+r.getAttribute('data-reopen')).update({status:'pending',doneBy:'',doneAt:0}).catch(failMsg);return}
+    var m=e.target.closest('[data-rm]');
+    if(m){var id=m.getAttribute('data-rm');
+      if(!armed[id]){armed[id]=true;renderPickups();setTimeout(function(){delete armed[id];renderPickups()},3000);return}
+      delete armed[id];db.doc('pickups/'+id).delete().catch(failMsg);return}
+    var t=e.target.closest('[data-vtoggle]');
+    if(t){var vid=t.getAttribute('data-vtoggle'),v=byId(S.virements,vid);if(!v)return;t.disabled=true;
+      var sent=v.status==='sent',upd=sent?{status:'pending',updatedAt:Date.now(),updatedBy:S.me}:{status:'sent',sentAt:Date.now(),updatedAt:Date.now(),updatedBy:S.me};
+      db.doc('virements/'+vid).update(upd).then(function(){toast(sent?'Back to pending':'Marked as sent')},failMsg)}
+  });
+
+  /* ---------- render all ---------- */
+  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate()}
+
+  showTab(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>

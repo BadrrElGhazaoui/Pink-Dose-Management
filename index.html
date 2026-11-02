@@ -550,7 +550,6 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script>
 /* ============ 1. PASTE YOUR FIREBASE CONFIG HERE (README, step 6) ============ */
 var firebaseConfig = {
@@ -591,7 +590,23 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     rateTab.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg>Packages';
   }
   var configured=firebaseConfig.apiKey&&firebaseConfig.apiKey.indexOf('PASTE')!==0;
-  var auth=null,db=null;
+  var auth=null,db=null,messagingSdkPromise=null;
+
+  function loadMessagingSdk(){
+    if(firebase.messaging)return Promise.resolve();
+    if(messagingSdkPromise)return messagingSdkPromise;
+    messagingSdkPromise=new Promise(function(resolve,reject){
+      var script=document.createElement('script');
+      script.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js';
+      script.onload=resolve;
+      script.onerror=function(){
+        messagingSdkPromise=null;
+        reject(new Error('Could not load Firebase Messaging.'));
+      };
+      document.head.appendChild(script);
+    });
+    return messagingSdkPromise;
+  }
 
   /* ---------- maths ---------- */
   var PRIMARK_RATE=11.33;
@@ -755,15 +770,15 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
       updatePushStatus('Push setup is incomplete. Add the Firebase Web Push certificate key and deploy the notification function.');
       return Promise.reject(new Error('Firebase Web Push certificate key is not configured.'));
     }
-    var messaging;
-    try{messaging=firebase.messaging()}catch(error){
-      updatePushStatus('This browser does not support Firebase push notifications.');
-      return Promise.reject(error);
-    }
-    S.pushMessaging=messaging;
-    return navigator.serviceWorker.register('./firebase-messaging-sw.js').then(function(registration){
+    return loadMessagingSdk().then(function(){
+      try{S.pushMessaging=firebase.messaging()}catch(error){
+        updatePushStatus('This browser does not support Firebase push notifications.');
+        throw error;
+      }
+      return navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    }).then(function(registration){
       S.pushServiceWorker=registration;
-      return messaging.getToken({vapidKey:firebaseWebPushVapidKey,serviceWorkerRegistration:registration});
+      return S.pushMessaging.getToken({vapidKey:firebaseWebPushVapidKey,serviceWorkerRegistration:registration});
     }).then(function(token){
       if(!token)throw new Error('Firebase did not return a push token.');
       return pushTokenId(token).then(function(id){
@@ -851,7 +866,12 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
   });
 
   /* ---------- live data ---------- */
-  function mark(snap){if(snap.metadata&&!snap.metadata.fromCache&&!S.fresh){S.fresh=true;clearTimeout(S.timer);renderStatus()}}
+  function mark(snap){
+    if(snap.metadata&&!snap.metadata.fromCache){
+      $('#sysBox').innerHTML='';
+      if(!S.fresh){S.fresh=true;clearTimeout(S.timer);renderStatus()}
+    }
+  }
   function onErr(err){
     if(err&&err.code==='permission-denied'){
       $('#sysBox').innerHTML='<div class="sys">This account can’t read the data. In Firebase, check that the Firestore rules were published (README, step 5).</div>';

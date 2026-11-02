@@ -74,16 +74,29 @@ service cloud.firestore {
         && resource.data.email == request.auth.token.email;
     }
 
-    // Other application data remains writable by the two accounts.
-    match /{document=**} {
-      allow read: if isPinkDoseAccount()
-        && !document.matches('accounting/.*')
-        && !document.matches('pushTokens/.*');
-      allow write: if isPinkDoseAccount()
-        && !document.matches('accounting/.*')
-        && !document.matches('products/.*')
-        && !document.matches('packages/.*')
-        && !document.matches('pushTokens/.*');
+    // Shared app data is available only to the two Pink Dose accounts.
+    match /baskets/{basketId} {
+      allow read, write: if isPinkDoseAccount();
+    }
+
+    match /coupons/{couponId} {
+      allow read, write: if isPinkDoseAccount();
+    }
+
+    match /clients/{clientId} {
+      allow read, write: if isPinkDoseAccount();
+    }
+
+    match /virements/{virementId} {
+      allow read, write: if isPinkDoseAccount();
+    }
+
+    match /pickups/{pickupId} {
+      allow read, write: if isPinkDoseAccount();
+    }
+
+    match /settings/{settingId} {
+      allow read, write: if isPinkDoseAccount();
     }
   }
 }

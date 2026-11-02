@@ -1,10 +1,21 @@
 rules_version = '2';
 service cloud.firestore {
+  function isPinkDoseAccount() {
+    return request.auth != null
+      && request.auth.token.email in ['badr@pinkdose.app', 'ghita@pinkdose.app'];
+  }
+
   match /databases/{database}/documents {
-    // Only the two accounts of Pink Dose Management can read or write anything.
+    // Accounting entries are append-only for both accounts.
+    match /accounting/{entryId} {
+      allow read, create: if isPinkDoseAccount();
+      allow update, delete: if false;
+    }
+
+    // The existing application data remains writable by the two accounts.
     match /{document=**} {
-      allow read, write: if request.auth != null
-        && request.auth.token.email in ['badr@pinkdose.app', 'ghita@pinkdose.app'];
+      allow read, write: if isPinkDoseAccount()
+        && !document.matches('accounting/.*');
     }
   }
 }

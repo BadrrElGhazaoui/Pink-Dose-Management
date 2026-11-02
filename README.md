@@ -28,7 +28,7 @@ Files in this folder:
 5. **Firestore.** Left menu: Build, then **Firestore Database**, then **Create database**.
    - Location: pick a European one (for example `eur3` or `europe-west9`). You cannot change it later.
    - Choose **Production mode**, then Enable.
-   - Open the **Rules** tab, delete everything, paste the content of `firestore.rules`, click **Publish**.
+   - Open the **Rules** tab, delete everything, paste the content of `firestore.rules`, click **Publish**. The accounting collection must use these updated rules so report entries are append-only.
 6. **Get your config.** Click the gear icon (Project settings), tab **General**, scroll to "Your apps", click the **web icon `</>`**. App nickname `pink-dose-management`. Leave "Firebase Hosting" unticked. Click Register app. Firebase shows a block called `firebaseConfig`. Keep that page open.
 7. Optional but recommended: Google Cloud Console, APIs and Services, Credentials, open the "Browser key" of this project, under Application restrictions choose Websites and add `https://badrrelghazaoui.github.io/*`.
 
@@ -77,8 +77,9 @@ Run `npm run dev` from this folder, then open http://127.0.0.1:5173. Stop the se
 - Firebase free plan (Spark) is far above what two people need.
 - The app does not send push notifications. Badr sees a livraison notice when he opens the app, and live while it is open.
 - In a product form, entering Price EUR automatically calculates Price DH using the shared rate; change that rate in the Rate tab.
-- New products default to €1.50 for livraison. Badr receives his percentage of product profit (30% by default) plus the livraison price converted to DH; Ghita's percentage is calculated from product profit before livraison.
+- Badr sets a per-product delivery amount in DH when editing the product; it is not assumed to be a fixed charge. Ghita can see the amount but cannot change it.
 - Products with the same unique basket/customer name belong to one basket (use a different name for each separate order, such as `Marwa order 1`). Add products at their original prices, then use the basket card to enter one coupon code and either a percentage or fixed euro discount for the entire subtotal. Fixed discounts are capped at the subtotal; savings are allocated by item price for cost and revenue calculations without changing the saved product prices.
+- The **Compta** section keeps a shared append-only daily activity log for both accounts and creates a bank-style PDF on download. It records actions from the date the new feature is deployed; older edits cannot be reconstructed. Publish the updated `firestore.rules` to Firebase to prevent accounting entries from being edited or deleted. PDF download requires an internet connection to load the PDF library.
 
 ## Troubleshooting
 

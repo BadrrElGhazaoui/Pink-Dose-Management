@@ -189,7 +189,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);
   padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
-.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
 .tab{border:0;background:transparent;border-radius:14px;padding:7px 2px 5px;display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);position:relative}
 .tab svg{width:23px;height:23px}
 .tab[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
@@ -319,7 +319,23 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
       <p class="note" id="rPctNote" style="margin:0 0 12px">Badr gets the rest, plus livraison.</p>
       <button class="btn block" id="rSave" type="submit">Save rate and split</button>
     </form>
-    <p class="note" style="margin-top:14px">Badr gets his percentage of the product profit, plus the livraison price converted to DH at this rate. Ghita's share is calculated from product profit before livraison.</p>
+    <p class="note" style="margin-top:14px">Badr receives his share plus the delivery amount he enters for each product. Ghita's share is calculated from product profit before delivery.</p>
+  </main>
+
+  <!-- ACCOUNTING -->
+  <main id="tab-comptabilite" hidden>
+    <h2 class="page-h">Comptabilite</h2>
+    <p class="lede">Shared daily activity report. New actions appear for both accounts and are included in that day's downloadable PDF.</p>
+    <div class="card">
+      <div class="field"><label for="accountingDate">Report date</label><input id="accountingDate" type="date"></div>
+      <div class="tiles" style="margin-top:0">
+        <div class="tile"><span class="k">Recorded actions</span><span class="v num" id="accountingCount">0</span></div>
+        <div class="tile"><span class="k">Product sales recorded</span><span class="v num" id="accountingSales">0,00 DH</span></div>
+      </div>
+      <button class="btn block" id="accountingPdf" type="button" style="margin-top:14px">Download daily PDF</button>
+    </div>
+    <div class="sec-h"><h2>Daily activity</h2></div>
+    <ul class="plain" id="accountingList"></ul>
   </main>
 
   <nav class="tabs" aria-label="Sections"><div class="tabs-in" role="tablist">
@@ -328,6 +344,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
     <button class="tab" role="tab" id="t-virements" data-tab="virements" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h14l-3-3"/><path d="M20 15H6l3 3"/></svg>Virements<span class="badge" id="vBadge" hidden>0</span></button>
     <button class="tab" role="tab" id="t-livraison" data-tab="livraison" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Livraison<span class="badge" id="pkBadge" hidden>0</span></button>
     <button class="tab" role="tab" id="t-rate" data-tab="rate" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Rate</button>
+    <button class="tab" role="tab" id="t-comptabilite" data-tab="comptabilite" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>Compta</button>
   </div></nav>
 </div>
 
@@ -345,7 +362,7 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
         <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
       </div>
       <div class="two">
-        <div class="field"><label for="fLiv">Livraison EUR (Badr)</label><input id="fLiv" type="text" inputmode="decimal"></div>
+        <div class="field"><label for="fLiv">Delivery amount DH · Badr</label><input id="fLiv" type="text" inputmode="decimal"></div>
         <div class="field"><label for="fSell">Selling price DH</label><input id="fSell" type="text" inputmode="decimal" placeholder="Empty if unsold"></div>
       </div>
       <div class="prev num" id="prev"></div>
@@ -442,6 +459,8 @@ ul.plain{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* ============ 1. PASTE YOUR FIREBASE CONFIG HERE (README, step 6) ============ */
 var firebaseConfig = {
@@ -468,11 +487,11 @@ var firebaseConfig = {
   var f2=function(n){return n==null?'':String(n).replace('.',',')};
   var when=function(ts){return ts?new Date(ts).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
 
-  var S={me:'',tab:'home',products:[],baskets:[],pickups:[],clients:[],virements:[],
+  var S={me:'',tab:'home',products:[],baskets:[],pickups:[],clients:[],virements:[],ledger:[],
     settings:{paidEur:104.95,gotDh:1199.57,ghitaPct:70},
-    loaded:{p:false,bs:false,k:false,c:false,v:false},fresh:false,timedOut:false,rateDirty:false,
+    loaded:{p:false,bs:false,k:false,c:false,v:false,l:false},fresh:false,timedOut:false,rateDirty:false,
     editing:{p:null,c:null,v:null,b:null},unsubs:[],seeded:false,timer:null};
-  var TABS=['home','clients','virements','livraison','rate'];
+  var TABS=['home','clients','virements','livraison','rate','comptabilite'];
   var configured=firebaseConfig.apiKey&&firebaseConfig.apiKey.indexOf('PASTE')!==0;
   var auth=null,db=null;
 
@@ -507,16 +526,16 @@ var firebaseConfig = {
     return {type:type,value:value,key:basket?'basket:'+basketKey(p.orderName):'legacy:'+groupKey,baseEur:baseEur,savedEur:savedEur,allocatedEur:baseEur>0?savedEur*priceEur/baseEur:0,code:basket?basket.promoCode:(p.promoCode||''),basket:!!basket};
   }
   function calc(p,s,products){
-    var r=rateOf(s),liv=p.livEur||0,pe=p.priceEur||0,pd=p.priceDh||0;
+    var r=rateOf(s),livDh=p.livDh!=null?Number(p.livDh)||0:(Number(p.livEur)||0)*r,pe=p.priceEur||0,pd=p.priceDh||0;
     var promo=promoDetails(p,products),promoPct=promo.baseEur>0?promo.savedEur/promo.baseEur*100:0,promoDh=promo.allocatedEur*r;
-    var livDh=liv*r,totalEur=pe-promo.allocatedEur+liv,totalDh=pd-promoDh+livDh,costDh=totalEur*r;
+    var productCostEur=pe-promo.allocatedEur,totalEur=productCostEur+(r?livDh/r:0),totalDh=pd-promoDh+livDh,costDh=totalDh;
     var sold=typeof p.sellDh==='number';
     var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
     var productRev=sold?r2(p.sellDh-costDh):null;
     var rev=sold?r2(productRev+livDh):null,g=sold?r2(productRev*s.ghitaPct/100):null,b=sold?r2(rev-g):null;
     var promoUplift=0,promoG=0,promoB=0;
     if(sold){
-      var baseProductRev=r2(p.sellDh-(pe+liv)*r),baseRev=r2(baseProductRev+livDh),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseRev-baseG);
+      var baseProductRev=r2(p.sellDh-(pd+livDh)),baseRev=r2(baseProductRev+livDh),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseRev-baseG);
       promoUplift=rev-baseRev;promoG=g-baseG;promoB=b-baseB;
     }
     return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
@@ -527,6 +546,31 @@ var firebaseConfig = {
   var tt;
   function toast(m){var t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(function(){t.hidden=true},3200)}
   function failMsg(e){toast(e&&e.code==='permission-denied'?'Not saved. This account is not allowed to write.':'Not saved. Check the connection and try again.')}
+  function localDay(ts){
+    var d=new Date(ts);
+    return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  }
+  function cleanActivity(value){
+    if(Array.isArray(value))return value.map(cleanActivity);
+    if(value&&typeof value==='object'){
+      var clean={};
+      Object.keys(value).forEach(function(key){if(value[key]!==undefined)clean[key]=cleanActivity(value[key])});
+      return clean;
+    }
+    return value;
+  }
+  function commitActivity(write,events){
+    var now=Date.now(),batch=db.batch();
+    write(batch);
+    (Array.isArray(events)?events:[events]).forEach(function(event){
+      var ref=db.collection('accounting').doc();
+      batch.set(ref,cleanActivity(Object.assign({timestamp:now,day:localDay(now),actor:S.me},event)));
+    });
+    return batch.commit();
+  }
+  function activityEvent(category,action,entity,reference,description,values){
+    return Object.assign({category:category,action:action,entity:entity,reference:reference||'',description:description},values||{});
+  }
 
   /* ---------- views ---------- */
   function showLogin(){$('#loginView').hidden=false;$('#app').hidden=true}
@@ -590,6 +634,7 @@ var firebaseConfig = {
     listen('pickups','pickups','k',function(){renderBanner();renderPickups()});
     listen('clients','clients','c',function(){renderClients();renderTiles()});
     listen('virements','virements','v',function(){renderVirements();renderTiles()});
+    listen('accounting','ledger','l',renderAccounting);
     S.unsubs.push(db.doc('settings/main').onSnapshot(function(snap){
       if(snap.exists){
         var o=snap.data();
@@ -607,12 +652,12 @@ var firebaseConfig = {
   function stopListening(){
     S.unsubs.forEach(function(u){try{u()}catch(e){}});S.unsubs=[];
     clearTimeout(S.timer);
-    S.products=[];S.baskets=[];S.pickups=[];S.clients=[];S.virements=[];S.loaded={p:false,bs:false,k:false,c:false,v:false};S.seeded=false;
+    S.products=[];S.baskets=[];S.pickups=[];S.clients=[];S.virements=[];S.ledger=[];S.loaded={p:false,bs:false,k:false,c:false,v:false,l:false};S.seeded=false;
   }
   function seed(){
     var now=Date.now();
     db.doc('settings/main').set({paidEur:104.95,gotDh:1199.57,ghitaPct:70,updatedBy:S.me,updatedAt:now}).catch(function(){});
-    db.doc('products/air-jordan-1-low-se').set({name:'Air Jordan 1 Low SE',priceEur:104.95,priceDh:1999.57,livEur:1.5,sellDh:null,createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me}).catch(function(){});
+    db.doc('products/air-jordan-1-low-se').set({name:'Air Jordan 1 Low SE',priceEur:104.95,priceDh:1999.57,livDh:0,sellDh:null,createdAt:now,createdBy:S.me,updatedAt:now,updatedBy:S.me}).catch(function(){});
   }
 
   /* ---------- status / me ---------- */
@@ -724,6 +769,81 @@ var firebaseConfig = {
     bd.hidden=!np;bd.textContent=np;
   }
 
+  /* ---------- accounting ledger ---------- */
+  function accountingRows(){
+    var day=$('#accountingDate').value||localDay(Date.now());
+    return S.ledger.filter(function(event){return event.day===day}).sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0)});
+  }
+  function renderAccounting(){
+    var rows=accountingRows(),sales=rows.reduce(function(total,event){return total+(Number(event.salesDh)||0)},0);
+    $('#accountingCount').textContent=String(rows.length);
+    $('#accountingSales').textContent=dh(sales);
+    var list=$('#accountingList');
+    if(!S.loaded.l){list.innerHTML='<li class="empty"><p>Loading shared activity…</p></li>';return}
+    if(!rows.length){list.innerHTML='<li class="empty"><h3>No activity recorded</h3><p>Actions made from deployment onward will appear here for both accounts.</p></li>';return}
+    list.innerHTML=rows.slice().reverse().map(function(event){
+      var time=event.timestamp?new Date(event.timestamp).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+      var amounts=[];
+      if(event.amountEur!=null)amounts.push(eur(event.amountEur));
+      if(event.amountDh!=null)amounts.push(dh(event.amountDh));
+      if(event.salesDh!=null)amounts.push('Sale '+dh(event.salesDh));
+      return '<li><article class="pcard"><div class="ph"><h3>'+esc(event.description||event.entity||'Activity')+'</h3><span class="chip order">'+esc(event.action||'recorded')+'</span></div><div class="note">'+esc(time)+' · '+esc(event.actor||'')+' · '+esc(event.category||'activity')+'</div>'+(amounts.length?'<div class="pfoot num">'+amounts.map(esc).join(' · ')+'</div>':'')+'</article></li>';
+    }).join('');
+  }
+  function downloadAccountingPdf(){
+    var rows=accountingRows(),day=$('#accountingDate').value||localDay(Date.now());
+    var Pdf=window.jspdf&&window.jspdf.jsPDF;
+    if(!Pdf){toast('PDF library is unavailable. Check your internet connection and try again.');return}
+    if(typeof Pdf.API.autoTable!=='function'){toast('PDF table support did not load. Refresh and try again.');return}
+    var sales=rows.reduce(function(total,event){return total+(Number(event.salesDh)||0)},0),pdf=new Pdf({orientation:'landscape',unit:'mm',format:'a4'});
+    var margin=14;
+    pdf.setFillColor(59,29,42);pdf.rect(0,0,297,35,'F');
+    pdf.setTextColor(255,250,248);pdf.setFont('helvetica','bold');pdf.setFontSize(18);pdf.text('PINK DOSE MANAGEMENT',margin,14);
+    pdf.setFontSize(11);pdf.text('DAILY ACCOUNTING ACTIVITY REPORT',margin,23);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(10);pdf.text('Report date: '+day,margin,30);
+    pdf.setTextColor(59,29,42);pdf.setFont('helvetica','bold');pdf.setFontSize(12);pdf.text('Daily summary',margin,46);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(10);
+    pdf.text('Recorded actions: '+rows.length,margin,54);
+    pdf.text('Product sales recorded: '+dh(sales),margin,61);
+    pdf.text('Generated: '+new Date().toLocaleString('fr-FR'),margin,68);
+    var tableRows=rows.map(function(event){
+      return [
+        event.timestamp?new Date(event.timestamp).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'',
+        event.category||'activity',
+        event.action||'recorded',
+        event.description||'',
+        event.amountEur==null?'—':eur(event.amountEur),
+        event.amountDh==null?'—':dh(event.amountDh),
+        event.deliveryDh==null?'—':dh(event.deliveryDh),
+        event.salesDh==null?'—':dh(event.salesDh),
+        event.actor||''
+      ];
+    });
+    pdf.autoTable({
+      startY:75,
+      head:[['Time','Category','Action','Description','EUR value','DH value','Delivery DH','Sale DH','Recorded by']],
+      body:tableRows.length?tableRows:[['—','—','—','No activity recorded for this day','—','—','—','—','—']],
+      margin:{left:margin,right:margin,bottom:16},
+      styles:{font:'helvetica',fontSize:8,cellPadding:2.4,overflow:'linebreak',textColor:[59,29,42]},
+      headStyles:{fillColor:[201,58,115],textColor:[255,255,255],fontStyle:'bold'},
+      alternateRowStyles:{fillColor:[250,238,238]},
+      columnStyles:{0:{cellWidth:15},1:{cellWidth:22},2:{cellWidth:20},3:{cellWidth:'auto'},4:{cellWidth:24},5:{cellWidth:25},6:{cellWidth:25},7:{cellWidth:22},8:{cellWidth:24}},
+      didDrawPage:function(){
+        var pageCount=pdf.internal.getNumberOfPages(),page=pdf.internal.getCurrentPageInfo().pageNumber;
+        pdf.setFontSize(8);pdf.setTextColor(127,92,104);
+        pdf.text('Shared internal activity report · Pink Dose Management',margin,203);
+        pdf.text('Page '+page+' / '+pageCount,297-margin,203,{align:'right'});
+      }
+    });
+    var fileUrl=URL.createObjectURL(pdf.output('blob')),link=document.createElement('a');
+    link.href=fileUrl;link.download='pink-dose-accounting-'+day+'.pdf';link.style.display='none';
+    document.body.appendChild(link);link.click();link.remove();
+    window.setTimeout(function(){URL.revokeObjectURL(fileUrl)},1000);
+  }
+  $('#accountingDate').value=localDay(Date.now());
+  $('#accountingDate').addEventListener('change',renderAccounting);
+  $('#accountingPdf').addEventListener('click',downloadAccountingPdf);
+
   /* ---------- pickups banner / list ---------- */
   function pending(){return S.pickups.filter(function(k){return k.status==='pending'}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)})}
   function renderBanner(){
@@ -819,7 +939,9 @@ var firebaseConfig = {
     var a=parse($('#rPaid').value),b=parse($('#rGot').value),c=parse($('#rPct').value);
     if(!(a>0)||!(b>0)||c==null||c<0||c>100){toast('Enter positive amounts and a share between 0 and 100');return}
     var btn=$('#rSave');btn.disabled=true;
-    db.doc('settings/main').set({paidEur:a,gotDh:b,ghitaPct:c,updatedBy:S.me,updatedAt:Date.now()}).then(function(){S.rateDirty=false;toast('Rate saved for both phones')},failMsg).then(function(){btn.disabled=false});
+    var rateRef=db.doc('settings/main'),previous={paidEur:S.settings.paidEur,gotDh:S.settings.gotDh,ghitaPct:S.settings.ghitaPct},updated={paidEur:a,gotDh:b,ghitaPct:c,updatedBy:S.me,updatedAt:Date.now()};
+    commitActivity(function(batch){batch.set(rateRef,updated)},activityEvent('settings','updated','exchange rate','main','Exchange rate and revenue split updated',{before:previous,after:{paidEur:a,gotDh:b,ghitaPct:c}}))
+      .then(function(){S.rateDirty=false;toast('Rate saved for both phones')},failMsg).then(function(){btn.disabled=false});
   });
 
   /* ---------- tabs ---------- */
@@ -860,13 +982,13 @@ var firebaseConfig = {
   }
 
   /* product sheet */
-  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livEur:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
+  function pVals(){return {name:$('#fName').value.trim(),orderName:$('#fOrder').value.trim(),brand:$('#fBrand').value.trim(),priceEur:parse($('#fEur').value),priceDh:parse($('#fDh').value),livDh:parse($('#fLiv').value),sellDh:parse($('#fSell').value)}}
   function syncPriceDh(){
     var eurAmount=parse($('#fEur').value),r=rateOf(S.settings);
     $('#fDh').value=eurAmount==null||!r?'':f2(Math.round((eurAmount*r+Number.EPSILON)*100)/100);
   }
   function renderPrev(){
-    var v=pVals(),preview={priceEur:v.priceEur||0,priceDh:v.priceDh||0,livEur:v.livEur||0,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh};
+    var v=pVals(),preview={priceEur:v.priceEur||0,priceDh:v.priceDh||0,livDh:v.livDh||0,brand:v.brand,orderName:v.orderName,sellDh:v.sellDh==null?undefined:v.sellDh};
     if(S.editing.p)preview.id=S.editing.p;
     var c=calc(preview,S.settings,S.products);
     var h='<div><span>Original product price</span><span>'+eur(v.priceEur||0)+'</span></div>';
@@ -880,9 +1002,12 @@ var firebaseConfig = {
     var p=id?byId(S.products,id):null;
     S.editing.p=p?p.id:null;
     $('#sheetTitle').textContent=p?'Edit product':'New product';
-    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livEur):'1,5';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
+    $('#fName').value=p?p.name:'';$('#fOrder').value=p?p.orderName||'':'';$('#fBrand').value=p?p.brand||'':'';$('#fEur').value=p?f2(p.priceEur):'';$('#fDh').value=p?f2(p.priceDh):'';$('#fLiv').value=p?f2(p.livDh!=null?p.livDh:(Number(p.livEur)||0)*rateOf(S.settings)):'';$('#fLiv').disabled=S.me!=='Badr';$('#fSell').value=p&&typeof p.sellDh==='number'?f2(p.sellDh):'';
     var d=$('#fDel');d.hidden=!p;
-    if(p)armDelete(d,'Delete product',function(){db.doc('products/'+p.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    if(p)armDelete(d,'Delete product',function(){
+      commitActivity(function(batch){batch.delete(db.doc('products/'+p.id))},activityEvent('product','deleted','product',p.id,'Product deleted: '+p.name,{amountEur:p.priceEur||0,amountDh:p.priceDh||0,deliveryDh:calc(p,S.settings).livDh,basket:p.orderName||''}))
+        .then(function(){closeAll();toast('Product deleted')},failMsg);
+    });
     renderPrev();$('#sheet').hidden=false;setTimeout(function(){$('#fName').focus()},30);
   }
   ['#fName','#fOrder','#fBrand','#fDh','#fLiv','#fSell'].forEach(function(id){$(id).addEventListener('input',renderPrev)});
@@ -893,10 +1018,31 @@ var firebaseConfig = {
     if(!v.name){toast('Give the product a name');$('#fName').focus();return}
     if(v.priceEur==null||v.priceEur<0){toast('Enter the price in EUR');$('#fEur').focus();return}
     var now=Date.now(),btn=$('#fSave');btn.disabled=true;
-    var body={name:v.name,orderName:v.orderName,brand:v.brand,priceEur:v.priceEur,priceDh:v.priceDh||0,livEur:v.livEur||0,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
+    var existing=S.editing.p?byId(S.products,S.editing.p):null;
+    var deliveryDh=S.me==='Badr'?(v.livDh||0):existing?(existing.livDh!=null?existing.livDh:(Number(existing.livEur)||0)*rateOf(S.settings)):0;
+    if(S.me==='Badr'&&v.livDh!=null&&v.livDh<0){toast('Delivery amount cannot be negative');$('#fLiv').focus();btn.disabled=false;return}
+    var body={name:v.name,orderName:v.orderName,brand:v.brand,priceEur:v.priceEur,priceDh:v.priceDh||0,livDh:deliveryDh,sellDh:v.sellDh,updatedAt:now,updatedBy:S.me};
     var job;
-    if(S.editing.p)job=db.doc('products/'+S.editing.p).update(body);
-    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('products').add(body)}
+    var oldDelivery=existing?calc(existing,S.settings).livDh:0;
+    var newDoc=existing?db.doc('products/'+existing.id):db.collection('products').doc();
+    var action=existing?'updated':'added';
+    var category=body.sellDh!=null&&(!existing||existing.sellDh==null)?'sale':'product';
+    var summary=existing?'Product updated: '+body.name:'Product added: '+body.name;
+    var event=activityEvent(category,action,'product',newDoc.id,summary,{
+      amountEur:body.priceEur,
+      amountDh:body.priceDh||0,
+      deliveryDh:deliveryDh,
+      oldDeliveryDh:oldDelivery,
+      sellingPriceDh:typeof body.sellDh==='number'?body.sellDh:null,
+      salesDh:typeof body.sellDh==='number'&&(!existing||typeof existing.sellDh!=='number')?body.sellDh:null,
+      basket:body.orderName||'',
+      before:existing?{name:existing.name,priceEur:existing.priceEur,priceDh:existing.priceDh,livDh:oldDelivery,sellDh:existing.sellDh,orderName:existing.orderName||''}:null,
+      after:{name:body.name,priceEur:body.priceEur,priceDh:body.priceDh||0,livDh:deliveryDh,sellDh:body.sellDh,orderName:body.orderName}
+    });
+    job=commitActivity(function(batch){
+      if(existing)batch.update(newDoc,body);
+      else{body.createdAt=now;body.createdBy=S.me;batch.set(newDoc,body)}
+    },event);
     job.then(function(){closeAll();toast('Saved for both phones')},failMsg).then(function(){btn.disabled=false});
   });
 
@@ -933,27 +1079,44 @@ var firebaseConfig = {
     var name=$('#bName').value.trim(),type=$('#bType').value,value=parse($('#bValue').value);
     if(!name){toast('Give this basket a name');return}
     if(value==null||value<0||(type==='percent'&&value>100)){toast(type==='percent'?'Enter a coupon between 0 and 100%':'Enter a fixed coupon of €0 or more');$('#bValue').focus();return}
-    var btn=$('#bSave');btn.disabled=true;
-    db.doc('baskets/'+basketId(name)).set({name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,updatedAt:Date.now(),updatedBy:S.me})
+    var btn=$('#bSave'),subtotal=basketSubtotal(name),discount=type==='amount'?Math.min(value,subtotal):subtotal*value/100,ref=db.doc('baskets/'+basketId(name)),old=basketByName(name);
+    btn.disabled=true;
+    var body={name:name,promoCode:$('#bCode').value.trim(),promoType:type,promoValue:value,updatedAt:Date.now(),updatedBy:S.me};
+    var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
+    var events=[activityEvent('basket coupon',old?'updated':'added','basket',ref.id,(old?'Basket coupon updated: ':'Basket coupon added: ')+name,{amountEur:discount,amountDh:discount*rateOf(S.settings),couponCode:body.promoCode,before:old?{promoType:old.promoType,promoValue:old.promoValue,promoCode:old.promoCode||''}:null,after:{promoType:type,promoValue:value,promoCode:body.promoCode},legacyItemCouponsRemoved:legacyItems.length})];
+    commitActivity(function(batch){
+      batch.set(ref,body);
+      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:body.updatedAt,updatedBy:S.me})});
+    },events)
       .then(function(){closeAll();toast('One coupon saved for the whole basket')},failMsg)
       .then(function(){btn.disabled=false});
   });
   $('#bRemove').addEventListener('click',function(){
     var name=S.editing.b;if(!name)return;
     var btn=$('#bRemove');btn.disabled=true;
-    db.doc('baskets/'+basketId(name)).update({promoCode:'',promoType:'amount',promoValue:0,updatedAt:Date.now(),updatedBy:S.me})
+    var previous=basketByName(name),ref=db.doc('baskets/'+basketId(name)),discount=previous?(previous.promoType==='amount'?Math.min(Number(previous.promoValue)||0,basketSubtotal(name)):basketSubtotal(name)*(Number(previous.promoValue)||0)/100):0;
+    var legacyItems=S.products.filter(function(p){return basketKey(p.orderName)===basketKey(name)&&(Number(p.promoPct)>0||Number(p.promoValue)>0||p.promoCode)});
+    commitActivity(function(batch){
+      batch.update(ref,{promoCode:'',promoType:'amount',promoValue:0,updatedAt:Date.now(),updatedBy:S.me});
+      legacyItems.forEach(function(product){batch.update(db.doc('products/'+product.id),{promoPct:0,promoValue:0,promoCode:'',updatedAt:Date.now(),updatedBy:S.me})});
+    },activityEvent('basket coupon','removed','basket',ref.id,'Basket coupon removed: '+name,{amountEur:discount,amountDh:discount*rateOf(S.settings),legacyItemCouponsRemoved:legacyItems.length}))
       .then(function(){closeAll();toast('Basket coupon removed')},failMsg)
       .then(function(){btn.disabled=false});
   });
 
   /* client sheet */
+  var pendingClientPayments=0;
   function openClient(id){
     var c=id?byId(S.clients,id):null;
     S.editing.c=c?c.id:null;
+    pendingClientPayments=0;
     $('#csTitle').textContent=c?'Edit client':'New client';
     $('#cName').value=c?c.name:'';$('#cGaveIn').value=c?f2(c.gave):'';$('#cOweIn').value=c?f2(c.owes):'';$('#cNote').value=c?(c.note||''):'';$('#cPay').value='';
     var d=$('#cDel');d.hidden=!c;
-    if(c)armDelete(d,'Delete client',function(){db.doc('clients/'+c.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    if(c)armDelete(d,'Delete client',function(){
+      commitActivity(function(batch){batch.delete(db.doc('clients/'+c.id))},activityEvent('client','deleted','client',c.id,'Client deleted: '+c.name,{balanceGaveDh:c.gave||0,balanceOwedDh:c.owes||0}))
+        .then(function(){closeAll();toast('Client deleted')},failMsg);
+    });
     $('#csheet').hidden=false;setTimeout(function(){$('#cName').focus()},30);
   }
   $('#cPayBtn').addEventListener('click',function(){
@@ -962,6 +1125,7 @@ var firebaseConfig = {
     var gave=parse($('#cGaveIn').value)||0,owes=parse($('#cOweIn').value)||0;
     $('#cGaveIn').value=f2(Math.round((gave+x)*100)/100);
     $('#cOweIn').value=f2(Math.max(0,Math.round((owes-x)*100)/100));
+    pendingClientPayments=Math.round((pendingClientPayments+x)*100)/100;
     $('#cPay').value='';toast('Payment added. Tap Save to keep it.');
   });
   $('#cForm').addEventListener('submit',function(e){
@@ -970,9 +1134,16 @@ var firebaseConfig = {
     if(!name){toast('Write the client’s name');$('#cName').focus();return}
     var now=Date.now(),btn=$('#cSave');btn.disabled=true;
     var body={name:name,gave:parse($('#cGaveIn').value)||0,owes:parse($('#cOweIn').value)||0,note:$('#cNote').value.trim(),updatedAt:now,updatedBy:S.me};
-    var job;
-    if(S.editing.c)job=db.doc('clients/'+S.editing.c).update(body);
-    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('clients').add(body)}
+    var existing=S.editing.c?byId(S.clients,S.editing.c):null,ref=existing?db.doc('clients/'+existing.id):db.collection('clients').doc();
+    var events=[activityEvent('client',existing?'updated':'added','client',ref.id,(existing?'Client updated: ':'Client added: ')+name,{
+      balanceGaveDh:body.gave,balanceOwedDh:body.owes,previousGaveDh:existing?existing.gave||0:null,previousOwedDh:existing?existing.owes||0:null,
+      before:existing?{name:existing.name,gave:existing.gave||0,owes:existing.owes||0}:null,after:{name:body.name,gave:body.gave,owes:body.owes}
+    })];
+    if(pendingClientPayments>0)events.push(activityEvent('client payment','received','client',ref.id,'Payment recorded for '+name,{amountDh:pendingClientPayments,cashInDh:pendingClientPayments}));
+    var job=commitActivity(function(batch){
+      if(existing)batch.update(ref,body);
+      else{body.createdAt=now;body.createdBy=S.me;batch.set(ref,body)}
+    },events);
     job.then(function(){closeAll();toast('Client saved')},failMsg).then(function(){btn.disabled=false});
   });
 
@@ -986,7 +1157,10 @@ var firebaseConfig = {
     radio('vWho',v?v.who:'Ghita');radio('vStatus',v?v.status:'pending');
     $('#vAmt').value=v?f2(v.amount):'';$('#vCur').value=v&&v.cur==='EUR'?'EUR':'DH';$('#vNote').value=v?(v.note||''):'';
     var d=$('#vDel');d.hidden=!v;
-    if(v)armDelete(d,'Delete virement',function(){db.doc('virements/'+v.id).delete().then(function(){closeAll();toast('Deleted')},failMsg)});
+    if(v)armDelete(d,'Delete virement',function(){
+      commitActivity(function(batch){batch.delete(db.doc('virements/'+v.id))},activityEvent('transfer','deleted','virement',v.id,'Transfer deleted: '+v.who,{amount:v.amount||0,currency:v.cur||'DH',amountDh:v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0)}))
+        .then(function(){closeAll();toast('Transfer deleted')},failMsg);
+    });
     $('#vsheet').hidden=false;setTimeout(function(){$('#vAmt').focus()},30);
   }
   $('#vForm').addEventListener('submit',function(e){
@@ -997,9 +1171,13 @@ var firebaseConfig = {
     btn.disabled=true;
     var body={who:radioVal('vWho')||'Ghita',amount:amt,cur:$('#vCur').value==='EUR'?'EUR':'DH',status:st,note:$('#vNote').value.trim(),updatedAt:now,updatedBy:S.me};
     if(st==='sent')body.sentAt=now;
-    var job;
-    if(S.editing.v)job=db.doc('virements/'+S.editing.v).update(body);
-    else{body.createdAt=now;body.createdBy=S.me;job=db.collection('virements').add(body)}
+    var existing=S.editing.v?byId(S.virements,S.editing.v):null,ref=existing?db.doc('virements/'+existing.id):db.collection('virements').doc();
+    var amountDh=body.cur==='EUR'?body.amount*rateOf(S.settings):body.amount;
+    var event=activityEvent('transfer',existing?'updated':'added','virement',ref.id,(existing?'Transfer updated to ':'Transfer added to ')+body.who,{amount:body.amount,currency:body.cur,amountDh:amountDh,status:body.status,before:existing?{who:existing.who,amount:existing.amount,currency:existing.cur,status:existing.status}:null,after:{who:body.who,amount:body.amount,currency:body.cur,status:body.status}});
+    var job=commitActivity(function(batch){
+      if(existing)batch.update(ref,body);
+      else{body.createdAt=now;body.createdBy=S.me;batch.set(ref,body)}
+    },event);
     job.then(function(){closeAll();toast('Virement saved')},failMsg).then(function(){btn.disabled=false});
   });
 
@@ -1009,27 +1187,34 @@ var firebaseConfig = {
     var place=$('#pkPlace').value.trim();
     if(!place){toast('Write the pick-up place first');$('#pkPlace').focus();return}
     var pid=$('#pkProduct').value,prod=byId(S.products,pid),btn=$('#pkSend');btn.disabled=true;
-    db.collection('pickups').add({place:place,when:$('#pkWhen').value.trim(),note:$('#pkNote').value.trim(),productId:pid,productName:prod?prod.name:'',status:'pending',by:S.me,createdAt:Date.now()})
+    var pickup={place:place,when:$('#pkWhen').value.trim(),note:$('#pkNote').value.trim(),productId:pid,productName:prod?prod.name:'',status:'pending',by:S.me,createdAt:Date.now()},pickupRef=db.collection('pickups').doc();
+    commitActivity(function(batch){batch.set(pickupRef,pickup)},activityEvent('delivery notice','added','pickup',pickupRef.id,'Delivery pickup notice: '+place,{product:pickup.productName||''}))
       .then(function(){$('#pkPlace').value='';$('#pkWhen').value='';$('#pkNote').value='';toast('Notice posted. It shows on Badr’s home screen.')},failMsg)
       .then(function(){btn.disabled=false});
   });
   document.addEventListener('click',function(e){
     var d=e.target.closest('[data-done]');
-    if(d){d.disabled=true;db.doc('pickups/'+d.getAttribute('data-done')).update({status:'done',doneBy:S.me,doneAt:Date.now()}).then(function(){toast('Marked as picked up')},failMsg);return}
+    if(d){d.disabled=true;var pickupId=d.getAttribute('data-done'),pickup=byId(S.pickups,pickupId);
+      commitActivity(function(batch){batch.update(db.doc('pickups/'+pickupId),{status:'done',doneBy:S.me,doneAt:Date.now()})},activityEvent('delivery notice','completed','pickup',pickupId,'Pickup completed: '+(pickup?pickup.place:'')))
+        .then(function(){toast('Marked as picked up')},failMsg);return}
     var r=e.target.closest('[data-reopen]');
-    if(r){db.doc('pickups/'+r.getAttribute('data-reopen')).update({status:'pending',doneBy:'',doneAt:0}).catch(failMsg);return}
+    if(r){var reopenId=r.getAttribute('data-reopen'),reopen=byId(S.pickups,reopenId);
+      commitActivity(function(batch){batch.update(db.doc('pickups/'+reopenId),{status:'pending',doneBy:'',doneAt:0})},activityEvent('delivery notice','reopened','pickup',reopenId,'Pickup reopened: '+(reopen?reopen.place:''))).catch(failMsg);return}
     var m=e.target.closest('[data-rm]');
     if(m){var id=m.getAttribute('data-rm');
       if(!armed[id]){armed[id]=true;renderPickups();setTimeout(function(){delete armed[id];renderPickups()},3000);return}
-      delete armed[id];db.doc('pickups/'+id).delete().catch(failMsg);return}
+      delete armed[id];var removedPickup=byId(S.pickups,id);
+      commitActivity(function(batch){batch.delete(db.doc('pickups/'+id))},activityEvent('delivery notice','deleted','pickup',id,'Pickup notice deleted: '+(removedPickup?removedPickup.place:''))).catch(failMsg);return}
     var t=e.target.closest('[data-vtoggle]');
     if(t){var vid=t.getAttribute('data-vtoggle'),v=byId(S.virements,vid);if(!v)return;t.disabled=true;
       var sent=v.status==='sent',upd=sent?{status:'pending',updatedAt:Date.now(),updatedBy:S.me}:{status:'sent',sentAt:Date.now(),updatedAt:Date.now(),updatedBy:S.me};
-      db.doc('virements/'+vid).update(upd).then(function(){toast(sent?'Back to pending':'Marked as sent')},failMsg)}
+      var amountDh=v.cur==='EUR'?(v.amount||0)*rateOf(S.settings):(v.amount||0);
+      commitActivity(function(batch){batch.update(db.doc('virements/'+vid),upd)},activityEvent('transfer',sent?'reopened':'sent','virement',vid,(sent?'Transfer returned to pending: ':'Transfer marked sent: ')+v.who,{amount:v.amount||0,currency:v.cur||'DH',amountDh:amountDh}))
+        .then(function(){toast(sent?'Back to pending':'Marked as sent')},failMsg)}
   });
 
   /* ---------- render all ---------- */
-  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderBaskets();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate()}
+  function renderAll(){renderMe();renderStatus();renderHero();renderTiles();renderBanner();renderBaskets();renderProducts();renderPkProducts();renderPickups();renderClients();renderVirements();renderRate();renderAccounting()}
 
   showTab(location.hash.slice(1));
 })();

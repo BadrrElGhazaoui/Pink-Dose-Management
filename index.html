@@ -22,7 +22,7 @@
 :root{
   --bg:#f7e8e7; --surface:#fffaf8; --surface-2:#f2d9d7; --ink:#3b1d2a; --muted:#7f5c68; --line:#e6c8c6;
   --accent:#c93a73; --accent-ink:#ffffff; --accent-soft:#f6cfdc;
-  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e; --hero-badr:#b76a88; --hero-primark:#f1c75b; --hero-liv:#fff;
+  --hero-bg:#3b1d2a; --hero-fg:#f7e8e7; --hero-muted:#d6b0be; --hero-bar:#f0679a; --hero-bar-2:#7a4a5e; --hero-badr:#b76a88; --hero-liv:#fff;
   --good:#1f7a55; --good-soft:#d6efe3; --bad:#b3261e; --warn:#8f4d08; --warn-soft:#fbe3c4;
   --shadow:0 1px 0 rgba(59,29,42,.05),0 10px 26px -14px rgba(59,29,42,.35);
   --font-display:'Bricolage Grotesque',ui-rounded,system-ui,sans-serif;
@@ -33,7 +33,7 @@
   :root{
     --bg:#1d1117; --surface:#2a1821; --surface-2:#38212c; --ink:#f8e6e8; --muted:#bb97a4; --line:#44293a;
     --accent:#f0679a; --accent-ink:#2a0f1a; --accent-soft:#4a2434;
-    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6; --hero-badr:#8f405e; --hero-primark:#b07800; --hero-liv:#fff;
+    --hero-bg:#f3cfd8; --hero-fg:#3b1d2a; --hero-muted:#7d5260; --hero-bar:#c93a73; --hero-bar-2:#d9a3b6; --hero-badr:#8f405e; --hero-liv:#fff;
     --good:#55d49b; --good-soft:#173a2c; --bad:#ff8a80; --warn:#f2b366; --warn-soft:#4a3115;
     --shadow:none; color-scheme:dark;
   }
@@ -87,7 +87,6 @@ button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:tran
 .split-segment{display:block;min-width:0;height:100%;flex:0 1 0%;border-radius:99px;transition:flex-grow .4s ease}
 .split-ghita{background:var(--hero-bar)}
 .split-badr{background:var(--hero-badr)}
-.split-primark{background:var(--hero-primark)}
 .split-liv{background:var(--hero-liv)}
 .shares{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .shares div{min-width:0}
@@ -103,7 +102,6 @@ button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:tran
 .revenue-track{grid-column:1/-1;height:5px;overflow:hidden;border-radius:99px;background:color-mix(in srgb,var(--hero-fg) 18%,transparent)}
 .revenue-track span{display:block;width:0;height:100%;border-radius:inherit;transition:width .35s ease}
 .revenue-row.share .revenue-track span{background:var(--hero-badr)}
-.revenue-row.primark .revenue-track span{background:var(--hero-primark)}
 .revenue-row.delivery .revenue-track span{background:var(--hero-liv)}
 .package-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .package-actions .btn{padding:9px 12px;font-size:14px}
@@ -297,7 +295,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
       <div class="lbl">Revenu DH total</div>
       <div class="big num" id="heroTotal">0,00<small>DH</small></div>
       <div class="sub" id="heroSub">Nothing sold yet</div>
-      <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-primark" id="heroPrimarkBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
+      <div class="split" aria-hidden="true"><span class="split-segment split-ghita" id="heroGhitaBar"></span><span class="split-segment split-badr" id="heroBadrBar"></span><span class="split-segment split-liv" id="livStripe"></span></div>
       <div class="shares">
         <div class="g"><div class="who" id="gLbl">Ghita 70%</div><div class="amt num" id="gAmt">0,00 DH</div></div>
         <div>
@@ -305,7 +303,6 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
           <div class="amt num" id="bAmt">0,00 DH</div>
           <div class="badr-breakdown" aria-label="Badr revenue breakdown">
             <div class="revenue-row share"><span>Badr profit share</span><span class="value num" id="badrProfitAmt">0,00 DH</span><div class="revenue-track"><span id="badrProfitBar"></span></div></div>
-            <div class="revenue-row primark"><span>Primark original</span><span class="value num" id="primarkAmt">0,00 DH</span><div class="revenue-track"><span id="heroBadrPrimarkBar"></span></div></div>
             <div class="revenue-row delivery"><span>Livraison</span><span class="value num" id="livAmt">0,00 DH</span><div class="revenue-track"><span id="livRevenueBar"></span></div></div>
           </div>
         </div>
@@ -330,6 +327,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
     <div class="tiles" style="margin-top:0">
       <div class="tile"><span class="k">Received</span><span class="v num" id="cGave">0,00 DH</span></div>
       <div class="tile"><span class="k">Still owed</span><span class="v num" id="cOwe">0,00 DH</span></div>
+      <div class="tile"><span class="k">Total</span><span class="v num" id="cTotal">0,00 DH</span></div>
     </div>
     <section class="card" style="margin-top:14px">
       <h3 style="margin:0 0 8px;font-family:var(--font-display)">Add a basket to client owes</h3>
@@ -444,7 +442,7 @@ ul.plain>li{content-visibility:auto;contain-intrinsic-size:auto 190px}
     <form id="pForm" autocomplete="off">
       <div class="field"><label for="fName">Product</label><input id="fName" type="text" placeholder="Air Jordan 1 Low SE"></div>
       <div class="field"><label for="fOrder">Basket / customer</label><input id="fOrder" type="text" maxlength="100" placeholder="Marwa order 1"><span class="note">Use the same unique basket name for each item in one checkout. Original prices stay unchanged.</span></div>
-      <div class="field"><label for="fBrand">Brand</label><input id="fBrand" type="text" placeholder="Sephora, Nike…"><span class="note">For Primark orders, include “Primark” in the brand or basket name. The original price is credited to Badr at 11.33 DH/€; product profit still follows the normal split.</span></div>
+      <div class="field"><label for="fBrand">Brand</label><input id="fBrand" type="text" placeholder="Sephora, Nike…"></div>
       <div class="two">
         <div class="field"><label for="fEur">Price EUR</label><input id="fEur" type="text" inputmode="decimal"></div>
         <div class="field"><label for="fDh">Price DH</label><input id="fDh" type="text" inputmode="decimal"></div>
@@ -609,9 +607,7 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
   }
 
   /* ---------- maths ---------- */
-  var PRIMARK_RATE=11.33;
   function rateOf(s){return (s.paidEur>0&&s.gotDh>0)?s.gotDh/s.paidEur:0}
-  function isPrimarkOrder(p){return /primark/i.test(String(p.brand||'')+' '+String(p.orderName||''))}
   function basketKey(name){return String(name||'').trim().toLowerCase()}
   function basketGroupKey(name){return basketKey(name)}
   function basketGroupName(name){return String(name||'').trim()}
@@ -672,15 +668,14 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     var productCostEur=pe-promo.allocatedEur,totalEur=productCostEur,totalDh=pd-promoDh,costDh=totalDh;
     var sold=typeof p.sellDh==='number';
     var r2=function(x){return Math.round((x+Number.EPSILON)*100)/100};
-    var primarkOriginalDh=isPrimarkOrder(p)?r2(pe*PRIMARK_RATE):0;
     var productRev=sold?r2(p.sellDh-costDh):null;
-    var rev=sold?r2(productRev+livDh):null,g=sold?r2(productRev*s.ghitaPct/100):null,badrProfit=sold?r2(productRev-g):null,b=sold?r2(badrProfit+primarkOriginalDh):null;
+    var rev=sold?r2(productRev+livDh):null,g=sold?r2(productRev*s.ghitaPct/100):null,badrProfit=sold?r2(productRev-g):null,b=sold?badrProfit:null;
     var promoUplift=0,promoG=0,promoB=0;
     if(sold){
-      var baseProductRev=r2(p.sellDh-pd),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseProductRev-baseG+primarkOriginalDh);
+      var baseProductRev=r2(p.sellDh-pd),baseG=r2(baseProductRev*s.ghitaPct/100),baseB=r2(baseProductRev-baseG);
       promoUplift=rev-baseProductRev;promoG=g-baseG;promoB=b-baseB;
     }
-    return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',primarkOriginalDh:primarkOriginalDh,badrProfit:badrProfit,basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
+    return {rate:r,livDh:livDh,totalEur:totalEur,totalDh:totalDh,costDh:costDh,promoPct:promoPct,promoType:promo.type,promoValue:promo.value,promoKey:promo.key,promoBaseEur:promo.baseEur,promoAmountEur:promo.savedEur,allocatedPromoEur:promo.allocatedEur,promoDh:promoDh,promoUplift:promoUplift,promoG:promoG,promoB:promoB,promoCode:promo.code,brand:p.brand||'',orderName:p.orderName||'',badrProfit:badrProfit,basketPromo:promo.basket,sold:sold,rev:rev,g:g,b:b};
   }
   function toDh(v){return v.cur==='EUR'?(v.amount||0)*(Number(v.rateDh)||rateOf(S.settings)):(v.amount||0)}
   function normalizeTransferPerson(person){
@@ -946,11 +941,11 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
 
   /* ---------- hero + tiles ---------- */
   function renderHero(){
-    var s=S.settings,tot=0,g=0,b=0,primark=0,liv=0,n=0,open=0,promoOrders={};
+    var s=S.settings,tot=0,g=0,b=0,liv=0,n=0,open=0,promoOrders={};
     S.products.forEach(function(p){
       var c=calc(p,s);
       if(c.sold){
-        tot+=c.rev+c.primarkOriginalDh;g+=c.g;b+=c.b;primark+=c.primarkOriginalDh;liv+=c.livDh;n++;
+        tot+=c.rev;g+=c.g;b+=c.b;liv+=c.livDh;n++;
         if(c.promoAmountEur>0){
           var key=c.promoKey;
           if(!promoOrders[key])promoOrders[key]={baseEur:c.promoBaseEur,savedEur:c.promoAmountEur,soldBaseEur:0,gainG:0,gainB:0};
@@ -970,17 +965,14 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     $('#heroTotal').innerHTML=fmt(tot)+'<small>DH</small>';
     $('#heroSub').textContent=(n+' sold · '+open+' waiting for a selling price · '+S.packages.length+' packages');
     $('#gAmt').textContent=dh(g);$('#bAmt').textContent=dh(b);
-    $('#primarkAmt').textContent=dh(primark);
-    var realRevenue=Math.max(0,b-packageRevenue),badrProfit=Math.max(0,realRevenue-primark);
+    var badrProfit=Math.max(0,b-packageRevenue);
     $('#badrProfitAmt').textContent=dh(badrProfit);
     $('#livAmt').textContent=dh(packageRevenue);
     $('#badrProfitBar').style.width=(b>0?Math.min(100,badrProfit/b*100):0)+'%';
-    $('#heroBadrPrimarkBar').style.width=(b>0?Math.min(100,primark/b*100):0)+'%';
     $('#livRevenueBar').style.width=(b>0?Math.min(100,packageRevenue/b*100):0)+'%';
     var segments=[
       {el:$('#heroGhitaBar'),amount:Math.max(0,g)},
-      {el:$('#heroBadrBar'),amount:Math.max(0,b-primark-liv-packageRevenue)},
-      {el:$('#heroPrimarkBar'),amount:Math.max(0,primark)},
+      {el:$('#heroBadrBar'),amount:Math.max(0,b-packageRevenue)},
       {el:$('#livStripe'),amount:Math.max(0,packageRevenue)}
     ];
     var barTotal=segments.reduce(function(sum,segment){return sum+segment.amount},0);
@@ -1039,7 +1031,7 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     var owe=0,gave=0;S.clients.forEach(function(c){owe+=c.owes||0;gave+=c.gave||0});
     var vs=vSums(),pend=vs.pending;
     $('#tileOwe').textContent=dh(owe);$('#tilePend').textContent=dh(pend);
-    $('#cGave').textContent=dh(gave);$('#cOwe').textContent=dh(owe);
+    $('#cGave').textContent=dh(gave);$('#cOwe').textContent=dh(owe);$('#cTotal').textContent=dh(gave+owe);
     var np=S.virements.filter(function(v){return virementStatus(v)!=='sent'}).length,bd=$('#vBadge');
     bd.hidden=!np;bd.textContent=np;
   }
@@ -1317,7 +1309,7 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     if(!S.products.length){ul.innerHTML='<li class="empty"><h3>No products yet</h3><p>'+(S.isGhita?'Add the first product. Both phones will show it right away.':'Only Ghita can add products.')+'</p>'+(S.isGhita?'<button class="btn" type="button" data-add="p">Add a product</button>':'')+'</li>';return}
     ul.innerHTML=S.products.slice().sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)}).map(function(p){
       var c=calc(p,S.settings);
-      var foot=c.sold?'<div class="pfoot num"><span>Cost DH <b>'+dh(c.totalDh)+'</b></span>'+(c.allocatedPromoEur>0?'<span>Coupon −'+eur(c.allocatedPromoEur)+'</span>':'')+'<span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span>'+(c.primarkOriginalDh>0?'<span>Primark original → Badr '+dh(c.primarkOriginalDh)+'</span><span>Badr total '+dh(c.b)+'</span>':'<span>Badr '+dh(c.b)+'</span>')+'</div>':'<div class="pfoot muted">'+(c.allocatedPromoEur>0?'Coupon allocation −'+eur(c.allocatedPromoEur)+' · ':'')+'Tap to add the selling price and see the split</div>';
+      var foot=c.sold?'<div class="pfoot num"><span>Cost DH <b>'+dh(c.totalDh)+'</b></span>'+(c.allocatedPromoEur>0?'<span>Coupon −'+eur(c.allocatedPromoEur)+'</span>':'')+'<span>Revenu <b class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</b></span><span>Ghita '+dh(c.g)+'</span><span>Badr '+dh(c.b)+'</span></div>':'<div class="pfoot muted">'+(c.allocatedPromoEur>0?'Coupon allocation −'+eur(c.allocatedPromoEur)+' · ':'')+'Tap to add the selling price and see the split</div>';
       var brand=c.brand?'<span class="chip brand">'+esc(c.brand)+'</span>':'';
       var order=c.orderName?'<span class="chip order">'+esc(c.orderName)+'</span>':'';
       return '<li><button class="pcard" type="button" data-edit-p="'+esc(p.id)+'"><div class="ph"><h3>'+esc(p.name)+'</h3><div class="ph-tags">'+brand+order+'<span class="chip '+(c.sold?'sold':'open')+'">'+(c.sold?'Sold':'Not sold yet')+'</span></div></div>'
@@ -1625,7 +1617,7 @@ var firebaseWebPushVapidKey = "BEogN2AVN_UKERiVmkRyUv0nsBCeo9oMrqBss8z4nCsQ4yzwd
     var h='<div><span>Original product price</span><span>'+eur(v.priceEur||0)+'</span></div>';
     if(c.allocatedPromoEur>0)h+='<div><span>Allocated order discount</span><span>'+eur(c.allocatedPromoEur)+' · '+dh(c.promoDh)+'</span></div>';
     h+='<div><span>Net cost €</span><span>'+eur(c.totalEur)+'</span></div><div><span>Net cost DH</span><span>'+dh(c.totalDh)+'</span></div>';
-    if(c.sold)h+='<div class="hr"><span>Product profit DH</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'% profit share</span><span>'+dh(c.badrProfit)+'</span></div>'+(c.primarkOriginalDh>0?'<div><span>Primark original price to Badr · 11,33 DH/€</span><span>'+dh(c.primarkOriginalDh)+'</span></div><div class="hr"><span>Badr total</span><span>'+dh(c.b)+'</span></div>':'');
+    if(c.sold)h+='<div class="hr"><span>Product profit DH</span><span class="'+(c.rev<0?'neg':'')+'">'+dh(c.rev)+'</span></div><div><span>Ghita '+S.settings.ghitaPct+'%</span><span>'+dh(c.g)+'</span></div><div><span>Badr '+(100-S.settings.ghitaPct)+'% profit share</span><span>'+dh(c.badrProfit)+'</span></div>';
     else h+='<div class="hr"><span class="muted">Revenu, Ghita, Badr</span><span class="muted">Add a selling price</span></div>';
     $('#prev').innerHTML=h;
   }

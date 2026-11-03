@@ -20,16 +20,16 @@ The app is a static web application. GitHub Pages serves the interface, Firebase
 
 - Badr records a package description and weight. The sending fee is **€1.50 per kg**, converted to DH using the app’s shared exchange rate.
 - The package workflow is **Confirmed → On going → Sent → Arrived**. Badr advances the package through Confirmed, On going, and Sent; Ghita marks it Arrived.
-- The delivery total is displayed separately in white under Badr’s amount in the revenue bar. Package fees are included in Badr’s revenue.
+- Livraison is displayed as its own segment in the revenue bar, separate from Ghita’s and Badr’s shares.
 - Compta excludes an unconfirmed package and includes package accounting activity from confirmation onward.
 
 ### Revenue overview
 
-The home screen summarizes sold-product revenue and the configured product-profit split between Ghita and Badr. Package delivery fees are added to Badr’s revenue and shown separately. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
+The home screen shows original-price product gain, less Livraison charges, split between Ghita and Badr at the configured percentages. Livraison remains a separate segment in the revenue bar. The Clients summary shows original and selling-price totals, product gain, Livraison charge, and the resulting Gain or Deficit. The shared exchange rate and Ghita’s share of product profit can be changed in **Packages → Currency rate and product split**.
 
 ### Clients, transfers, and pickup notices
 
-- **Clients** stores amounts received and still owed. Sold baskets with a customer name appear in a selector; adding a basket adds the sum of its selling prices in DH to that client’s outstanding balance, once per basket.
+- **Clients** stores amounts received and still owed. It shows totals for original `Price DH`, selling prices, and product gain (`selling prices − original prices`). The separate Livraison charge is deducted from product gain; the remainder appears under Gain or Deficit. Sold baskets with a customer name appear in a selector; adding a basket adds the sum of its selling prices in DH to that client’s outstanding balance, once per basket.
 - **Virements** lets Badr send to Ghita and Ghita send to Badr. Recipient bank details are shown in the send form; incoming transfers appear in a separate **Receiving** list. Outgoing transfers move through **Confirmed → On going → Sent**, and each creation, edit, and status change is recorded in Compta.
 - **Livraison** lets a user post a pickup notice that is shared with the other account. The notice remains available until it is marked picked up.
 
